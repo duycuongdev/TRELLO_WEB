@@ -95,7 +95,7 @@ function BoardBar({ board }) {
         </Button>
 
         {/* handle user group */}
-        <BoardUserGroup />
+        <BoardUserGroup boardUsers={board.FE_allUsers} />
       </Box>
     </Box>
   )
