@@ -15,13 +15,11 @@ import { cloneDeep } from 'lodash'
 import { useParams } from 'react-router-dom'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 import ActiveCard from '~/components/Modal/ActiveCard/ActiveCard'
-import { selectCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
 
 function Board() {
   // không dùng state của component mà chuyển sang sang dùng state của redux
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
-  const activeCard = useSelector(selectCurrentActiveCard)
 
   const { boardId } = useParams()
 
@@ -93,9 +91,8 @@ function Board() {
   }
   return (
     <Container disableGutters maxWidth={false} sx={{ height: '100vh' }}>
-      {/* Modal Active Card, check open or close based on the condition if there is activeCard data stored in Redux or not,
-      then only render it. At any time, only one Modal Card is active */}
-      {activeCard && <ActiveCard />}
+      {/* Modal Active Card, check open or close based on State IsShowModalActiveCard in redux */}
+      <ActiveCard />
       <AppBar />
       <BoardBar board={board} />
       <BoardContent
