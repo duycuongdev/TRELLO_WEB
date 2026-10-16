@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import { activeBoardReducer } from './activeBoard/activeBoardSlice'
 import { userReducer } from './user/userSlice'
 import { activeCardReducer } from './activeCard/activeCardSlice'
+import { notificationsReducer } from './notifications/notificationsSlice'
 
 
 /**
@@ -26,6 +27,7 @@ const rootPersistConfig = {
 const reducers = combineReducers({
   activeBoard: activeBoardReducer,
   activeCard: activeCardReducer,
+  notifications: notificationsReducer,
   user: userReducer
 })
 
