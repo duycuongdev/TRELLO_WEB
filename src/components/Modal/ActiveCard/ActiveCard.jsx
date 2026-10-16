@@ -32,9 +32,10 @@ import CardDescriptionMdEditor from './CardDescriptionMdEditor'
 import CardActivitySection from './CardActivitySection'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-  clearCurrentActiveCard,
+  clearAndHideCurrentActiveCard,
   selectCurrentActiveCard,
-  updateCurrentActiveCard
+  updateCurrentActiveCard,
+  selectIsShowModalActiveCard
 } from '~/redux/activeCard/activeCardSlice'
 import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { styled } from '@mui/material/styles'
@@ -66,9 +67,10 @@ const SidebarItem = styled(Box)(({ theme }) => ({
 function ActiveCard() {
   const dispatch = useDispatch()
   const activeCard = useSelector(selectCurrentActiveCard)
+  const isShowModalActiveCard = useSelector(selectIsShowModalActiveCard)
 
   const handleCloseModal = () => {
-    dispatch(clearCurrentActiveCard())
+    dispatch(clearAndHideCurrentActiveCard())
   }
 
   // function use common for updating card title, description, cover, etc.
@@ -108,10 +110,15 @@ function ActiveCard() {
     )
   }
 
+  // async await to child component CardActivitySection.jsx await
+  const onAddCardComment = async(commentToAdd) => {
+    await callApiUpdateCard({ commentToAdd })
+  }
+
   return (
     <Modal
       disableScrollLock
-      open={true}
+      open={isShowModalActiveCard} // check open or close based on State IsShowModalActiveCard in redux
       onClose={handleCloseModal} // Sử dụng onClose trong trường hợp muốn đóng Modal bằng nút ESC hoặc click ra ngoài Modal
       sx={{ overflowY: 'auto' }}>
       <Box sx={{
@@ -186,7 +193,10 @@ function ActiveCard() {
               </Box>
 
               {/* Feature 04: Xử lý các hành động, ví dụ comment vào Card */}
-              <CardActivitySection />
+              <CardActivitySection
+                cardComments={activeCard?.comments}
+                onAddCardComment={onAddCardComment}
+              />
             </Box>
           </Grid>
 
