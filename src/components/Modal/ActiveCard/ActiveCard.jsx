@@ -42,6 +42,7 @@ import CardLabelPopover from './CardLabelPopover'
 import CardChecklistPopover from './CardChecklistPopover'
 import CardChecklistSection from './CardChecklistSection'
 import CardDueDatePopover from './CardDueDatePopover'
+import CardAttachmentSection from './CardAttachmentSection'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   clearAndHideCurrentActiveCard,
@@ -51,7 +52,12 @@ import {
 } from '~/redux/activeCard/activeCardSlice'
 import { updateCardInBoard, removeCardFromBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { styled } from '@mui/material/styles'
-import { updateCardDetailsAPI, deleteCardAPI } from '~/apis'
+import {
+  updateCardDetailsAPI,
+  deleteCardAPI,
+  addCardAttachmentAPI,
+  deleteCardAttachmentAPI
+} from '~/apis'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { CARD_MEMBER_ACTION } from '~/utils/constants'
 
@@ -188,8 +194,44 @@ function ActiveCard() {
     // Gọi API...
     toast.promise(
       callApiUpdateCard(reqData).finally(() => event.target.value = ''),
-      { pending: 'Updating...' }
+      { pending: 'Updating cover...' }
     )
+  }
+
+  // Upload tệp đính kèm vào Card
+  const onUploadCardAttachment = (event) => {
+    const file = event.target?.files?.[0]
+    if (!file) return
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File size exceeds 10MB limit!')
+      return
+    }
+    const formData = new FormData()
+    formData.append('attachment', file)
+
+    toast.promise(
+      addCardAttachmentAPI(activeCard._id, formData).then(updatedCard => {
+        dispatch(updateCurrentActiveCard(updatedCard))
+        dispatch(updateCardInBoard(updatedCard))
+      }).finally(() => {
+        event.target.value = ''
+      }),
+      { pending: 'Uploading attachment...', success: 'Attachment uploaded!' }
+    )
+  }
+
+  // Xóa tệp đính kèm
+  const handleDeleteAttachment = (attachmentId) => {
+    deleteCardAttachmentAPI(activeCard._id, attachmentId).then(updatedCard => {
+      dispatch(updateCurrentActiveCard(updatedCard))
+      dispatch(updateCardInBoard(updatedCard))
+      toast.success('Attachment deleted!')
+    })
+  }
+
+  // Đặt tệp ảnh đính kèm làm ảnh bìa (Cover)
+  const handleMakeCover = (imageUrl) => {
+    callApiUpdateCard({ cover: imageUrl })
   }
 
   // Dùng async await ở đây để component con CardActivitySection chờ và nếu thành công thì mới clear input comment
@@ -340,6 +382,14 @@ function ActiveCard() {
               />
             </Box>
 
+            {/* Feature 10: Xử lý tệp đính kèm (Attachments) */}
+            <CardAttachmentSection
+              attachments={activeCard?.attachments || []}
+              cardCover={activeCard?.cover}
+              onDeleteAttachment={handleDeleteAttachment}
+              onMakeCover={handleMakeCover}
+            />
+
             {/* Feature 08: Xử lý Checklists & thanh tiến độ */}
             <CardChecklistSection
               checklists={activeCard?.checklists || []}
@@ -381,7 +431,12 @@ function ActiveCard() {
                 <VisuallyHiddenInput type="file" onChange={onUploadCardCover} />
               </SidebarItem>
 
-              <SidebarItem><AttachFileOutlinedIcon fontSize="small" />Attachment</SidebarItem>
+              {/* Feature 10: Nút Upload tệp đính kèm */}
+              <SidebarItem className="active" component="label">
+                <AttachFileOutlinedIcon fontSize="small" />
+                Attachment
+                <VisuallyHiddenInput type="file" onChange={onUploadCardAttachment} />
+              </SidebarItem>
 
               {/* Feature 07: Xử lý chọn & custom nhãn cho Card */}
               <SidebarItem className="active" onClick={handleOpenLabelPopover}>
