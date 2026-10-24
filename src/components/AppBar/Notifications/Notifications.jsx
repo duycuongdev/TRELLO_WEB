@@ -56,6 +56,10 @@ function Notifications() {
   }
 
   useEffect(() => {
+    if (currentUser?._id) {
+      socketIoInstance.emit('FE_USER_JOIN_ROOM', currentUser._id)
+    }
+
     dispatch(fetchInvitationsAPI())
 
     // handle get event real time
@@ -71,11 +75,19 @@ function Notifications() {
     // listen to event from server
     socketIoInstance.on('BE_USER_INVITED_TO_BOARD', onReceiveInvitation)
 
+    const onConnect = () => {
+      if (currentUser?._id) {
+        socketIoInstance.emit('FE_USER_JOIN_ROOM', currentUser._id)
+      }
+    }
+    socketIoInstance.on('connect', onConnect)
+
     // clear event to except resign
     return () => {
       socketIoInstance.off('BE_USER_INVITED_TO_BOARD', onReceiveInvitation)
+      socketIoInstance.off('connect', onConnect)
     }
-  }, [dispatch, currentUser._id])
+  }, [dispatch, currentUser?._id])
 
   const updateBoardInvitation = (status, invitationId) => {
     dispatch(updateBoardInvitationAPI({ status, invitationId }))
