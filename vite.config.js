@@ -12,6 +12,9 @@ export default defineConfig({
     react(),
     svgr()
   ],
+  optimizeDeps: {
+    include: ['dayjs']
+  },
   // base: './'
   // thay đổi đường dẫn tới thư mục
   resolve: {
