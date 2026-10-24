@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
-import Popover from '@mui/material/Popover'
-import CheckIcon from '@mui/icons-material/Check'
 import Modal from '@mui/material/Modal'
 import Typography from '@mui/material/Typography'
 import CreditCardIcon from '@mui/icons-material/CreditCard'
@@ -36,6 +34,7 @@ import { useConfirm } from 'material-ui-confirm'
 import CardUserGroup from './CardUserGroup'
 import CardDescriptionMdEditor from './CardDescriptionMdEditor'
 import CardActivitySection from './CardActivitySection'
+import CardLabelPopover from './CardLabelPopover'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   clearAndHideCurrentActiveCard,
@@ -48,15 +47,6 @@ import { styled } from '@mui/material/styles'
 import { updateCardDetailsAPI, deleteCardAPI } from '~/apis'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { CARD_MEMBER_ACTION } from '~/utils/constants'
-
-const PRESET_LABELS = [
-  { color: '#2e7d32', title: 'Feature' },
-  { color: '#d32f2f', title: 'Bug' },
-  { color: '#ed6c02', title: 'Urgent' },
-  { color: '#0288d1', title: 'Enhancement' },
-  { color: '#9c27b0', title: 'Design' },
-  { color: '#00897b', title: 'Documentation' }
-]
 
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -89,15 +79,7 @@ function ActiveCard() {
   const handleOpenLabelPopover = (event) => setLabelAnchorEl(event.currentTarget)
   const handleCloseLabelPopover = () => setLabelAnchorEl(null)
 
-  const handleToggleLabel = (presetLabel) => {
-    const currentLabels = activeCard?.labels || []
-    const isExisted = currentLabels.some(l => l.color === presetLabel.color)
-    let newLabels = []
-    if (isExisted) {
-      newLabels = currentLabels.filter(l => l.color !== presetLabel.color)
-    } else {
-      newLabels = [...currentLabels, presetLabel]
-    }
+  const handleUpdateCardLabels = (newLabels) => {
     callApiUpdateCard({ labels: newLabels })
   }
 
@@ -235,7 +217,7 @@ function ActiveCard() {
                     {activeCard.labels.map((label, idx) => (
                       <Chip
                         key={idx}
-                        label={label.title}
+                        label={label.title || '\u00A0'}
                         size="small"
                         sx={{
                           bgcolor: label.color,
@@ -302,60 +284,19 @@ function ActiveCard() {
 
               <SidebarItem><AttachFileOutlinedIcon fontSize="small" />Attachment</SidebarItem>
 
-              {/* Feature 07: Xử lý chọn nhãn cho Card */}
+              {/* Feature 07: Xử lý chọn & custom nhãn cho Card */}
               <SidebarItem className="active" onClick={handleOpenLabelPopover}>
                 <LocalOfferOutlinedIcon fontSize="small" />
                 Labels
               </SidebarItem>
 
-              <Popover
-                open={isLabelOpen}
+              <CardLabelPopover
                 anchorEl={labelAnchorEl}
+                isOpen={isLabelOpen}
                 onClose={handleCloseLabelPopover}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left'
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'left'
-                }}
-              >
-                <Box sx={{ p: 2, width: '280px' }}>
-                  <Typography sx={{ fontWeight: '600', mb: 1.5, textAlign: 'center' }}>
-                    Labels
-                  </Typography>
-                  <Stack spacing={1}>
-                    {PRESET_LABELS.map((preset) => {
-                      const isSelected = (activeCard?.labels || []).some(l => l.color === preset.color)
-                      return (
-                        <Box
-                          key={preset.color}
-                          onClick={() => handleToggleLabel(preset)}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            bgcolor: preset.color,
-                            color: '#fff',
-                            px: 1.5,
-                            py: 0.8,
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontWeight: '600',
-                            fontSize: '13px',
-                            transition: 'opacity 0.2s',
-                            '&:hover': { opacity: 0.85 }
-                          }}
-                        >
-                          <Typography variant="span" sx={{ fontWeight: 600 }}>{preset.title}</Typography>
-                          {isSelected && <CheckIcon fontSize="small" />}
-                        </Box>
-                      )
-                    })}
-                  </Stack>
-                </Box>
-              </Popover>
+                activeCardLabels={activeCard?.labels || []}
+                onUpdateCardLabels={handleUpdateCardLabels}
+              />
 
               <SidebarItem><TaskAltOutlinedIcon fontSize="small" />Checklist</SidebarItem>
               <SidebarItem><WatchLaterOutlinedIcon fontSize="small" />Dates</SidebarItem>
