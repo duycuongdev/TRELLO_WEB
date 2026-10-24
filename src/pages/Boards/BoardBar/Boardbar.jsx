@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { useSelector } from 'react-redux'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import DashboardIcon from '@mui/icons-material/Dashboard'
@@ -6,8 +8,10 @@ import BoltIcon from '@mui/icons-material/Bolt'
 import FilterIcon from '@mui/icons-material/FilterList'
 import Tooltip from '@mui/material/Tooltip'
 import { capitalizeFirstLetter } from '~/utils/formatter'
+import { selectCardFilter } from '~/redux/activeBoard/activeBoardSlice'
 import BoardUserGroup from './BoardUserGroup'
 import InviteBoardUser from './InviteBoardUser'
+import BoardCardFilterPopover from './BoardCardFilterPopover'
 
 const MENU_STYLES = {
   color: 'white',
@@ -24,6 +28,16 @@ const MENU_STYLES = {
 }
 
 function BoardBar({ board }) {
+  const [filterAnchorEl, setFilterAnchorEl] = useState(null)
+  const isFilterOpen = Boolean(filterAnchorEl)
+  const cardFilter = useSelector(selectCardFilter)
+
+  const activeFilterCount = (cardFilter?.search ? 1 : 0) + (cardFilter?.labelColors?.length || 0)
+  const hasActiveFilter = activeFilterCount > 0
+
+  const handleOpenFilter = (e) => setFilterAnchorEl(e.currentTarget)
+  const handleCloseFilter = () => setFilterAnchorEl(null)
+
   return (
     <Box sx={{
       width: '100%',
@@ -52,7 +66,6 @@ function BoardBar({ board }) {
           />
         </Tooltip>
 
-
         <Chip
           sx={MENU_STYLES}
           icon={<VpnLockIcon />}
@@ -68,16 +81,31 @@ function BoardBar({ board }) {
         />
 
         <Chip
-          sx={MENU_STYLES}
+          sx={{
+            ...MENU_STYLES,
+            ...(hasActiveFilter && {
+              bgcolor: 'rgba(255, 255, 255, 0.25)',
+              border: '1px solid rgba(255, 255, 255, 0.6)',
+              fontWeight: 600
+            })
+          }}
           icon={<FilterIcon />}
-          label='Filters'
+          label={hasActiveFilter ? `Filters (${activeFilterCount})` : 'Filters'}
           clickable
+          onClick={handleOpenFilter}
+        />
+
+        <BoardCardFilterPopover
+          anchorEl={filterAnchorEl}
+          isOpen={isFilterOpen}
+          onClose={handleCloseFilter}
+          board={board}
         />
       </Box>
 
-      <Box sx={{ display: 'flex', alignItem: 'center', gap: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         {/* handle invite user into board */}
-        <InviteBoardUser boardId={board._id} />
+        <InviteBoardUser boardId={board?._id} />
 
         {/* handle user group */}
         <BoardUserGroup boardUsers={board?.FE_allUsers} />

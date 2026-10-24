@@ -9,7 +9,8 @@ import authorizedAxiosInstance from '~/utils/authorizeAxios'
 const initialState = {
   currentActiveBoard: null,
   isLoading: false,
-  error: null
+  error: null,
+  cardFilter: { search: '', labelColors: [] }
 }
 
 // Gọi api (bất đồng bộ) và cập nhật dữ liệu vào redux, dùng middleware createAsyncThunk đi kèm với extraReducers
@@ -73,6 +74,12 @@ export const activeBoardSlice = createSlice({
           })
         }
       }
+    },
+    setCardFilter: (state, action) => {
+      state.cardFilter = { ...state.cardFilter, ...action.payload }
+    },
+    clearCardFilter: (state) => {
+      state.cardFilter = { search: '', labelColors: [] }
     }
   },
 
@@ -86,6 +93,7 @@ export const activeBoardSlice = createSlice({
     builder.addCase(fetchBoardDetailsAPI.fulfilled, (state, action) => {
       state.isLoading = false
       state.error = null
+      state.cardFilter = { search: '', labelColors: [] }
       // action.payload là reponse.data trả về từ api
       let board = action.payload
 
@@ -124,12 +132,18 @@ export const {
   updateCurrentActiveBoard,
   updateCardInBoard,
   removeCardFromBoard,
-  removeMemberFromBoard
+  removeMemberFromBoard,
+  setCardFilter,
+  clearCardFilter
 } = activeBoardSlice.actions
 
 // selectors: các components bên dưới gọi bằng hook useSelector() để lấy dữ liệu trong kho redux store ra sử dụng
 export const selectCurrentActiveBoard = (state) => {
   return state.activeBoard.currentActiveBoard
+}
+
+export const selectCardFilter = (state) => {
+  return state.activeBoard.cardFilter || { search: '', labelColors: [] }
 }
 
 // file này tên là activeBoardSlice nhưng export 1 thứ tên là reducer
