@@ -41,6 +41,11 @@ export const activeBoardSlice = createSlice({
       state.currentActiveBoard?.columns.forEach(column => {
         column.cards = column.cards.filter(card => card._id !== cardId)
         column.cardOrderIds = column.cardOrderIds.filter(id => id !== cardId)
+        if (isEmpty(column.cards)) {
+          const placeholderCard = generatePlaceholderCard(column)
+          column.cards = [placeholderCard]
+          column.cardOrderIds = [placeholderCard._id]
+        }
       })
     },
     removeMemberFromBoard: (state, action) => {

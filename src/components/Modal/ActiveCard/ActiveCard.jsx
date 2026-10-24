@@ -19,6 +19,7 @@ import AddOutlinedIcon from '@mui/icons-material/AddOutlined'
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined'
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined'
 import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined'
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined'
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
 import SubjectRoundedIcon from '@mui/icons-material/SubjectRounded'
@@ -27,6 +28,7 @@ import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
 import VisuallyHiddenInput from '~/components/Form/VisuallyHiddenInput'
 import { singleFileValidator } from '~/utils/validators'
 import { toast } from 'react-toastify'
+import { useConfirm } from 'material-ui-confirm'
 import CardUserGroup from './CardUserGroup'
 import CardDescriptionMdEditor from './CardDescriptionMdEditor'
 import CardActivitySection from './CardActivitySection'
@@ -37,9 +39,9 @@ import {
   updateCurrentActiveCard,
   selectIsShowModalActiveCard
 } from '~/redux/activeCard/activeCardSlice'
-import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { updateCardInBoard, removeCardFromBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { styled } from '@mui/material/styles'
-import { updateCardDetailsAPI } from '~/apis'
+import { updateCardDetailsAPI, deleteCardAPI } from '~/apis'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { CARD_MEMBER_ACTION } from '~/utils/constants'
 
@@ -74,6 +76,23 @@ function ActiveCard() {
 
   const handleCloseModal = () => {
     dispatch(clearAndHideCurrentActiveCard())
+  }
+
+  const confirmDeleteCard = useConfirm()
+  const handleDeleteCard = () => {
+    confirmDeleteCard({
+      title: 'Delete Card?',
+      description: 'This action will permanently delete this Card! Are you sure?',
+      confirmationText: 'Confirm',
+      cancellationText: 'Cancel'
+    }).then(() => {
+      const cardId = activeCard._id
+      dispatch(clearAndHideCurrentActiveCard())
+      dispatch(removeCardFromBoard(cardId))
+      deleteCardAPI(cardId).then(res => {
+        toast.success(res?.deleteResult || 'Card deleted successfully!')
+      })
+    }).catch(() => {})
   }
 
   // function use common for updating card title, description, cover, etc.
@@ -251,6 +270,19 @@ function ActiveCard() {
 
             <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Actions</Typography>
             <Stack direction="column" spacing={1}>
+              <SidebarItem
+                className="active"
+                onClick={handleDeleteCard}
+                sx={{
+                  '&:hover': {
+                    color: 'error.light',
+                    '& .MuiSvgIcon-root': { color: 'error.light' }
+                  }
+                }}
+              >
+                <DeleteForeverIcon fontSize="small" />
+                Delete Card
+              </SidebarItem>
               <SidebarItem><ArrowForwardOutlinedIcon fontSize="small" />Move</SidebarItem>
               <SidebarItem><ContentCopyOutlinedIcon fontSize="small" />Copy</SidebarItem>
               <SidebarItem><AutoAwesomeOutlinedIcon fontSize="small" />Make Template</SidebarItem>
