@@ -50,13 +50,15 @@ import {
   updateCurrentActiveCard,
   selectIsShowModalActiveCard
 } from '~/redux/activeCard/activeCardSlice'
-import { updateCardInBoard, removeCardFromBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { updateCardInBoard, removeCardFromBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { styled } from '@mui/material/styles'
 import {
   updateCardDetailsAPI,
   deleteCardAPI,
   addCardAttachmentAPI,
-  deleteCardAttachmentAPI
+  deleteCardAttachmentAPI,
+  updateCardCommentAPI,
+  deleteCardCommentAPI
 } from '~/apis'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { CARD_MEMBER_ACTION } from '~/utils/constants'
@@ -86,6 +88,7 @@ function ActiveCard() {
   const currentUser = useSelector(selectCurrentUser)
   const activeCard = useSelector(selectCurrentActiveCard)
   const isShowModalActiveCard = useSelector(selectIsShowModalActiveCard)
+  const activeBoard = useSelector(selectCurrentActiveBoard)
 
   const [labelAnchorEl, setLabelAnchorEl] = useState(null)
   const isLabelOpen = Boolean(labelAnchorEl)
@@ -237,6 +240,20 @@ function ActiveCard() {
   // Dùng async await ở đây để component con CardActivitySection chờ và nếu thành công thì mới clear input comment
   const onAddCardComment = async (commentToAdd) => {
     await callApiUpdateCard({ commentToAdd })
+  }
+
+  const onUpdateCardComment = async (commentId, content) => {
+    const updatedCard = await updateCardCommentAPI(activeCard._id, commentId, { content })
+    dispatch(updateCurrentActiveCard(updatedCard))
+    dispatch(updateCardInBoard(updatedCard))
+    return updatedCard
+  }
+
+  const onDeleteCardComment = async (commentId) => {
+    const updatedCard = await deleteCardCommentAPI(activeCard._id, commentId)
+    dispatch(updateCurrentActiveCard(updatedCard))
+    dispatch(updateCardInBoard(updatedCard))
+    return updatedCard
   }
 
   const onUpdateCardMembers = async (incomingMemberInfor) => {
@@ -406,6 +423,9 @@ function ActiveCard() {
               <CardActivitySection
                 cardComments={activeCard?.comments}
                 onAddCardComment={onAddCardComment}
+                onUpdateCardComment={onUpdateCardComment}
+                onDeleteCardComment={onDeleteCardComment}
+                boardOwnerIds={activeBoard?.ownerIds || []}
               />
             </Box>
           </Grid>

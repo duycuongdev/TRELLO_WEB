@@ -75,6 +75,16 @@ export const updateCardDetailsAPI = async (cardId, updateData) => {
   return response.data
 }
 
+export const updateCardCommentAPI = async (cardId, commentId, updateData) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/cards/${cardId}/comments/${commentId}`, updateData)
+  return response.data
+}
+
+export const deleteCardCommentAPI = async (cardId, commentId) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/cards/${cardId}/comments/${commentId}`)
+  return response.data
+}
+
 export const addCardAttachmentAPI = async (cardId, formData) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/cards/${cardId}/attachments`, formData)
   return response.data
