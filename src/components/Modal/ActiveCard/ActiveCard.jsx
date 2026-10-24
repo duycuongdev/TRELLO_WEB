@@ -35,6 +35,8 @@ import CardUserGroup from './CardUserGroup'
 import CardDescriptionMdEditor from './CardDescriptionMdEditor'
 import CardActivitySection from './CardActivitySection'
 import CardLabelPopover from './CardLabelPopover'
+import CardChecklistPopover from './CardChecklistPopover'
+import CardChecklistSection from './CardChecklistSection'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   clearAndHideCurrentActiveCard,
@@ -79,8 +81,22 @@ function ActiveCard() {
   const handleOpenLabelPopover = (event) => setLabelAnchorEl(event.currentTarget)
   const handleCloseLabelPopover = () => setLabelAnchorEl(null)
 
+  const [checklistAnchorEl, setChecklistAnchorEl] = useState(null)
+  const isChecklistOpen = Boolean(checklistAnchorEl)
+  const handleOpenChecklistPopover = (event) => setChecklistAnchorEl(event.currentTarget)
+  const handleCloseChecklistPopover = () => setChecklistAnchorEl(null)
+
   const handleUpdateCardLabels = (newLabels) => {
     callApiUpdateCard({ labels: newLabels })
+  }
+
+  const handleAddChecklist = (newChecklist) => {
+    const currentChecklists = activeCard?.checklists || []
+    callApiUpdateCard({ checklists: [...currentChecklists, newChecklist] })
+  }
+
+  const handleUpdateCardChecklists = (newChecklists) => {
+    callApiUpdateCard({ checklists: newChecklists })
   }
 
   const handleCloseModal = () => {
@@ -104,21 +120,20 @@ function ActiveCard() {
     }).catch(() => {})
   }
 
-  // function use common for updating card title, description, cover, etc.
+  // Gọi API dùng chung cho các trường hợp update Card: title, description, cover...
   const callApiUpdateCard = async (updateData) => {
     const updatedCard = await updateCardDetailsAPI(activeCard._id, updateData)
 
-    // reupdate active card in modal
+    // Cập nhật lại card đang active trong redux
     dispatch(updateCurrentActiveCard(updatedCard))
-
-    // reupdate card in board state (redux)
+    // Cập nhật lại cái bản ghi card trong cái activeBoard (nested data)
     dispatch(updateCardInBoard(updatedCard))
 
     return updatedCard
   }
 
   const onUpdateCardTitle = (newTitle) => {
-    callApiUpdateCard({ title: newTitle.trim() })
+    callApiUpdateCard({ title: newTitle })
   }
 
   const onUpdateCardDescription = (newDescription) => {
@@ -137,11 +152,11 @@ function ActiveCard() {
     // Gọi API...
     toast.promise(
       callApiUpdateCard(reqData).finally(() => event.target.value = ''),
-      { pending: 'Updating ...' }
+      { pending: 'Updating...' }
     )
   }
 
-  // async await to child component CardActivitySection.jsx await
+  // Dùng async await ở đây để component con CardActivitySection chờ và nếu thành công thì mới clear input comment
   const onAddCardComment = async (commentToAdd) => {
     await callApiUpdateCard({ commentToAdd })
   }
@@ -167,7 +182,7 @@ function ActiveCard() {
         outline: 0,
         padding: '40px 20px 20px',
         margin: '50px auto',
-        backgroundColor: (theme) => theme.palette.mode === 'dark' ? '#1A2027' : '#fff'
+        backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : '#fff')
       }}>
         <Box sx={{
           position: 'absolute',
@@ -247,6 +262,12 @@ function ActiveCard() {
               />
             </Box>
 
+            {/* Feature 08: Xử lý Checklists & thanh tiến độ */}
+            <CardChecklistSection
+              checklists={activeCard?.checklists || []}
+              onUpdateCardChecklists={handleUpdateCardChecklists}
+            />
+
             <Box sx={{ mb: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <DvrOutlinedIcon />
@@ -298,7 +319,19 @@ function ActiveCard() {
                 onUpdateCardLabels={handleUpdateCardLabels}
               />
 
-              <SidebarItem><TaskAltOutlinedIcon fontSize="small" />Checklist</SidebarItem>
+              {/* Feature 08: Thêm Checklist */}
+              <SidebarItem className="active" onClick={handleOpenChecklistPopover}>
+                <TaskAltOutlinedIcon fontSize="small" />
+                Checklist
+              </SidebarItem>
+
+              <CardChecklistPopover
+                anchorEl={checklistAnchorEl}
+                isOpen={isChecklistOpen}
+                onClose={handleCloseChecklistPopover}
+                onAddChecklist={handleAddChecklist}
+              />
+
               <SidebarItem><WatchLaterOutlinedIcon fontSize="small" />Dates</SidebarItem>
               <SidebarItem><AutoFixHighOutlinedIcon fontSize="small" />Custom Fields</SidebarItem>
             </Stack>
