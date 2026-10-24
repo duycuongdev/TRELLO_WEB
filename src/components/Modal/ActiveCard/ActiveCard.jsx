@@ -1,4 +1,8 @@
+import { useState } from 'react'
 import Box from '@mui/material/Box'
+import Chip from '@mui/material/Chip'
+import Popover from '@mui/material/Popover'
+import CheckIcon from '@mui/icons-material/Check'
 import Modal from '@mui/material/Modal'
 import Typography from '@mui/material/Typography'
 import CreditCardIcon from '@mui/icons-material/CreditCard'
@@ -45,6 +49,15 @@ import { updateCardDetailsAPI, deleteCardAPI } from '~/apis'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { CARD_MEMBER_ACTION } from '~/utils/constants'
 
+const PRESET_LABELS = [
+  { color: '#2e7d32', title: 'Feature' },
+  { color: '#d32f2f', title: 'Bug' },
+  { color: '#ed6c02', title: 'Urgent' },
+  { color: '#0288d1', title: 'Enhancement' },
+  { color: '#9c27b0', title: 'Design' },
+  { color: '#00897b', title: 'Documentation' }
+]
+
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -65,14 +78,28 @@ const SidebarItem = styled(Box)(({ theme }) => ({
   }
 }))
 
-/**
- * Note: Modal là một low-component mà bọn MUI sử dụng bên trong những thứ như Dialog, Drawer, Menu, Popover. Ở đây dĩ nhiên chúng ta có thể sử dụng Dialog cũng không thành vấn đề gì, nhưng sẽ sử dụng Modal để dễ linh hoạt tùy biến giao diện từ con số 0 cho phù hợp với mọi nhu cầu nhé.
- */
 function ActiveCard() {
   const dispatch = useDispatch()
   const currentUser = useSelector(selectCurrentUser)
   const activeCard = useSelector(selectCurrentActiveCard)
   const isShowModalActiveCard = useSelector(selectIsShowModalActiveCard)
+
+  const [labelAnchorEl, setLabelAnchorEl] = useState(null)
+  const isLabelOpen = Boolean(labelAnchorEl)
+  const handleOpenLabelPopover = (event) => setLabelAnchorEl(event.currentTarget)
+  const handleCloseLabelPopover = () => setLabelAnchorEl(null)
+
+  const handleToggleLabel = (presetLabel) => {
+    const currentLabels = activeCard?.labels || []
+    const isExisted = currentLabels.some(l => l.color === presetLabel.color)
+    let newLabels = []
+    if (isExisted) {
+      newLabels = currentLabels.filter(l => l.color !== presetLabel.color)
+    } else {
+      newLabels = [...currentLabels, presetLabel]
+    }
+    callApiUpdateCard({ labels: newLabels })
+  }
 
   const handleCloseModal = () => {
     dispatch(clearAndHideCurrentActiveCard())
@@ -144,8 +171,8 @@ function ActiveCard() {
   return (
     <Modal
       disableScrollLock
-      open={isShowModalActiveCard} // check open or close based on State IsShowModalActiveCard in redux
-      onClose={handleCloseModal} // Sử dụng onClose trong trường hợp muốn đóng Modal bằng nút ESC hoặc click ra ngoài Modal
+      open={isShowModalActiveCard}
+      onClose={handleCloseModal}
       sx={{ overflowY: 'auto' }}>
       <Box sx={{
         position: 'relative',
@@ -192,14 +219,37 @@ function ActiveCard() {
         <Grid container spacing={2} sx={{ mb: 3 }}>
           {/* Left side */}
           <Grid xs={12} sm={9}>
-            <Box sx={{ mb: 3 }}>
-              <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Members</Typography>
+            <Box sx={{ display: 'flex', gap: 4, mb: 3, flexWrap: 'wrap' }}>
+              <Box>
+                <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Members</Typography>
+                <CardUserGroup
+                  cardMemberIds={activeCard?.memberIds}
+                  onUpdateCardMembers={onUpdateCardMembers}
+                />
+              </Box>
 
-              {/* Feature 02: Xử lý các thành viên của Card */}
-              <CardUserGroup
-                cardMemberIds={activeCard?.memberIds}
-                onUpdateCardMembers={onUpdateCardMembers}
-              />
+              {!!activeCard?.labels?.length && (
+                <Box>
+                  <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Labels</Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {activeCard.labels.map((label, idx) => (
+                      <Chip
+                        key={idx}
+                        label={label.title}
+                        size="small"
+                        sx={{
+                          bgcolor: label.color,
+                          color: '#fff',
+                          fontWeight: '600',
+                          borderRadius: '4px',
+                          height: '32px',
+                          px: 0.5
+                        }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              )}
             </Box>
 
             <Box sx={{ mb: 3 }}>
@@ -251,7 +301,62 @@ function ActiveCard() {
               </SidebarItem>
 
               <SidebarItem><AttachFileOutlinedIcon fontSize="small" />Attachment</SidebarItem>
-              <SidebarItem><LocalOfferOutlinedIcon fontSize="small" />Labels</SidebarItem>
+
+              {/* Feature 07: Xử lý chọn nhãn cho Card */}
+              <SidebarItem className="active" onClick={handleOpenLabelPopover}>
+                <LocalOfferOutlinedIcon fontSize="small" />
+                Labels
+              </SidebarItem>
+
+              <Popover
+                open={isLabelOpen}
+                anchorEl={labelAnchorEl}
+                onClose={handleCloseLabelPopover}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left'
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left'
+                }}
+              >
+                <Box sx={{ p: 2, width: '280px' }}>
+                  <Typography sx={{ fontWeight: '600', mb: 1.5, textAlign: 'center' }}>
+                    Labels
+                  </Typography>
+                  <Stack spacing={1}>
+                    {PRESET_LABELS.map((preset) => {
+                      const isSelected = (activeCard?.labels || []).some(l => l.color === preset.color)
+                      return (
+                        <Box
+                          key={preset.color}
+                          onClick={() => handleToggleLabel(preset)}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            bgcolor: preset.color,
+                            color: '#fff',
+                            px: 1.5,
+                            py: 0.8,
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontWeight: '600',
+                            fontSize: '13px',
+                            transition: 'opacity 0.2s',
+                            '&:hover': { opacity: 0.85 }
+                          }}
+                        >
+                          <Typography variant="span" sx={{ fontWeight: 600 }}>{preset.title}</Typography>
+                          {isSelected && <CheckIcon fontSize="small" />}
+                        </Box>
+                      )
+                    })}
+                  </Stack>
+                </Box>
+              </Popover>
+
               <SidebarItem><TaskAltOutlinedIcon fontSize="small" />Checklist</SidebarItem>
               <SidebarItem><WatchLaterOutlinedIcon fontSize="small" />Dates</SidebarItem>
               <SidebarItem><AutoFixHighOutlinedIcon fontSize="small" />Custom Fields</SidebarItem>

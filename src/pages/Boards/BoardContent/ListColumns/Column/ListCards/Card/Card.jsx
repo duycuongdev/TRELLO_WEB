@@ -1,3 +1,4 @@
+import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import { Card as MuiCard } from '@mui/material'
@@ -51,6 +52,22 @@ function Card({ card }) {
       {card?.cover && <CardMedia sx={{ height: 140 }} image={card?.cover} />}
 
       <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
+        {!!card?.labels?.length && (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.8 }}>
+            {card.labels.map((label, index) => (
+              <Box
+                key={index}
+                sx={{
+                  height: '8px',
+                  minWidth: '40px',
+                  borderRadius: '4px',
+                  bgcolor: label.color
+                }}
+                title={label.title}
+              />
+            ))}
+          </Box>
+        )}
         <Typography>{card?.title}</Typography>
       </CardContent>
       {shouldShowCardActions(card) &&
