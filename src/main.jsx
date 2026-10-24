@@ -25,7 +25,6 @@ import { injectStore } from '~/utils/authorizeAxios'
 injectStore(store)
 
 
-
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <PersistGate persistor={persistor}>

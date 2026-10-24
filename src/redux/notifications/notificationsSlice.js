@@ -45,8 +45,11 @@ export const notificationsSlice = createSlice({
     },
     addNotification: (state, action) => {
       const incomingInvitation = action.payload
-      // unshift là thêm phần tử vào đầu mảng, ngược lại với push
-      state.currentNotifications.unshift(incomingInvitation)
+      // Luôn chuẩn hóa về mảng vì socket có thể nhận dữ liệu trước khi fetch hoàn tất.
+      state.currentNotifications = [
+        incomingInvitation,
+        ...(state.currentNotifications || [])
+      ]
     }
   },
   // ExtraReducers: Xử lý dữ liệu bất đồng bộ
@@ -64,11 +67,13 @@ export const notificationsSlice = createSlice({
       const incomingInvitation = action.payload
 
       // Cập nhật lại dữ liệu boardInvitation (bên trong nó sẽ có Status mới sau khi update)
-      const getInvitation = state.currentNotifications.find(
+      const getInvitation = state.currentNotifications?.find(
         i => i._id === incomingInvitation._id
       )
 
-      getInvitation.boardInvitation = incomingInvitation.boardInvitation
+      if (getInvitation) {
+        getInvitation.boardInvitation = incomingInvitation.boardInvitation
+      }
     })
   }
 })

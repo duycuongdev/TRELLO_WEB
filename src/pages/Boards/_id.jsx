@@ -1,5 +1,8 @@
 // Board Details
 import Container from '@mui/material/Container'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
 import AppBar from '~/components/AppBar/AppBar'
 import BoardBar from './BoardBar/Boardbar'
 import BoardContent from './BoardContent/BoardContent'
@@ -20,6 +23,8 @@ function Board() {
   // không dùng state của component mà chuyển sang sang dùng state của redux
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
+  const boardLoading = useSelector(state => state.activeBoard.isLoading)
+  const boardError = useSelector(state => state.activeBoard.error)
 
   const { boardId } = useParams()
 
@@ -41,8 +46,11 @@ function Board() {
     newBoard.columnOrderIds = dndOrderedColumnsIds
     dispatch(updateCurrentActiveBoard(newBoard))
 
-    // Gọi API update board
+    // Gọi API update board; rollback nếu server từ chối thay đổi.
     updateBoardDetailsAPI(newBoard._id, { columnOrderIds: dndOrderedColumnsIds })
+      .catch(() => {
+        dispatch(updateCurrentActiveBoard(board))
+      })
   }
   // khi di chuyển card trong cùng 1 column chỉ cần gọi API để cập nhật mảng cardOrderIds của column chứa nó (thay đổi vị trí trong mảng)
   const moveCardInTheSameColumn = (dndOrderedCards, dndOrderedCardsIds, columnId) => {
@@ -57,6 +65,9 @@ function Board() {
 
     // Gọi API update column
     updateColumnDetailsAPI(columnId, { cardOrderIds: dndOrderedCardsIds })
+      .catch(() => {
+        dispatch(updateCurrentActiveBoard(board))
+      })
 
   }
   /**
@@ -83,11 +94,22 @@ function Board() {
       prevCardOrderIds,
       nextColumnId,
       nextCardOrderIds: dndOrderedColumns.find(c => c._id === nextColumnId)?.cardOrderIds
+    }).catch(() => {
+      dispatch(updateCurrentActiveBoard(board))
     })
   }
 
-  if (!board) {
+  if (boardLoading || (!board && !boardError)) {
     return <PageLoadingSpinner caption="Loading Board..." />
+  }
+
+  if (boardError) {
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, p: 3 }}>
+        <Typography color="error">Unable to load this board.</Typography>
+        <Button variant="contained" onClick={() => dispatch(fetchBoardDetailsAPI(boardId))}>Retry</Button>
+      </Box>
+    )
   }
   return (
     <Container disableGutters maxWidth={false} sx={{ height: '100vh' }}>

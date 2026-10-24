@@ -1,8 +1,8 @@
-import ModeSelect from '~/components/ModeSelect/ModeSelect'
+﻿import ModeSelect from '~/components/ModeSelect/ModeSelect'
 import Box from '@mui/material/Box'
 import AppsIcon from '@mui/icons-material/Apps'
-import { ReactComponent as TrelloIcon } from '~/assets/trello.svg'
-import SvgIcon from '@mui/icons-material/Apps'
+import TrelloIcon from '~/assets/trello.svg?react'
+import SvgIcon from '@mui/material/SvgIcon'
 import Typography from '@mui/material/Typography'
 import Workspaces from './Menus/Workspaces'
 import Recent from './Menus/Recent'
@@ -19,7 +19,7 @@ import AutoCompleteSearchBoard from './SearchBoards/AutoCompleteSearchBoard'
 
 function AppBar() {
   return (
-    // px={2}: padding theo trục hoành (2*8=16px)
+    // px={2}: padding (16px)
     <Box sx={{
       width: '100%',
       height: (theme) => theme.trello.appBarHeight,
@@ -27,11 +27,11 @@ function AppBar() {
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: 2,
-      // không bị thừa phần trắng trên web
+      // khÃ´ng bá»‹ thá»«a pháº§n tráº¯ng trÃªn web
       overflowX: 'auto',
       paddingX: 2,
       bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#2c3e50' : '#1565c0'),
-      // thanh scroll thẳng với list card
+      // thanh scroll tháº³ng vá»›i list card
       '&::-webkit-scrollbar-track': { m: 2 }
     }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

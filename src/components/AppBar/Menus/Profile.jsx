@@ -82,12 +82,14 @@ function Profile() {
           </ListItemIcon>
           Add another account
         </MenuItem>
-        <MenuItem>
-          <ListItemIcon>
-            <Settings fontSize="small" />
-          </ListItemIcon>
-          Settings
-        </MenuItem>
+        <Link to='/settings/account' style={{ color: 'inherit', textDecoration: 'none' }}>
+          <MenuItem>
+            <ListItemIcon>
+              <Settings fontSize="small" />
+            </ListItemIcon>
+            Settings
+          </MenuItem>
+        </Link>
         <MenuItem onClick={handleLogout} sx={{
           '&:hover': {
             color: 'warning.dark',

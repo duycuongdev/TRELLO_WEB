@@ -60,7 +60,7 @@ function Notifications() {
 
     // handle get event real time
     const onReceiveInvitation = (invitation) => {
-      if (invitation.inviteeId === currentUser._id) {
+      if (invitation.inviteeId === currentUser?._id) {
         // update invitation to redux store
         dispatch(addNotification(invitation))
         // update state newNotification to true
@@ -113,7 +113,7 @@ function Notifications() {
       >
         {(!notifications || notifications.length === 0) && <MenuItem sx={{ minWidth: 200 }}>You do not have any new notifications.</MenuItem>}
         {notifications?.map((notification, index) =>
-          <Box key={index}>
+          <Box key={notification._id || index}>
             <MenuItem sx={{
               minWidth: 200,
               maxWidth: 360,

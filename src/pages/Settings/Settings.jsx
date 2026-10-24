@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import AppBar from '~/components/AppBar/AppBar'
 import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
@@ -27,6 +27,10 @@ function Settings() {
   }
   // State lưu trữ giá trị tab nào đang active
   const [activeTab, setActiveTab] = useState(getDefaultTab())
+
+  useEffect(() => {
+    setActiveTab(location.pathname.includes(TABS.SECURITY) ? TABS.SECURITY : TABS.ACCOUNT)
+  }, [location.pathname])
 
   // https://mui.com/material-ui/react-tabs
   const handleChangeTab = (event, selectedTab) => { setActiveTab(selectedTab) }

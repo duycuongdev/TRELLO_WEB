@@ -46,6 +46,7 @@ function Boards() {
   const [boards, setBoards] = useState(null)
   // Tổng toàn bộ số lượng bản ghi boards có trong Database mà phía BE trả về để FE dùng tính toán phân trang
   const [totalBoards, setTotalBoards] = useState(null)
+  const [loadError, setLoadError] = useState('')
 
   // Xử lý phân trang từ url với MUI: https://mui.com/material-ui/react-pagination/#router-integration
   const location = useLocation()
@@ -66,16 +67,35 @@ function Boards() {
   }
 
   useEffect(() => {
-    fetchBoardsAPI(location.search).then(updateStateData)
+    setBoards(null)
+    setLoadError('')
+    fetchBoardsAPI(location.search)
+      .then(updateStateData)
+      .catch(() => setLoadError('Unable to load boards. Please try again.'))
   }, [location.search])
 
   const afterCreateNewBoard = () => {
-    fetchBoardsAPI(location.search).then(updateStateData)
+    setLoadError('')
+    setBoards(null)
+    fetchBoardsAPI(location.search)
+      .then(updateStateData)
+      .catch(() => setLoadError('Unable to refresh boards. Please try again.'))
   }
 
   // Lúc chưa tồn tại boards > đang chờ gọi api thì hiện loading
-  if (!boards) {
+  if (!boards && !loadError) {
     return <PageLoadingSpinner caption="Loading Boards..." />
+  }
+
+  if (loadError) {
+    return (
+      <Container disableGutters maxWidth={false}>
+        <AppBar />
+        <Box sx={{ p: 4, textAlign: 'center' }}>
+          <Typography color="error">{loadError}</Typography>
+        </Box>
+      </Container>
+    )
   }
 
   return (
@@ -89,13 +109,13 @@ function Boards() {
                 <SpaceDashboardIcon fontSize="small" />
                 Boards
               </SidebarItem>
-              <SidebarItem>
+              <SidebarItem sx={{ opacity: 0.55, cursor: 'not-allowed' }}>
                 <ListAltIcon fontSize="small" />
-                Templates
+                Templates (not available)
               </SidebarItem>
-              <SidebarItem>
+              <SidebarItem sx={{ opacity: 0.55, cursor: 'not-allowed' }}>
                 <HomeIcon fontSize="small" />
-                Home
+                Home (not available)
               </SidebarItem>
             </Stack>
             <Divider sx={{ my: 1 }} />

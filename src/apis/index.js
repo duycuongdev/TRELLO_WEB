@@ -2,23 +2,14 @@ import { API_ROOT } from '~/utils/constants'
 import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { toast } from 'react-toastify'
 
-// board
-// export const fetchBoardDetailsAPI = async (boardId) => {
-//   const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/boards/${boardId}`)
-//   // authorizedAxiosInstance sẽ trả về property của nó là data
-//   return response.data
-// }
-
 // update board
 export const updateBoardDetailsAPI = async (boardId, updateData) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/boards/${boardId}`, updateData)
-  // authorizedAxiosInstance sẽ trả về property của nó là data
   return response.data
 }
 
 export const moveCardToDifferentColumnAPI = async (updateData) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/boards/supports/moving_card`, updateData)
-  // authorizedAxiosInstance sẽ trả về property của nó là data
   return response.data
 }
 
@@ -30,13 +21,11 @@ export const createNewColumnAPI = async (newColumnData) => {
 
 export const updateColumnDetailsAPI = async (columnId, updateData) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/columns/${columnId}`, updateData)
-  // authorizedAxiosInstance sẽ trả về property của nó là data
   return response.data
 }
 
 export const deleteColumnDetailsAPI = async (columnId) => {
   const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/columns/${columnId}`)
-  // authorizedAxiosInstance sẽ trả về property của nó là data
   return response.data
 }
 
@@ -84,5 +73,10 @@ export const updateCardDetailsAPI = async (cardId, updateData) => {
 export const inviteUserToBoardAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/invitations/board`, data)
   toast.success('User invited to board successfully!')
+  return response.data
+}
+
+export const removeBoardMemberAPI = async (boardId, userId) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/boards/${boardId}/members/${userId}`)
   return response.data
 }

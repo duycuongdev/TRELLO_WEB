@@ -28,48 +28,22 @@ function ListColumns({ columns }) {
       toast.error('Please enter column title')
       return
     }
-    // tạo dữ liệu column để gọi API
-    const newColumnData = {
-      title: newColumnTitle
+
+    const newColumnData = { title: newColumnTitle }
+    try {
+      const createdColumn = await createNewColumnAPI({ ...newColumnData, boardId: board._id })
+      const placeholderCard = generatePlaceholderCard(createdColumn)
+      createdColumn.cards = [placeholderCard]
+      createdColumn.cardOrderIds = [placeholderCard._id]
+      const newBoard = cloneDeep(board)
+      newBoard.columns.push(createdColumn)
+      newBoard.columnOrderIds.push(createdColumn._id)
+      dispatch(updateCurrentActiveBoard(newBoard))
+      toggleOpenNewColumnForm()
+      setNewColumnTitle('')
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Unable to create column')
     }
-
-    // function này có nhiệm vụ gọi API tạo mới column và làm lại dữ liệu state board
-    const createdColumn = await createNewColumnAPI({
-      ...newColumnData,
-      boardId: board._id
-    })
-
-    // kéo thả card khi column rỗng
-    createdColumn.cards = [generatePlaceholderCard(createdColumn)]
-    createdColumn.cardOrderIds = [generatePlaceholderCard(createdColumn)._id]
-
-    // cập nhật state board
-    // phía FE chúng ta phải tự làm đúng lại state data board (thay vì phải gọi lại API fetchBoardDetailsApi)
-    // cách làm này phụ thuộc vào tùy lựa chọn và đặc thù dự án, có nơi thì BE sẽ hỗ trợ trả về luôn toàn bộ board đầy đủ có là API tạo column hay card (FE sẽ nhàn hơn)
-
-    /**
-     * Đoạn này dính lỗi object is not extensible dù đã copy/clone giá trị newboard nhưng
-     * spread operator chỉ làm shallow copy nên dính rule Immutabbility trong redux không dùng
-     * được hàm push() (sửa giá trị mảng trực tiếp) nên sẽ dùng deep clone toàn bộ board
-     */
-    // const newBoard = { ...board }
-    const newBoard = cloneDeep(board)
-    newBoard.columns.push(createdColumn)
-    newBoard.columnOrderIds.push(createdColumn._id)
-
-    /**
-     * Cách khác để tránh Immutability (tính bất biến) là dùng array.concat() nối mảng tạo ra mảng mới
-     * thay dùng push() (thay đổi giá trị trực tiếp trên mảng)
-    */
-    // const newBoard = { ...board }
-    // newBoard.columns = newBoard.columns.concat(createdColumn)
-    // newBoard.columnOrderIds = newBoard.columnOrderIds.concat(createdColumn._id)
-
-    dispatch(updateCurrentActiveBoard(newBoard))
-
-    // đóng trang thái thêm column mới và clear input
-    toggleOpenNewColumnForm()
-    setNewColumnTitle('')
   }
   /*
     SorttableContext yêu cầu items là 1 mảng dạng ['id-01', 'id-02'] chứ không phải [{id: 'id-1'}, {id: 'id-2'}]
