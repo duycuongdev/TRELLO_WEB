@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import Badge from '@mui/material/Badge'
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone'
 import Box from '@mui/material/Box'
@@ -177,7 +177,7 @@ function Notifications() {
                 {/* Thời gian của thông báo */}
                 <Box sx={{ textAlign: 'right' }}>
                   <Typography variant="span" sx={{ fontSize: '13px' }}>
-                    {moment(notification.createdAt).format('llll')}
+                    {dayjs(notification.createdAt).format('ddd, MMM D, YYYY h:mm A')}
                   </Typography>
                 </Box>
               </Box>

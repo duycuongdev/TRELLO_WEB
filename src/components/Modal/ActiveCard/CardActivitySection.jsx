@@ -1,4 +1,4 @@
-import moment from 'moment'
+import dayjs from 'dayjs'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
@@ -66,7 +66,7 @@ function CardActivitySection({ cardComments=[], onAddCardComment }) {
             </Typography>
 
             <Typography variant="span" sx={{ fontSize: '12px' }}>
-              {moment(comment.commentedAt).format('llll')}
+              {dayjs(comment.commentedAt).format('ddd, MMM D, YYYY h:mm A')}
             </Typography>
 
             <Box sx={{

@@ -1,117 +1,84 @@
-import { useEffect, useState } from 'react'
 import { Box, Typography, Button, Stack } from '@mui/material'
-import Particles, { initParticlesEngine } from '@tsparticles/react'
-import { loadFull } from 'tsparticles'
-
 import compassSvg from '~/assets/404/compass.svg'
 import routesSvg from '~/assets/404/routes.svg'
 
-const customFountainOptions = {
-  fullScreen: {
-    enable: true,
-    zIndex: 0
-  },
-  background: {
-    color: '#ffffff'
-  },
-  fpsLimit: 120,
-  particles: {
-    number: {
-      value: 150,
-      density: {
-        enable: true,
-        area: 800
-      }
-    },
-    color: {
-      value: [
-        '#81a1c1',
-        '#88c0d0',
-        '#bf616a',
-        '#b48ead',
-        '#a3be8c',
-        '#ebcb8b'
-      ]
-    },
-    shape: {
-      type: 'circle'
-    },
-    opacity: {
-      value: {
-        min: 0.2,
-        max: 0.7
-      }
-    },
-    size: {
-      value: {
-        min: 4,
-        max: 10
-      }
-    },
-    move: {
-      enable: true,
-      speed: {
-        min: 8,
-        max: 18
-      },
-      direction: 'top',
-      random: true,
-      outModes: {
-        default: 'destroy'
-      },
-      gravity: {
-        enable: true,
-        acceleration: 15
-      }
-    }
-  },
-  emitters: {
-    direction: 'top',
-    rate: {
-      quantity: 4,
-      delay: 0.05
-    },
-    size: {
-      width: 100,
-      height: 0
-    },
-    position: {
-      x: 50,
-      y: 100
-    }
-  }
-}
+// Pure CSS lightweight ambient particles with Nord color palette
+const PARTICLES = [
+  { size: 14, left: '10%', duration: 12, delay: 0, color: '#81a1c1' },
+  { size: 22, left: '20%', duration: 16, delay: 2, color: '#88c0d0' },
+  { size: 10, left: '30%', duration: 10, delay: 4, color: '#bf616a' },
+  { size: 18, left: '42%', duration: 14, delay: 1, color: '#b48ead' },
+  { size: 26, left: '55%', duration: 18, delay: 3, color: '#a3be8c' },
+  { size: 12, left: '68%', duration: 11, delay: 5, color: '#ebcb8b' },
+  { size: 20, left: '78%', duration: 15, delay: 2.5, color: '#81a1c1' },
+  { size: 16, left: '88%', duration: 13, delay: 0.5, color: '#88c0d0' },
+  { size: 24, left: '95%', duration: 17, delay: 4.5, color: '#b48ead' }
+]
 
 export default function NotFound() {
-  const [init, setInit] = useState(false)
-
-  useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      await loadFull(engine)
-    }).then(() => {
-      setInit(true)
-    })
-  }, [])
-
   return (
-    <>
-      {init && (
-        <Particles
-          id="tsparticles"
-          options={customFountainOptions}
-        />
-      )}
+    <Box
+      sx={{
+        position: 'relative',
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden',
+        bgcolor: '#ffffff',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        px: 3,
+        '@keyframes floatUp': {
+          '0%': {
+            transform: 'translateY(105vh) scale(0.5)',
+            opacity: 0
+          },
+          '20%': {
+            opacity: 0.6
+          },
+          '80%': {
+            opacity: 0.5
+          },
+          '100%': {
+            transform: 'translateY(-10vh) scale(1)',
+            opacity: 0
+          }
+        }
+      }}
+    >
+      {/* Lightweight CSS ambient floating particles */}
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          overflow: 'hidden'
+        }}
+        aria-hidden="true"
+      >
+        {PARTICLES.map((p, idx) => (
+          <Box
+            key={idx}
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              left: p.left,
+              width: p.size,
+              height: p.size,
+              borderRadius: '50%',
+              bgcolor: p.color,
+              animation: `floatUp ${p.duration}s infinite linear`,
+              animationDelay: `${p.delay}s`
+            }}
+          />
+        ))}
+      </Box>
 
+      {/* Main Content */}
       <Box
         sx={{
           position: 'relative',
-          zIndex: 10,
-          width: '100vw',
-          height: '100vh',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          px: 3
+          zIndex: 10
         }}
       >
         <Stack
@@ -220,6 +187,6 @@ export default function NotFound() {
           />
         </Stack>
       </Box>
-    </>
+    </Box>
   )
 }
