@@ -10,7 +10,7 @@ const initialState = {
   currentActiveBoard: null,
   isLoading: false,
   error: null,
-  cardFilter: { search: '', labelColors: [] }
+  cardFilter: { search: '', labelIds: [] }
 }
 
 // Gọi api (bất đồng bộ) và cập nhật dữ liệu vào redux, dùng middleware createAsyncThunk đi kèm với extraReducers
@@ -79,7 +79,7 @@ export const activeBoardSlice = createSlice({
       state.cardFilter = { ...state.cardFilter, ...action.payload }
     },
     clearCardFilter: (state) => {
-      state.cardFilter = { search: '', labelColors: [] }
+      state.cardFilter = { search: '', labelIds: [] }
     }
   },
 
@@ -93,7 +93,7 @@ export const activeBoardSlice = createSlice({
     builder.addCase(fetchBoardDetailsAPI.fulfilled, (state, action) => {
       state.isLoading = false
       state.error = null
-      state.cardFilter = { search: '', labelColors: [] }
+      state.cardFilter = { search: '', labelIds: [] }
       // action.payload là reponse.data trả về từ api
       let board = action.payload
 
@@ -143,7 +143,7 @@ export const selectCurrentActiveBoard = (state) => {
 }
 
 export const selectCardFilter = (state) => {
-  return state.activeBoard.cardFilter || { search: '', labelColors: [] }
+  return state.activeBoard.cardFilter || { search: '', labelIds: [] }
 }
 
 // file này tên là activeBoardSlice nhưng export 1 thứ tên là reducer

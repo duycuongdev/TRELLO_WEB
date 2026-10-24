@@ -32,7 +32,7 @@ function BoardBar({ board }) {
   const isFilterOpen = Boolean(filterAnchorEl)
   const cardFilter = useSelector(selectCardFilter)
 
-  const activeFilterCount = (cardFilter?.search ? 1 : 0) + (cardFilter?.labelColors?.length || 0)
+  const activeFilterCount = (cardFilter?.search ? 1 : 0) + (cardFilter?.labelIds?.length || 0)
   const hasActiveFilter = activeFilterCount > 0
 
   const handleOpenFilter = (e) => setFilterAnchorEl(e.currentTarget)

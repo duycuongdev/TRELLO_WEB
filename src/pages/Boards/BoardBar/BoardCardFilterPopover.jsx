@@ -20,35 +20,35 @@ import {
   clearCardFilter
 } from '~/redux/activeBoard/activeBoardSlice'
 
-const DEFAULT_PRESET_LABELS = [
-  { color: '#2e7d32', title: 'Feature' },
-  { color: '#d32f2f', title: 'Bug' },
-  { color: '#ed6c02', title: 'Urgent' },
-  { color: '#0288d1', title: 'Enhancement' },
-  { color: '#9c27b0', title: 'Design' },
-  { color: '#00897b', title: 'Documentation' }
-]
-
 function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
   const dispatch = useDispatch()
   const cardFilter = useSelector(selectCardFilter)
 
-  // Tổng hợp tất cả các nhãn có trên board cùng với các preset mặc định
+  // Tổng hợp tất cả các nhãn thực tế do người dùng tạo và gán vào các thẻ trên board (không dùng mockdata)
   const availableLabels = useMemo(() => {
     const labelMap = new Map()
-    DEFAULT_PRESET_LABELS.forEach(l => labelMap.set(l.color, l.title))
 
     board?.columns?.forEach(column => {
       column.cards?.forEach(card => {
-        card.labels?.forEach(label => {
-          if (label?.color) {
-            labelMap.set(label.color, label.title || labelMap.get(label.color) || '')
-          }
-        })
+        if (!card?.FE_PlaceholderCard && Array.isArray(card.labels)) {
+          card.labels.forEach(label => {
+            if (label && label.color) {
+              const title = (label.title || '').trim()
+              const id = `${label.color}___${title}`
+              if (!labelMap.has(id)) {
+                labelMap.set(id, {
+                  id,
+                  color: label.color,
+                  title
+                })
+              }
+            }
+          })
+        }
       })
     })
 
-    return Array.from(labelMap.entries()).map(([color, title]) => ({ color, title }))
+    return Array.from(labelMap.values())
   }, [board])
 
   // Đếm số lượng thẻ đang hiển thị / tổng số thẻ
@@ -56,7 +56,7 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
     let total = 0
     let matched = 0
     const search = cardFilter?.search?.trim().toLowerCase()
-    const filterColors = cardFilter?.labelColors || []
+    const filterLabelIds = cardFilter?.labelIds || []
 
     board?.columns?.forEach(column => {
       column.cards?.forEach(card => {
@@ -68,9 +68,9 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
             const matchDesc = card.description?.toLowerCase().includes(search)
             if (!matchTitle && !matchDesc) isMatch = false
           }
-          if (filterColors.length > 0) {
-            const cardColors = card.labels?.map(l => l.color) || []
-            if (!filterColors.some(color => cardColors.includes(color))) {
+          if (filterLabelIds.length > 0) {
+            const cardLabelKeys = (card.labels || []).map(l => `${l.color}___${(l.title || '').trim()}`)
+            if (!filterLabelIds.some(id => cardLabelKeys.includes(id))) {
               isMatch = false
             }
           }
@@ -81,14 +81,14 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
     return { totalCards: total, matchedCards: matched }
   }, [board, cardFilter])
 
-  const hasActiveFilter = Boolean(cardFilter?.search || cardFilter?.labelColors?.length > 0)
+  const hasActiveFilter = Boolean(cardFilter?.search || cardFilter?.labelIds?.length > 0)
 
-  const handleToggleLabelColor = (color) => {
-    const currentColors = cardFilter.labelColors || []
-    const newColors = currentColors.includes(color)
-      ? currentColors.filter(c => c !== color)
-      : [...currentColors, color]
-    dispatch(setCardFilter({ labelColors: newColors }))
+  const handleToggleLabel = (labelId) => {
+    const currentLabelIds = cardFilter.labelIds || []
+    const newLabelIds = currentLabelIds.includes(labelId)
+      ? currentLabelIds.filter(id => id !== labelId)
+      : [...currentLabelIds, labelId]
+    dispatch(setCardFilter({ labelIds: newLabelIds }))
   }
 
   return (
@@ -163,47 +163,67 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
 
       <Divider sx={{ my: 1.5 }} />
 
-      {/* Lọc theo Nhãn (Labels) */}
+      {/* Lọc theo Nhãn (Labels) do người dùng tạo */}
       <Box sx={{ mb: 2 }}>
         <Typography variant="caption" fontWeight={600} sx={{ color: 'text.secondary', mb: 1, display: 'block' }}>
           LABELS
         </Typography>
-        <Stack spacing={0.75} sx={{ maxHeight: 220, overflowY: 'auto', pr: 0.5 }}>
-          {availableLabels.map((label) => {
-            const isSelected = cardFilter.labelColors?.includes(label.color)
-            return (
-              <Box
-                key={label.color}
-                onClick={() => handleToggleLabelColor(label.color)}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  px: 1.5,
-                  py: 0.8,
-                  borderRadius: 1.5,
-                  bgcolor: label.color,
-                  color: 'white',
-                  cursor: 'pointer',
-                  fontWeight: 600,
-                  fontSize: '0.85rem',
-                  boxShadow: isSelected ? '0 0 0 2.5px #1976d2' : 'none',
-                  opacity: isSelected ? 1 : 0.85,
-                  transition: 'all 0.15s ease',
-                  '&:hover': {
-                    opacity: 1,
-                    transform: 'translateX(2px)'
-                  }
-                }}
-              >
-                <Typography variant="body2" sx={{ fontWeight: 600, color: 'white' }}>
-                  {label.title || label.color}
-                </Typography>
-                {isSelected && <CheckIcon fontSize="small" sx={{ color: 'white' }} />}
-              </Box>
-            )
-          })}
-        </Stack>
+
+        {availableLabels.length === 0 ? (
+          <Box sx={{
+            py: 2,
+            px: 1.5,
+            textAlign: 'center',
+            bgcolor: (theme) => (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f4f5f7'),
+            borderRadius: 1.5,
+            border: '1px dashed',
+            borderColor: 'divider'
+          }}>
+            <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500, fontSize: '0.85rem' }}>
+              Chưa có nhãn nào trên bảng
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'text.disabled', mt: 0.5, display: 'block' }}>
+              Hãy mở thẻ và tạo nhãn để lọc
+            </Typography>
+          </Box>
+        ) : (
+          <Stack spacing={0.75} sx={{ maxHeight: 220, overflowY: 'auto', pr: 0.5 }}>
+            {availableLabels.map((label) => {
+              const isSelected = cardFilter.labelIds?.includes(label.id)
+              return (
+                <Box
+                  key={label.id}
+                  onClick={() => handleToggleLabel(label.id)}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    px: 1.5,
+                    py: 0.8,
+                    borderRadius: 1.5,
+                    bgcolor: label.color,
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                    fontSize: '0.85rem',
+                    boxShadow: isSelected ? '0 0 0 2.5px #1976d2' : 'none',
+                    opacity: isSelected ? 1 : 0.85,
+                    transition: 'all 0.15s ease',
+                    '&:hover': {
+                      opacity: 1,
+                      transform: 'translateX(2px)'
+                    }
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontWeight: 600, color: 'white' }}>
+                    {label.title || '(Không có tiêu đề)'}
+                  </Typography>
+                  {isSelected && <CheckIcon fontSize="small" sx={{ color: 'white' }} />}
+                </Box>
+              )
+            })}
+          </Stack>
+        )}
       </Box>
 
       <Divider sx={{ my: 1.5 }} />
@@ -229,4 +249,3 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
 }
 
 export default BoardCardFilterPopover
-

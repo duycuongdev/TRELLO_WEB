@@ -11,9 +11,9 @@ function ListCards({ cards }) {
   const filteredCards = useMemo(() => {
     if (!cards) return []
     const search = cardFilter?.search?.trim().toLowerCase()
-    const filterColors = cardFilter?.labelColors || []
+    const filterLabelIds = cardFilter?.labelIds || []
 
-    if (!search && filterColors.length === 0) return cards
+    if (!search && filterLabelIds.length === 0) return cards
 
     return cards.filter(card => {
       // Giữ lại placeholder card để SortableContext và DndKit hoạt động ổn định
@@ -25,10 +25,10 @@ function ListCards({ cards }) {
         if (!matchTitle && !matchDesc) return false
       }
 
-      if (filterColors.length > 0) {
-        const cardColors = card.labels?.map(l => l.color) || []
-        const hasMatchingColor = filterColors.some(color => cardColors.includes(color))
-        if (!hasMatchingColor) return false
+      if (filterLabelIds.length > 0) {
+        const cardLabelKeys = (card.labels || []).map(l => `${l.color}___${(l.title || '').trim()}`)
+        const hasMatchingLabel = filterLabelIds.some(id => cardLabelKeys.includes(id))
+        if (!hasMatchingLabel) return false
       }
 
       return true
