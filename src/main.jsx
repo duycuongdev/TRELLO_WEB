@@ -28,7 +28,7 @@ injectStore(store)
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <PersistGate persistor={persistor}>
-      <BrowserRouter basename='/'>
+      <BrowserRouter basename='/' future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <CssVarsProvider theme={theme}>
           <ConfirmProvider defaultOptions={{
             dialogProps: { maxWidth: 'xs' },
