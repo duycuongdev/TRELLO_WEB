@@ -9,9 +9,11 @@ import GroupIcon from '@mui/icons-material/Group'
 import CommentIcon from '@mui/icons-material/Comment'
 import AttachmentIcon from '@mui/icons-material/Attachment'
 import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined'
+import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useDispatch } from 'react-redux'
+import dayjs from 'dayjs'
 import { updateCurrentActiveCard, showModalActiveCard } from '~/redux/activeCard/activeCardSlice'
 
 function Card({ card }) {
@@ -35,6 +37,7 @@ function Card({ card }) {
       !!targetCard?.memberIds?.length ||
       !!targetCard?.comments?.length ||
       !!targetCard?.attachments?.length ||
+      !!targetCard?.dueDate ||
       totalItems > 0
     )
   }
@@ -78,10 +81,41 @@ function Card({ card }) {
         <Typography>{card?.title}</Typography>
       </CardContent>
       {shouldShowCardActions(card) &&
-        <CardActions sx={{ p: '0 4px 8px 4px' }}>
-          {!!card?.memberIds?.length && <Button size="small" startIcon={<GroupIcon />}>{card?.memberIds?.length}</Button>}
-          {!!card?.comments?.length && <Button size="small" startIcon={<CommentIcon />}>{card?.comments?.length}</Button>}
-          {!!card?.attachments?.length && <Button size="small" startIcon={<AttachmentIcon />}>{card?.attachments?.length}</Button>}
+        <CardActions sx={{ p: '0 4px 8px 4px', flexWrap: 'wrap', gap: 0.5 }}>
+          {/* Due date badge */}
+          {!!card?.dueDate && (
+            <Button
+              size="small"
+              startIcon={<WatchLaterOutlinedIcon fontSize="small" />}
+              sx={{
+                fontSize: '0.75rem',
+                ...(card.isDueDateComplete && {
+                  bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#2e7d32' : '#61bd4f'),
+                  color: 'white !important',
+                  fontWeight: 600,
+                  '& .MuiButton-startIcon': { color: 'white' },
+                  '&:hover': { bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#1b5e20' : '#519839') }
+                }),
+                ...(!card.isDueDateComplete && dayjs(card.dueDate).isBefore(dayjs()) && {
+                  bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#c62828' : '#eb5a46'),
+                  color: 'white !important',
+                  fontWeight: 600,
+                  '& .MuiButton-startIcon': { color: 'white' },
+                  '&:hover': { bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#b71c1c' : '#cf513d') }
+                }),
+                ...(!card.isDueDateComplete && !dayjs(card.dueDate).isBefore(dayjs()) && dayjs(card.dueDate).diff(dayjs(), 'hour') <= 24 && {
+                  bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#ef6c00' : '#f2d600'),
+                  color: (theme) => (theme.palette.mode === 'dark' ? 'white !important' : '#172b4d !important'),
+                  fontWeight: 600,
+                  '& .MuiButton-startIcon': { color: (theme) => (theme.palette.mode === 'dark' ? 'white' : '#172b4d') },
+                  '&:hover': { bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#e65100' : '#d9bf00') }
+                })
+              }}
+            >
+              {dayjs(card.dueDate).format('MMM D')}
+            </Button>
+          )}
+
           {totalChecklistItems > 0 && (
             <Button
               size="small"
@@ -101,6 +135,10 @@ function Card({ card }) {
               {completedChecklistItems}/{totalChecklistItems}
             </Button>
           )}
+
+          {!!card?.memberIds?.length && <Button size="small" startIcon={<GroupIcon />}>{card?.memberIds?.length}</Button>}
+          {!!card?.comments?.length && <Button size="small" startIcon={<CommentIcon />}>{card?.comments?.length}</Button>}
+          {!!card?.attachments?.length && <Button size="small" startIcon={<AttachmentIcon />}>{card?.attachments?.length}</Button>}
         </CardActions>
       }
     </MuiCard>

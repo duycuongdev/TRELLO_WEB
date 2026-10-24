@@ -3,6 +3,8 @@ import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Modal from '@mui/material/Modal'
 import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
 import CreditCardIcon from '@mui/icons-material/CreditCard'
 import CancelIcon from '@mui/icons-material/Cancel'
 import Grid from '@mui/material/Unstable_Grid2'
@@ -26,17 +28,20 @@ import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined'
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
 import SubjectRoundedIcon from '@mui/icons-material/SubjectRounded'
 import DvrOutlinedIcon from '@mui/icons-material/DvrOutlined'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
 import VisuallyHiddenInput from '~/components/Form/VisuallyHiddenInput'
 import { singleFileValidator } from '~/utils/validators'
 import { toast } from 'react-toastify'
 import { useConfirm } from 'material-ui-confirm'
+import dayjs from 'dayjs'
 import CardUserGroup from './CardUserGroup'
 import CardDescriptionMdEditor from './CardDescriptionMdEditor'
 import CardActivitySection from './CardActivitySection'
 import CardLabelPopover from './CardLabelPopover'
 import CardChecklistPopover from './CardChecklistPopover'
 import CardChecklistSection from './CardChecklistSection'
+import CardDueDatePopover from './CardDueDatePopover'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   clearAndHideCurrentActiveCard,
@@ -86,6 +91,11 @@ function ActiveCard() {
   const handleOpenChecklistPopover = (event) => setChecklistAnchorEl(event.currentTarget)
   const handleCloseChecklistPopover = () => setChecklistAnchorEl(null)
 
+  const [dueDateAnchorEl, setDueDateAnchorEl] = useState(null)
+  const isDueDateOpen = Boolean(dueDateAnchorEl)
+  const handleOpenDueDatePopover = (event) => setDueDateAnchorEl(event.currentTarget)
+  const handleCloseDueDatePopover = () => setDueDateAnchorEl(null)
+
   const handleUpdateCardLabels = (newLabels) => {
     callApiUpdateCard({ labels: newLabels })
   }
@@ -97,6 +107,10 @@ function ActiveCard() {
 
   const handleUpdateCardChecklists = (newChecklists) => {
     callApiUpdateCard({ checklists: newChecklists })
+  }
+
+  const handleUpdateDueDate = (dueData) => {
+    callApiUpdateCard(dueData)
   }
 
   const handleCloseModal = () => {
@@ -247,6 +261,48 @@ function ActiveCard() {
                   </Box>
                 </Box>
               )}
+
+              {/* Feature 09: Hiển thị Khối Hạn chót (Due Date) */}
+              {activeCard?.dueDate && (
+                <Box>
+                  <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Due Date</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                    <Checkbox
+                      size="small"
+                      checked={Boolean(activeCard?.isDueDateComplete)}
+                      onChange={(e) => callApiUpdateCard({ isDueDateComplete: e.target.checked })}
+                      sx={{ p: 0 }}
+                    />
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="inherit"
+                      onClick={handleOpenDueDatePopover}
+                      endIcon={<ExpandMoreIcon fontSize="small" />}
+                      sx={{
+                        textTransform: 'none',
+                        fontSize: '0.85rem',
+                        fontWeight: 500,
+                        borderRadius: '4px',
+                        borderColor: 'divider',
+                        px: 1,
+                        py: 0.5,
+                        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f4f5f7'
+                      }}
+                    >
+                      {dayjs(activeCard.dueDate).format('MMM D, YYYY [at] h:mm A')}
+                    </Button>
+
+                    {activeCard?.isDueDateComplete ? (
+                      <Chip label="COMPLETED" size="small" color="success" sx={{ height: 24, fontWeight: 700, fontSize: '0.7rem' }} />
+                    ) : dayjs(activeCard.dueDate).isBefore(dayjs()) ? (
+                      <Chip label="OVERDUE" size="small" color="error" sx={{ height: 24, fontWeight: 700, fontSize: '0.7rem' }} />
+                    ) : dayjs(activeCard.dueDate).diff(dayjs(), 'hour') <= 24 ? (
+                      <Chip label="DUE SOON" size="small" color="warning" sx={{ height: 24, fontWeight: 700, fontSize: '0.7rem' }} />
+                    ) : null}
+                  </Box>
+                </Box>
+              )}
             </Box>
 
             <Box sx={{ mb: 3 }}>
@@ -332,7 +388,21 @@ function ActiveCard() {
                 onAddChecklist={handleAddChecklist}
               />
 
-              <SidebarItem><WatchLaterOutlinedIcon fontSize="small" />Dates</SidebarItem>
+              {/* Feature 09: Chọn Hạn chót Dates */}
+              <SidebarItem className="active" onClick={handleOpenDueDatePopover}>
+                <WatchLaterOutlinedIcon fontSize="small" />
+                Dates
+              </SidebarItem>
+
+              <CardDueDatePopover
+                anchorEl={dueDateAnchorEl}
+                isOpen={isDueDateOpen}
+                onClose={handleCloseDueDatePopover}
+                dueDate={activeCard?.dueDate}
+                isDueDateComplete={activeCard?.isDueDateComplete}
+                onUpdateDueDate={handleUpdateDueDate}
+              />
+
               <SidebarItem><AutoFixHighOutlinedIcon fontSize="small" />Custom Fields</SidebarItem>
             </Stack>
 
