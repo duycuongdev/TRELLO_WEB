@@ -1,5 +1,4 @@
 import { experimental_extendTheme as extendTheme } from '@mui/material/styles'
-// import { teal, deepOrange, cyan, orange } from '@mui/material/colors'
 
 const APP_BAR_HEIGHT = '58px'
 const BOARD_BAR_HEIGHT = '60px'
@@ -14,6 +13,7 @@ const theme = extendTheme({
     appBarHeight: APP_BAR_HEIGHT,
     boardBarHeight: BOARD_BAR_HEIGHT,
     boardContentHeight: BOARD_CONTENT_HEIGHT,
+    columnHeaderHeight: COLUMN_HEADER_HEIGHT,
     columnHeaderheight: COLUMN_HEADER_HEIGHT,
     columnFooterHeight: COLUMN_FOOTER_HEIGHT
   },

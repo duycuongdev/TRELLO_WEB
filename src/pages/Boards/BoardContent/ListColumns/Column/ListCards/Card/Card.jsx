@@ -1,6 +1,5 @@
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-// import trùng tên thư viện với function Card khắc phục như dưới
 import { Card as MuiCard } from '@mui/material'
 import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
@@ -18,31 +17,25 @@ function Card({ card }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: card._id, data: { ...card } })
 
   const dndKitCardStyles = {
-    // dành cho sensor defaut dạng pointerSensor
-    // touchAction: 'none',
-    // nếu sử dụng Transform sẽ bị stretch
     transform: CSS.Translate.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : undefined,
     border: isDragging ? '1px solid #2ecc71' : undefined
   }
 
-  // bỏ phần padding của <CardActions/>
-  const shouldShowCardActions = (card) => {
-    // return !!card?.memberIds.length || !!card?.comments.length || !!card?.attachments.length
+  const shouldShowCardActions = (targetCard) => {
     return (
-      !!card?.memberIds?.length ||
-      !!card?.comments?.length ||
-      !!card?.attachments?.length
+      !!targetCard?.memberIds?.length ||
+      !!targetCard?.comments?.length ||
+      !!targetCard?.attachments?.length
     )
   }
 
-  const setActiveCard = (card) => {
-    // update data card in redux store
-    dispatch(updateCurrentActiveCard(card))
-    // show modal active card
+  const setActiveCard = (targetCard) => {
+    dispatch(updateCurrentActiveCard(targetCard))
     dispatch(showModalActiveCard())
   }
+
   return (
     <MuiCard
       onClick={() => setActiveCard(card)}
@@ -60,9 +53,8 @@ function Card({ card }) {
       <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
         <Typography>{card?.title}</Typography>
       </CardContent>
-      {shouldShowCardActions() &&
+      {shouldShowCardActions(card) &&
         <CardActions sx={{ p: '0 4px 8px 4px' }}>
-          {/* !!: positive */}
           {!!card?.memberIds?.length && <Button size="small" startIcon={<GroupIcon />}>{card?.memberIds?.length}</Button>}
           {!!card?.comments?.length && <Button size="small" startIcon={<CommentIcon />}>{card?.comments?.length}</Button>}
           {!!card?.attachments?.length && <Button size="small" startIcon={<AttachmentIcon />}>{card?.attachments?.length}</Button>}

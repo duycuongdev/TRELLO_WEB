@@ -43,7 +43,7 @@ function BoardContent({
   const mouseSensor = useSensor(MouseSensor, { activationConstraint: { distance: 10 } })
 
   // nhấn giữ 250ms và dung sai của cảm ứng 500px thì mới kích hoạt event
-  const touchSensor = useSensor(TouchSensor, { activationConstraint: { dalay: 250, tolerance: 500 } })
+  const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 500 } })
 
   // const sensors = useSensors(pointerSensor)
   // ưu tiên kết hợp 2 loại sensor mouse và touch để trải nghiệm trên mobie tốt nhất và không bị bug
@@ -51,10 +51,10 @@ function BoardContent({
 
   const [orderedColumns, setOrderedColumns] = useState([])
 
-  const [activeDragItemId, setActiveDragItemId] = useState([null])
-  const [activeDragItemType, setActiveDragItemType] = useState([null])
-  const [activeDragItemData, setActiveDragItemData] = useState([null])
-  const [oldColumnWhenDraggingCard, setOldColumnWhenDraggingCard] = useState([null])
+  const [activeDragItemId, setActiveDragItemId] = useState(null)
+  const [activeDragItemType, setActiveDragItemType] = useState(null)
+  const [activeDragItemData, setActiveDragItemData] = useState(null)
+  const [oldColumnWhenDraggingCard, setOldColumnWhenDraggingCard] = useState(null)
 
   // điểm va chạm cuối cùng trước đó
   const lastOverId = useRef(null)
