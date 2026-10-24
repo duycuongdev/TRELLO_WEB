@@ -106,10 +106,32 @@ function ActiveCard() {
   }
 
   const handleUpdateCardChecklists = (newChecklists) => {
-    callApiUpdateCard({ checklists: newChecklists })
+    const totalItems = newChecklists?.reduce((sum, cl) => sum + (cl.items?.length || 0), 0) || 0
+    const completedItems = newChecklists?.reduce((sum, cl) => sum + (cl.items?.filter(i => i.isDone).length || 0), 0) || 0
+
+    const updateData = { checklists: newChecklists }
+
+    // Tự động đồng bộ trạng thái Due Date khi nhiệm vụ (Checklist) đạt 100% hoặc bị bỏ bớt
+    if (activeCard?.dueDate && totalItems > 0) {
+      if (completedItems === totalItems && !activeCard.isDueDateComplete) {
+        updateData.isDueDateComplete = true
+      } else if (completedItems < totalItems && activeCard.isDueDateComplete) {
+        updateData.isDueDateComplete = false
+      }
+    }
+
+    callApiUpdateCard(updateData)
   }
 
   const handleUpdateDueDate = (dueData) => {
+    // Nếu đặt hạn mới nhưng các nhiệm vụ trong checklist đã hoàn thành 100%, tự động đánh dấu completed
+    const totalItems = activeCard?.checklists?.reduce((sum, cl) => sum + (cl.items?.length || 0), 0) || 0
+    const completedItems = activeCard?.checklists?.reduce((sum, cl) => sum + (cl.items?.filter(i => i.isDone).length || 0), 0) || 0
+
+    if (dueData.dueDate && totalItems > 0 && completedItems === totalItems && dueData.isDueDateComplete === undefined) {
+      dueData.isDueDateComplete = true
+    }
+
     callApiUpdateCard(dueData)
   }
 

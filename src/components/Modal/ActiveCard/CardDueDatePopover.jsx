@@ -3,6 +3,8 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Popover from '@mui/material/Popover'
 import TextField from '@mui/material/TextField'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -11,29 +13,63 @@ import CloseIcon from '@mui/icons-material/Close'
 import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined'
 import dayjs from 'dayjs'
 
+const HOURS_12 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+const DEFAULT_MINUTES = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55']
+
+const parseDueDateTo12h = (timestamp) => {
+  if (timestamp) {
+    const d = dayjs(timestamp)
+    const h24 = d.hour()
+    return {
+      date: d.format('YYYY-MM-DD'),
+      hour: h24 % 12 === 0 ? 12 : h24 % 12,
+      minute: d.format('mm'),
+      ampm: h24 >= 12 ? 'PM' : 'AM'
+    }
+  }
+  const tomorrow = dayjs().add(1, 'day')
+  return {
+    date: tomorrow.format('YYYY-MM-DD'),
+    hour: 5,
+    minute: '00',
+    ampm: 'PM'
+  }
+}
+
 function CardDueDatePopover({ anchorEl, isOpen, onClose, dueDate, isDueDateComplete = false, onUpdateDueDate }) {
-  const [selectedDateTime, setSelectedDateTime] = useState(() => {
-    if (dueDate) return dayjs(dueDate).format('YYYY-MM-DDTHH:mm')
-    return dayjs().add(1, 'day').hour(17).minute(0).format('YYYY-MM-DDTHH:mm')
-  })
+  const [dateStr, setDateStr] = useState(() => parseDueDateTo12h(dueDate).date)
+  const [hour12, setHour12] = useState(() => parseDueDateTo12h(dueDate).hour)
+  const [minuteStr, setMinuteStr] = useState(() => parseDueDateTo12h(dueDate).minute)
+  const [ampm, setAmpm] = useState(() => parseDueDateTo12h(dueDate).ampm)
   const [isComplete, setIsComplete] = useState(isDueDateComplete)
 
   useEffect(() => {
     if (isOpen) {
-      if (dueDate) {
-        setSelectedDateTime(dayjs(dueDate).format('YYYY-MM-DDTHH:mm'))
-      } else {
-        setSelectedDateTime(dayjs().add(1, 'day').hour(17).minute(0).format('YYYY-MM-DDTHH:mm'))
-      }
+      const initial = parseDueDateTo12h(dueDate)
+      setDateStr(initial.date)
+      setHour12(initial.hour)
+      setMinuteStr(initial.minute)
+      setAmpm(initial.ampm)
       setIsComplete(Boolean(isDueDateComplete))
     }
   }, [isOpen, dueDate, isDueDateComplete])
 
+  // Danh sách các phút, đảm bảo giá trị hiện tại luôn có trong danh sách
+  const minuteOptions = DEFAULT_MINUTES.includes(minuteStr)
+    ? DEFAULT_MINUTES
+    : [...DEFAULT_MINUTES, minuteStr].sort()
+
   const handleSave = () => {
-    if (!selectedDateTime) return
-    const timestamp = dayjs(selectedDateTime).valueOf()
+    if (!dateStr) return
+
+    let h24 = Number(hour12)
+    if (ampm === 'PM' && h24 < 12) h24 += 12
+    if (ampm === 'AM' && h24 === 12) h24 = 0
+
+    const finalDateTime = dayjs(dateStr).hour(h24).minute(Number(minuteStr)).second(0)
+
     onUpdateDueDate({
-      dueDate: timestamp,
+      dueDate: finalDateTime.valueOf(),
       isDueDateComplete: isComplete
     })
     onClose()
@@ -63,7 +99,7 @@ function CardDueDatePopover({ anchorEl, isOpen, onClose, dueDate, isDueDateCompl
       slotProps={{
         paper: {
           sx: {
-            width: 320,
+            width: 330,
             p: 2,
             borderRadius: 2,
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
@@ -83,17 +119,70 @@ function CardDueDatePopover({ anchorEl, isOpen, onClose, dueDate, isDueDateCompl
         </IconButton>
       </Box>
 
-      <Typography variant="caption" fontWeight={600} sx={{ color: 'text.secondary', mb: 0.5, display: 'block' }}>
-        DUE DATE & TIME
-      </Typography>
-      <TextField
-        fullWidth
-        size="small"
-        type="datetime-local"
-        value={selectedDateTime}
-        onChange={(e) => setSelectedDateTime(e.target.value)}
-        sx={{ mb: 1.5 }}
-      />
+      {/* Chọn Ngày */}
+      <Box sx={{ mb: 1.5 }}>
+        <Typography variant="caption" fontWeight={600} sx={{ color: 'text.secondary', mb: 0.5, display: 'block' }}>
+          DUE DATE
+        </Typography>
+        <TextField
+          fullWidth
+          size="small"
+          type="date"
+          value={dateStr}
+          onChange={(e) => setDateStr(e.target.value)}
+        />
+      </Box>
+
+      {/* Chọn Giờ: 1 đến 12 và AM/PM */}
+      <Box sx={{ mb: 1.5 }}>
+        <Typography variant="caption" fontWeight={600} sx={{ color: 'text.secondary', mb: 0.5, display: 'block' }}>
+          DUE TIME
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {/* Giờ từ 1 đến 12 */}
+          <Select
+            size="small"
+            value={hour12}
+            onChange={(e) => setHour12(Number(e.target.value))}
+            sx={{ flex: 1 }}
+            MenuProps={{ PaperProps: { sx: { maxHeight: 200 } } }}
+          >
+            {HOURS_12.map((h) => (
+              <MenuItem key={h} value={h}>
+                {h}
+              </MenuItem>
+            ))}
+          </Select>
+
+          <Typography fontWeight={700}>:</Typography>
+
+          {/* Phút */}
+          <Select
+            size="small"
+            value={minuteStr}
+            onChange={(e) => setMinuteStr(e.target.value)}
+            sx={{ flex: 1 }}
+            MenuProps={{ PaperProps: { sx: { maxHeight: 200 } } }}
+          >
+            {minuteOptions.map((m) => (
+              <MenuItem key={m} value={m}>
+                {m}
+              </MenuItem>
+            ))}
+          </Select>
+
+          {/* Buổi AM / PM */}
+          <Select
+            size="small"
+            value={ampm}
+            onChange={(e) => setAmpm(e.target.value)}
+            sx={{ width: 85 }}
+          >
+            <MenuItem value="AM">AM</MenuItem>
+            <MenuItem value="PM">PM</MenuItem>
+          </Select>
+        </Box>
+      </Box>
 
       <FormControlLabel
         control={
@@ -114,7 +203,7 @@ function CardDueDatePopover({ anchorEl, isOpen, onClose, dueDate, isDueDateCompl
           color="primary"
           size="small"
           onClick={handleSave}
-          disabled={!selectedDateTime}
+          disabled={!dateStr}
           sx={{ textTransform: 'none', fontWeight: 600 }}
         >
           Save
@@ -141,4 +230,3 @@ function CardDueDatePopover({ anchorEl, isOpen, onClose, dueDate, isDueDateCompl
 }
 
 export default CardDueDatePopover
-
