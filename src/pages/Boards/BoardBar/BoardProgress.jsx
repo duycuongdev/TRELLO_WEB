@@ -267,3 +267,4 @@ function BoardProgress({ board }) {
 }
 
 export default BoardProgress
+
