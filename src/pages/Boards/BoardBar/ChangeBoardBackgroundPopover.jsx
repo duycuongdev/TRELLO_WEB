@@ -141,7 +141,7 @@ function ChangeBoardBackgroundPopover({
       slotProps={{
         paper: {
           sx: {
-            width: 340,
+            width: 380,
             p: 2,
             borderRadius: 2,
             boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
@@ -163,14 +163,20 @@ function ChangeBoardBackgroundPopover({
       <Tabs
         value={tabIndex}
         onChange={(_, val) => setTabIndex(val)}
-        variant="fullWidth"
+        variant="scrollable"
+        scrollButtons="auto"
+        allowScrollButtonsMobile
         sx={{
-          minHeight: 36,
+          minHeight: 40,
           mb: 1.5,
+          borderBottom: '1px solid',
+          borderColor: 'divider',
           '& .MuiTab-root': {
-            minHeight: 36,
+            minHeight: 40,
+            minWidth: 'auto',
+            px: 1.8,
             py: 0.5,
-            fontSize: '12px',
+            fontSize: '13px',
             textTransform: 'none',
             fontWeight: 600
           }
