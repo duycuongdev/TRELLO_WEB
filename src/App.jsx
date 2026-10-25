@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import Settings from '~/pages/Settings/Settings'
 import Boards from '~/pages/Boards/index.jsx'
+import Home from '~/pages/Home/Home'
 
 /**
  * Giải pháp Clean Code trong việc xác định các route nào cần đăng nhập tài khoản xong thì mới cho truy cập
@@ -24,14 +25,9 @@ function App() {
   const currentUser = useSelector(selectCurrentUser)
   return (
     <Routes>
-      {/* redirect route */}
-      <Route path='/' element={
-        /***
-         * Ở đây cần replace giá trị true để nó thay thế route /, có thể hiểu route / sẽ không nằm
-         * trong lịch sử trình duyệt nữa, thực hành trên trang 404 để thấy sự khác biệt
-         */
-        <Navigate to='/boards/' replace={true} />
-      } />
+      {/* Landing Page: khách chưa đăng nhập xem trang giới thiệu; đã đăng nhập tự chuyển vào /boards */}
+      <Route path='/' element={currentUser ? <Navigate to='/boards/' replace={true} /> : <Home />} />
+      <Route path='/home' element={<Home />} />
 
       {/* Protected Routes (Hiểu đơn giản trong dự án của chúng ta là những route chỉ cho truy cập sau khi đã login) */}
       <Route element={<ProtectedRoute user={currentUser} />}>

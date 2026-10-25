@@ -1,0 +1,657 @@
+import { useSelector } from 'react-redux'
+import { Link } from 'react-router-dom'
+import Box from '@mui/material/Box'
+import Container from '@mui/material/Container'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import Stack from '@mui/material/Stack'
+import Grid from '@mui/material/Unstable_Grid2'
+import Chip from '@mui/material/Chip'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Avatar from '@mui/material/Avatar'
+import AvatarGroup from '@mui/material/AvatarGroup'
+import Divider from '@mui/material/Divider'
+import TrelloIcon from '~/components/Icons/TrelloIcon'
+import ModeSelect from '~/components/ModeSelect/ModeSelect'
+import { selectCurrentUser } from '~/redux/user/userSlice'
+
+// Material UI Icons
+import DashboardIcon from '@mui/icons-material/Dashboard'
+import TaskAltIcon from '@mui/icons-material/TaskAlt'
+import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined'
+import WallpaperOutlinedIcon from '@mui/icons-material/WallpaperOutlined'
+import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined'
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined'
+import FilterListIcon from '@mui/icons-material/FilterList'
+import AttachFileIcon from '@mui/icons-material/AttachFile'
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline'
+import SecurityIcon from '@mui/icons-material/Security'
+
+function Home() {
+  const currentUser = useSelector(selectCurrentUser)
+
+  const scrollToFeatures = () => {
+    const section = document.getElementById('features')
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
+  return (
+    <Box sx={{
+      minHeight: '100vh',
+      bgcolor: (theme) => theme.palette.mode === 'dark' ? '#0b1120' : '#ffffff',
+      color: (theme) => theme.palette.mode === 'dark' ? '#f1f5f9' : '#0f172a',
+      transition: 'background-color 0.3s ease'
+    }}>
+      {/* 1. Header / Navbar */}
+      <Box sx={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 1100,
+        backdropFilter: 'blur(12px)',
+        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(11, 17, 32, 0.85)' : 'rgba(255, 255, 255, 0.9)',
+        borderBottom: '1px solid',
+        borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'
+      }}>
+        <Container maxWidth="lg" sx={{ py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* Logo */}
+          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Box sx={{
+              width: 34,
+              height: 34,
+              borderRadius: 1.5,
+              bgcolor: 'primary.main',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white'
+            }}>
+              <TrelloIcon fontSize="small" sx={{ color: 'white' }} />
+            </Box>
+            <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main', letterSpacing: '-0.5px' }}>
+              Trello
+            </Typography>
+          </Link>
+
+          {/* Action buttons */}
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <ModeSelect />
+
+            {currentUser ? (
+              <>
+                <Chip
+                  avatar={<Avatar src={currentUser.avatar} alt={currentUser.displayName || currentUser.username} />}
+                  label={currentUser.displayName || currentUser.username}
+                  variant="outlined"
+                  sx={{ display: { xs: 'none', sm: 'inline-flex' }, fontWeight: 600 }}
+                />
+                <Button
+                  component={Link}
+                  to="/boards"
+                  variant="contained"
+                  endIcon={<ArrowForwardIcon />}
+                  sx={{ textTransform: 'none', fontWeight: 700, px: 2.5, borderRadius: 2 }}
+                >
+                  Go to boards
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  component={Link}
+                  to="/login"
+                  variant="text"
+                  sx={{ textTransform: 'none', fontWeight: 600, color: 'inherit' }}
+                >
+                  Log in
+                </Button>
+                <Button
+                  component={Link}
+                  to="/register"
+                  variant="contained"
+                  sx={{
+                    textTransform: 'none',
+                    fontWeight: 700,
+                    px: 2.5,
+                    borderRadius: 2,
+                    boxShadow: '0 4px 14px rgba(12, 102, 228, 0.35)'
+                  }}
+                >
+                  Get Trello for free
+                </Button>
+              </>
+            )}
+          </Stack>
+        </Container>
+      </Box>
+
+      {/* 2. Hero Section */}
+      <Box sx={{
+        position: 'relative',
+        overflow: 'hidden',
+        pt: { xs: 6, md: 10 },
+        pb: { xs: 8, md: 14 },
+        background: (theme) => theme.palette.mode === 'dark'
+          ? 'radial-gradient(circle at 50% 20%, rgba(37, 99, 235, 0.15) 0%, rgba(11, 17, 32, 0) 70%)'
+          : 'radial-gradient(circle at 50% 20%, rgba(224, 242, 254, 0.8) 0%, rgba(255, 255, 255, 0) 70%)'
+      }}>
+        <Container maxWidth="lg">
+          <Box sx={{ textAlign: 'center', maxWidth: 840, mx: 'auto', mb: { xs: 5, md: 8 } }}>
+            <Chip
+              label="⚡ Productivity reimagined for modern teams"
+              color="primary"
+              variant="outlined"
+              sx={{
+                mb: 3,
+                fontWeight: 600,
+                fontSize: '0.85rem',
+                borderRadius: 4,
+                borderColor: 'primary.light',
+                bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(37, 99, 235, 0.1)' : 'rgba(224, 242, 254, 0.5)'
+              }}
+            />
+
+            <Typography
+              variant="h2"
+              sx={{
+                fontWeight: 900,
+                letterSpacing: '-1.5px',
+                lineHeight: 1.15,
+                fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4.2rem' },
+                mb: 3
+              }}
+            >
+              Trello brings all your tasks, teammates, and tools together
+            </Typography>
+
+            <Typography
+              variant="h6"
+              sx={{
+                color: (theme) => theme.palette.mode === 'dark' ? '#94a3b8' : '#475569',
+                fontWeight: 400,
+                lineHeight: 1.6,
+                maxWidth: 680,
+                mx: 'auto',
+                mb: 4,
+                fontSize: { xs: '1rem', md: '1.25rem' }
+              }}
+            >
+              Keep everything in the same place — even if your team isn’t. Organize work, streamline workflows, and collaborate seamlessly with intuitive Kanban boards.
+            </Typography>
+
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              spacing={2}
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Button
+                component={Link}
+                to={currentUser ? '/boards' : '/register'}
+                variant="contained"
+                size="large"
+                endIcon={<ArrowForwardIcon />}
+                sx={{
+                  py: 1.6,
+                  px: 4,
+                  fontSize: '1.1rem',
+                  fontWeight: 700,
+                  borderRadius: 2.5,
+                  textTransform: 'none',
+                  boxShadow: '0 8px 24px rgba(12, 102, 228, 0.35)'
+                }}
+              >
+                {currentUser ? 'Go to your boards' : 'Get Trello for free'}
+              </Button>
+
+              <Button
+                variant="outlined"
+                size="large"
+                onClick={scrollToFeatures}
+                sx={{
+                  py: 1.6,
+                  px: 3.5,
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  borderRadius: 2.5,
+                  textTransform: 'none'
+                }}
+              >
+                Explore features
+              </Button>
+            </Stack>
+          </Box>
+
+          {/* 3. Interactive-Style Kanban Mockup Preview */}
+          <Box sx={{
+            p: { xs: 1.5, sm: 2.5 },
+            borderRadius: 3.5,
+            bgcolor: (theme) => theme.palette.mode === 'dark' ? '#1e293b' : '#0055cc',
+            boxShadow: '0 25px 60px -12px rgba(0, 0, 0, 0.35)',
+            border: '1px solid',
+            borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.2)'
+          }}>
+            {/* Mockup Header */}
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              pb: 2,
+              px: 1,
+              borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
+              color: 'white'
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <DashboardIcon />
+                <Typography variant="h6" fontWeight={700} sx={{ color: 'white' }}>
+                  Product Roadmap Q4
+                </Typography>
+                <Chip size="small" label="Public" sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white', fontWeight: 600 }} />
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Chip size="small" icon={<FilterListIcon sx={{ color: 'white !important' }} />} label="Filter" sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'white' }} />
+                <AvatarGroup max={4} sx={{ '& .MuiAvatar-root': { width: 28, height: 28, fontSize: 12, borderColor: 'transparent' } }}>
+                  <Avatar sx={{ bgcolor: '#e11d48' }}>A</Avatar>
+                  <Avatar sx={{ bgcolor: '#0284c7' }}>B</Avatar>
+                  <Avatar sx={{ bgcolor: '#10b981' }}>C</Avatar>
+                </AvatarGroup>
+              </Box>
+            </Box>
+
+            {/* Mockup Columns */}
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              {/* Column 1: To Do */}
+              <Grid xs={12} md={4}>
+                <Box sx={{
+                  bgcolor: (theme) => theme.palette.mode === 'dark' ? '#0f172a' : '#ebecf0',
+                  borderRadius: 2,
+                  p: 1.5,
+                  minHeight: 280
+                }}>
+                  <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5, px: 0.5 }}>
+                    📋 To Do
+                  </Typography>
+
+                  {/* Card 1 */}
+                  <Card sx={{ mb: 1.5, borderRadius: 1.5, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
+                      <Box sx={{ display: 'flex', gap: 0.5, mb: 1 }}>
+                        <Box sx={{ width: 40, height: 6, bgcolor: '#8b5cf6', borderRadius: 1 }} />
+                        <Box sx={{ width: 40, height: 6, bgcolor: '#06b6d4', borderRadius: 1 }} />
+                      </Box>
+                      <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+                        Research competitor dashboard features
+                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'text.secondary', fontSize: 12 }}>
+                        <Chip size="small" icon={<WatchLaterOutlinedIcon sx={{ fontSize: '14px !important' }} />} label="Oct 28" sx={{ height: 22, fontSize: 11 }} />
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+                            <TaskAltIcon sx={{ fontSize: 14 }} /> 2/5
+                          </Box>
+                          <Avatar sx={{ width: 22, height: 22, fontSize: 10, bgcolor: '#0284c7' }}>B</Avatar>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+
+                  {/* Card 2 */}
+                  <Card sx={{ borderRadius: 1.5, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
+                      <Typography variant="body2" fontWeight={600}>
+                        Design system UI kit & dark mode palettes
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Box>
+              </Grid>
+
+              {/* Column 2: In Progress */}
+              <Grid xs={12} md={4}>
+                <Box sx={{
+                  bgcolor: (theme) => theme.palette.mode === 'dark' ? '#0f172a' : '#ebecf0',
+                  borderRadius: 2,
+                  p: 1.5,
+                  minHeight: 280
+                }}>
+                  <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5, px: 0.5 }}>
+                    🚀 In Progress
+                  </Typography>
+
+                  {/* Card with cover & checklist */}
+                  <Card sx={{ mb: 1.5, borderRadius: 1.5, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <Box sx={{ height: 38, bgcolor: '#22c55e' }} />
+                    <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
+                      <Box sx={{ display: 'flex', gap: 0.5, mb: 1 }}>
+                        <Box sx={{ width: 40, height: 6, bgcolor: '#22c55e', borderRadius: 1 }} />
+                      </Box>
+                      <Typography variant="body2" fontWeight={600} sx={{ mb: 1.5 }}>
+                        Implement Checklists, Labels & Cover Upload
+                      </Typography>
+
+                      {/* Checklist progress bar */}
+                      <Box sx={{ mb: 1.5 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 700, color: '#16a34a', mb: 0.5 }}>
+                          <span>Checklist</span>
+                          <span>100%</span>
+                        </Box>
+                        <Box sx={{ height: 6, bgcolor: '#e2e8f0', borderRadius: 1, overflow: 'hidden' }}>
+                          <Box sx={{ width: '100%', height: '100%', bgcolor: '#22c55e' }} />
+                        </Box>
+                      </Box>
+
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'text.secondary', fontSize: 12 }}>
+                        <Chip size="small" label="COMPLETED" color="success" sx={{ height: 20, fontSize: 10, fontWeight: 700 }} />
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}><AttachFileIcon sx={{ fontSize: 14 }} /> 2</Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}><ChatBubbleOutlineIcon sx={{ fontSize: 14 }} /> 4</Box>
+                          <Avatar sx={{ width: 22, height: 22, fontSize: 10, bgcolor: '#e11d48' }}>A</Avatar>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Box>
+              </Grid>
+
+              {/* Column 3: Done */}
+              <Grid xs={12} md={4}>
+                <Box sx={{
+                  bgcolor: (theme) => theme.palette.mode === 'dark' ? '#0f172a' : '#ebecf0',
+                  borderRadius: 2,
+                  p: 1.5,
+                  minHeight: 280
+                }}>
+                  <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5, px: 0.5 }}>
+                    ✅ Done
+                  </Typography>
+
+                  <Card sx={{ mb: 1.5, borderRadius: 1.5, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
+                      <Box sx={{ display: 'flex', gap: 0.5, mb: 1 }}>
+                        <Box sx={{ width: 40, height: 6, bgcolor: '#3b82f6', borderRadius: 1 }} />
+                      </Box>
+                      <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+                        Board Background Customization via Cloudinary
+                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Chip size="small" icon={<CheckCircleIcon sx={{ fontSize: '14px !important', color: '#16a34a' }} />} label="Verified" sx={{ height: 22, fontSize: 11 }} />
+                        <Avatar sx={{ width: 22, height: 22, fontSize: 10, bgcolor: '#10b981' }}>C</Avatar>
+                      </Box>
+                    </CardContent>
+                  </Card>
+
+                  <Card sx={{ borderRadius: 1.5, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
+                      <Typography variant="body2" fontWeight={600}>
+                        Board Close, Reopen & Permanent Cascading Delete
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
+        </Container>
+      </Box>
+
+      {/* 4. Feature Cards Section */}
+      <Box id="features" sx={{ py: { xs: 8, md: 12 }, bgcolor: (theme) => theme.palette.mode === 'dark' ? '#0b1120' : '#f8fafc' }}>
+        <Container maxWidth="lg">
+          <Box sx={{ textAlign: 'center', maxWidth: 700, mx: 'auto', mb: 8 }}>
+            <Typography variant="overline" color="primary" fontWeight={700} letterSpacing={1.5}>
+              POWERFUL CAPABILITIES
+            </Typography>
+            <Typography variant="h3" fontWeight={800} letterSpacing="-1px" sx={{ mt: 1, mb: 2 }}>
+              Everything you need to stay in flow
+            </Typography>
+            <Typography variant="body1" color="text.secondary" fontSize="1.1rem">
+              From personal daily tasks to collaborative team workflows, our Kanban system provides all the tools required for maximum productivity.
+            </Typography>
+          </Box>
+
+          <Grid container spacing={3}>
+            {/* Feature 1 */}
+            <Grid xs={12} sm={6} md={3}>
+              <Card sx={{
+                height: '100%',
+                borderRadius: 3,
+                p: 1,
+                border: '1px solid',
+                borderColor: 'divider',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                '&:hover': { transform: 'translateY(-4px)', boxShadow: 6 }
+              }}>
+                <CardContent>
+                  <Box sx={{ width: 48, height: 48, borderRadius: 2, bgcolor: 'primary.main', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', mb: 2.5 }}>
+                    <DashboardIcon />
+                  </Box>
+                  <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                    Flexible Kanban
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" lineHeight={1.6}>
+                    Fluid drag-and-drop cards between columns. Reorder lists, clone tasks, and manage project workflows effortlessly.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Feature 2 */}
+            <Grid xs={12} sm={6} md={3}>
+              <Card sx={{
+                height: '100%',
+                borderRadius: 3,
+                p: 1,
+                border: '1px solid',
+                borderColor: 'divider',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                '&:hover': { transform: 'translateY(-4px)', boxShadow: 6 }
+              }}>
+                <CardContent>
+                  <Box sx={{ width: 48, height: 48, borderRadius: 2, bgcolor: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', mb: 2.5 }}>
+                    <TaskAltIcon />
+                  </Box>
+                  <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                    Smart Checklists & Dates
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" lineHeight={1.6}>
+                    Set due dates with smart deadline indicators (Overdue, Due Soon, Completed) and track subtask progress with live % bars.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Feature 3 */}
+            <Grid xs={12} sm={6} md={3}>
+              <Card sx={{
+                height: '100%',
+                borderRadius: 3,
+                p: 1,
+                border: '1px solid',
+                borderColor: 'divider',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                '&:hover': { transform: 'translateY(-4px)', boxShadow: 6 }
+              }}>
+                <CardContent>
+                  <Box sx={{ width: 48, height: 48, borderRadius: 2, bgcolor: '#8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', mb: 2.5 }}>
+                    <WallpaperOutlinedIcon />
+                  </Box>
+                  <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                    Visual Personalization
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" lineHeight={1.6}>
+                    Customize board wallpapers with Unsplash photos, gradients, or upload your own image files directly to Cloudinary.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Feature 4 */}
+            <Grid xs={12} sm={6} md={3}>
+              <Card sx={{
+                height: '100%',
+                borderRadius: 3,
+                p: 1,
+                border: '1px solid',
+                borderColor: 'divider',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                '&:hover': { transform: 'translateY(-4px)', boxShadow: 6 }
+              }}>
+                <CardContent>
+                  <Box sx={{ width: 48, height: 48, borderRadius: 2, bgcolor: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', mb: 2.5 }}>
+                    <GroupOutlinedIcon />
+                  </Box>
+                  <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                    Team Collaboration
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" lineHeight={1.6}>
+                    Invite teammates by email with real-time socket notifications, assign card members, and collaborate in rich activity threads.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* 5. Deep Dive Feature Highlights (2-Column Alternating) */}
+      <Container maxWidth="lg" sx={{ py: { xs: 8, md: 14 } }}>
+        <Grid container spacing={6} alignItems="center">
+          <Grid xs={12} md={6}>
+            <Chip label="DEEP ORGANIZATION" color="primary" size="small" sx={{ fontWeight: 700, mb: 2 }} />
+            <Typography variant="h3" fontWeight={800} letterSpacing="-1px" sx={{ mb: 2.5 }}>
+              Cards that carry every single detail
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3, fontSize: '1.1rem', lineHeight: 1.7 }}>
+              Every card is a self-contained hub for productivity. Attach files, configure colorful customizable label strips, write comprehensive descriptions, and track feedback with editable comments.
+            </Typography>
+
+            <Stack spacing={1.5}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <CheckCircleIcon color="success" />
+                <Typography fontWeight={600}>File attachments with instant make-cover previews</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <CheckCircleIcon color="success" />
+                <Typography fontWeight={600}>Color-coded labels with title search and quick filters</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <CheckCircleIcon color="success" />
+                <Typography fontWeight={600}>Duplicate and move cards between lists in a click</Typography>
+              </Box>
+            </Stack>
+          </Grid>
+
+          <Grid xs={12} md={6}>
+            <Box sx={{
+              p: 3,
+              borderRadius: 3,
+              bgcolor: (theme) => theme.palette.mode === 'dark' ? '#1e293b' : '#f1f5f9',
+              border: '1px solid',
+              borderColor: 'divider',
+              boxShadow: '0 12px 30px rgba(0,0,0,0.06)'
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <ArchiveOutlinedIcon color="primary" />
+                <Typography variant="h6" fontWeight={700}>
+                  Peace of mind with Archive & Reopen
+                </Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2, lineHeight: 1.6 }}>
+                Finished a sprint or closed a project? Archive cards and columns without losing valuable history. Access the dedicated <strong>Archived Items Drawer</strong> anytime to restore or permanently clean up.
+              </Typography>
+              <Divider sx={{ my: 2 }} />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <SecurityIcon color="primary" />
+                <Typography variant="body2" color="text.secondary">
+                  Owner-only board close and permanent cascading deletion safeguards your critical data.
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
+      </Container>
+
+      {/* 6. Call To Action Banner */}
+      <Box sx={{
+        bgcolor: 'primary.main',
+        color: 'white',
+        py: { xs: 8, md: 10 },
+        textAlign: 'center'
+      }}>
+        <Container maxWidth="md">
+          <Typography variant="h3" fontWeight={800} letterSpacing="-1px" sx={{ mb: 2, fontSize: { xs: '2rem', md: '2.8rem' } }}>
+            Ready to supercharge your workflow?
+          </Typography>
+          <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 400, mb: 4, maxWidth: 600, mx: 'auto' }}>
+            Start managing your projects, ideas, and team tasks with clarity and speed today.
+          </Typography>
+          <Button
+            component={Link}
+            to={currentUser ? '/boards' : '/register'}
+            variant="contained"
+            size="large"
+            endIcon={<ArrowForwardIcon />}
+            sx={{
+              bgcolor: 'white',
+              color: 'primary.main',
+              py: 1.8,
+              px: 4.5,
+              fontSize: '1.15rem',
+              fontWeight: 800,
+              borderRadius: 2.5,
+              textTransform: 'none',
+              '&:hover': {
+                bgcolor: '#f8fafc',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)'
+              }
+            }}
+          >
+            {currentUser ? 'Go to your boards' : 'Get started — It’s free!'}
+          </Button>
+        </Container>
+      </Box>
+
+      {/* 7. Footer */}
+      <Box sx={{
+        py: 5,
+        bgcolor: (theme) => theme.palette.mode === 'dark' ? '#070d18' : '#0f172a',
+        color: '#94a3b8',
+        borderTop: '1px solid',
+        borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.1)'
+      }}>
+        <Container maxWidth="lg">
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <TrelloIcon fontSize="small" sx={{ color: 'primary.light' }} />
+              <Typography variant="subtitle1" fontWeight={700} color="white">
+                Trello
+              </Typography>
+              <Typography variant="body2" sx={{ ml: 1 }}>
+                © 2026 Trello Clone. Built with React, Vite, MUI & Node.js.
+              </Typography>
+            </Box>
+
+            <Stack direction="row" spacing={3}>
+              <Link to="/boards" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px' }}>
+                Boards
+              </Link>
+              <Link to="/login" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px' }}>
+                Log in
+              </Link>
+              <Link to="/register" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px' }}>
+                Sign up
+              </Link>
+            </Stack>
+          </Box>
+        </Container>
+      </Box>
+    </Box>
+  )
+}
+
+export default Home
+
