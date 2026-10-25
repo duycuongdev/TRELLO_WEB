@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, lazy, Suspense } from 'react'
+import CircularProgress from '@mui/material/CircularProgress'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Modal from '@mui/material/Modal'
@@ -31,7 +32,7 @@ import { toast } from 'react-toastify'
 import { useConfirm } from 'material-ui-confirm'
 import dayjs from 'dayjs'
 import CardUserGroup from './CardUserGroup'
-import CardDescriptionMdEditor from './CardDescriptionMdEditor'
+const CardDescriptionMdEditor = lazy(() => import('./CardDescriptionMdEditor'))
 import CardActivitySection from './CardActivitySection'
 import CardLabelPopover from './CardLabelPopover'
 import CardChecklistPopover from './CardChecklistPopover'
@@ -481,10 +482,17 @@ function ActiveCard() {
               </Box>
 
               {/* Feature 03: Xử lý mô tả của Card */}
-              <CardDescriptionMdEditor
-                cardDescriptionProp={activeCard?.description}
-                handleUpdateCardDescription={onUpdateCardDescription}
-              />
+              <Suspense fallback={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 2 }}>
+                  <CircularProgress size={20} />
+                  <Typography variant="body2" color="text.secondary">Loading editor...</Typography>
+                </Box>
+              }>
+                <CardDescriptionMdEditor
+                  cardDescriptionProp={activeCard?.description}
+                  handleUpdateCardDescription={onUpdateCardDescription}
+                />
+              </Suspense>
             </Box>
 
             {/* Feature 10: Xử lý tệp đính kèm (Attachments) */}
