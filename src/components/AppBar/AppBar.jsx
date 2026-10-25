@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import ModeSelect from '~/components/ModeSelect/ModeSelect'
 import Box from '@mui/material/Box'
 import AppsIcon from '@mui/icons-material/Apps'
@@ -10,9 +11,30 @@ import Notifications from './Notifications/Notifications'
 import AutoCompleteSearchBoard from './SearchBoards/AutoCompleteSearchBoard'
 import { useSelector } from 'react-redux'
 import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { selectCurrentUser } from '~/redux/user/userSlice'
+import UserOnboardingModal from '~/components/Modal/UserOnboardingModal/UserOnboardingModal'
 
 function AppBar() {
   const activeBoard = useSelector(selectCurrentActiveBoard)
+  const currentUser = useSelector(selectCurrentUser)
+  const [openTour, setOpenTour] = useState(false)
+
+  // Tự động bật Tour giới thiệu tính năng khi người dùng đăng nhập lần đầu
+  useEffect(() => {
+    if (currentUser?._id) {
+      const tourCompleted = localStorage.getItem(`trello_tour_completed_${currentUser._id}`)
+      if (!tourCompleted) {
+        setOpenTour(true)
+      }
+    }
+  }, [currentUser?._id])
+
+  const handleCloseTour = () => {
+    setOpenTour(false)
+    if (currentUser?._id) {
+      localStorage.setItem(`trello_tour_completed_${currentUser._id}`, 'true')
+    }
+  }
 
   return (
     <Box sx={{
@@ -57,8 +79,11 @@ function AppBar() {
         {/* notifications */}
         <Notifications />
 
-        <Profile />
+        <Profile onOpenTour={() => setOpenTour(true)} />
       </Box>
+
+      {/* Modal giới thiệu toàn bộ tính năng website cho người dùng */}
+      <UserOnboardingModal open={openTour} onClose={handleCloseTour} />
     </Box>
   )
 }

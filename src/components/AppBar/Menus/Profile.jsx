@@ -10,12 +10,13 @@ import IconButton from '@mui/material/IconButton'
 import PersonAdd from '@mui/icons-material/PersonAdd'
 import Settings from '@mui/icons-material/Settings'
 import Logout from '@mui/icons-material/Logout'
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentUser, logoutUserAPI } from '~/redux/user/userSlice'
 import { useConfirm } from 'material-ui-confirm'
 import { Link } from 'react-router-dom'
 
-function Profile() {
+function Profile({ onOpenTour }) {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const open = Boolean(anchorEl)
   const handleClick = (event) => {
@@ -64,10 +65,9 @@ function Profile() {
         onClick={handleClose}
         MenuListProps={{
           'aria-labelledby': 'basic-button-profile'
-
         }}
       >
-        <Link to='/settings/account'style={{ color: 'inherit' }}>
+        <Link to='/settings/account' style={{ color: 'inherit' }}>
           <MenuItem sx={{ '&:hover': { color: 'success.light' } }}>
             <Avatar
               sx={{ width: 28, height: 28, mr: 2 }}
@@ -76,6 +76,15 @@ function Profile() {
           </MenuItem>
         </Link>
         <Divider />
+        <MenuItem onClick={() => {
+          handleClose()
+          if (onOpenTour) onOpenTour()
+        }}>
+          <ListItemIcon>
+            <HelpOutlineIcon fontSize="small" />
+          </ListItemIcon>
+          Hướng dẫn sử dụng (Tour)
+        </MenuItem>
         <MenuItem>
           <ListItemIcon>
             <PersonAdd fontSize="small" />

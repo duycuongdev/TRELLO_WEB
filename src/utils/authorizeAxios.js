@@ -52,15 +52,16 @@ authorizedAxiosInstance.interceptors.response.use(
     // Kỹ thuật chặn spam click (xem kỹ mô tả ở file formatters chứa function)
     interceptorLoadingElements(false)
 
+    const originalRequests = error.config
+
     /** Quan trọng: Xử lý Refresh Token tự động */
-    // Trường hợp 1: Nếu như nhận mã 401 từ BE, thì gọi api đăng xuất luôn
-    if (error.response?.status === 401) {
+    // Trường hợp 1: Nếu như nhận mã 401 từ BE, thì gọi api đăng xuất luôn (ngoại trừ khi đang ở endpoint login / register)
+    if (error.response?.status === 401 && !originalRequests?.url?.includes('/users/login') && !originalRequests?.url?.includes('/users/register')) {
       axiosReduxStore.dispatch(logoutUserAPI(false))
     }
 
     // Trường hợp 2: Nếu như nhận mã 410 từ BE, thì sẽ gọi api refresh token để làm mới lại accessToken
     // Đầu tiên lấy được các request API đang bị lỗi thông qua error.config
-    const originalRequests = error.config
     if (error.response?.status === 410 && !originalRequests._retry) {
       // Gán cờ _retry = true để tránh việc vô tình rơi vào vòng lặp vô hạn khi refresh token bị lỗi
       originalRequests._retry = true
@@ -110,6 +111,5 @@ authorizedAxiosInstance.interceptors.response.use(
     return Promise.reject(error)
   }
 )
-
 
 export default authorizedAxiosInstance
