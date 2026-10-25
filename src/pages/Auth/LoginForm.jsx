@@ -1,15 +1,13 @@
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Avatar from '@mui/material/Avatar'
-import LockIcon from '@mui/icons-material/Lock'
 import Typography from '@mui/material/Typography'
 import { Card as MuiCard } from '@mui/material'
 import TrelloIcon from '~/components/Icons/TrelloIcon'
 import CardActions from '@mui/material/CardActions'
 import TextField from '@mui/material/TextField'
 import Zoom from '@mui/material/Zoom'
-// import Alert from '@mui/material/Alert'
+import Alert from '@mui/material/Alert'
 import { useForm } from 'react-hook-form'
 import {
   EMAIL_RULE,
@@ -19,19 +17,16 @@ import {
   PASSWORD_RULE_MESSAGE
 } from '~/utils/validators'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
-import { useSearchParams, useNavigate } from 'react-router-dom'
-import Alert from '@mui/material/Alert'
 import { toast } from 'react-toastify'
 import { useDispatch } from 'react-redux'
 import { loginUserApi } from '~/redux/user/userSlice'
-
 
 function LoginForm() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
   const { handleSubmit, register, formState: { errors } } = useForm()
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const registeredEmail = searchParams.get('registeredEmail')
   const verifiedEmail = searchParams.get('verifiedEmail')
 
@@ -40,47 +35,79 @@ function LoginForm() {
     toast.promise(dispatch(loginUserApi({ email, password })), {
       pending: 'Logging in...'
     }).then((res) => {
-      // console.log(res)
-      // Login successful
       if (!res.error) { navigate('/') }
     })
   }
+
   return (
-    <form onSubmit={handleSubmit(submitLogIn)}>
-      <Zoom in={true} style={{ transitionDelay: '200ms' }}>
-        <MuiCard sx={{ minWidth: 380, maxWidth: 380, marginTop: '6em' }}>
+    <form onSubmit={handleSubmit(submitLogIn)} style={{ width: '100%', maxWidth: 420 }}>
+      <Zoom in={true} style={{ transitionDelay: '150ms' }}>
+        <MuiCard sx={{
+          width: '100%',
+          borderRadius: 3.5,
+          boxShadow: (theme) => theme.palette.mode === 'dark'
+            ? '0 12px 40px rgba(0, 0, 0, 0.45)'
+            : '0 12px 36px rgba(0, 0, 0, 0.08)',
+          border: '1px solid',
+          borderColor: 'divider',
+          bgcolor: (theme) => theme.palette.mode === 'dark' ? '#1e293b' : '#ffffff',
+          p: 1.5
+        }}>
+          {/* Header */}
           <Box sx={{
-            margin: '1em',
+            mt: 1.5,
+            mb: 2,
             display: 'flex',
-            justifyContent: 'center',
+            flexDirection: 'column',
+            alignItems: 'center',
             gap: 1
           }}>
-            <Avatar sx={{ bgcolor: 'primary.main' }}><LockIcon /></Avatar>
-            <Avatar sx={{ bgcolor: 'primary.main' }}><TrelloIcon /></Avatar>
+            <Box sx={{
+              width: 44,
+              height: 44,
+              borderRadius: 2,
+              bgcolor: 'primary.main',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              boxShadow: '0 4px 12px rgba(12, 102, 228, 0.3)'
+            }}>
+              <TrelloIcon fontSize="medium" sx={{ color: 'white' }} />
+            </Box>
+            <Typography variant="h5" fontWeight={800} sx={{ letterSpacing: '-0.5px' }}>
+              Log in to continue
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Welcome back! Please enter your details.
+            </Typography>
           </Box>
-          <Box sx={{ marginTop: '1em', display: 'flex', justifyContent: 'center', flexDirection: 'column', padding: '0 1em' }}>
+
+          {/* Email verification alerts */}
+          <Box sx={{ px: 1.5, mb: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
             {verifiedEmail &&
-              <Alert severity="success" sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
+              <Alert severity="success" sx={{ borderRadius: 2, '.MuiAlert-message': { overflow: 'hidden' } }}>
                 Your email&nbsp;
-                <Typography variant="span" sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}>{verifiedEmail}</Typography>
-                &nbsp;has been verified.<br />Now you can login to enjoy our services! Have a good day!
+                <Typography component="span" sx={{ fontWeight: 'bold' }}>{verifiedEmail}</Typography>
+                &nbsp;has been verified.<br />Now you can log in to enjoy our services!
               </Alert>
             }
             {registeredEmail &&
-              <Alert severity="info" sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
+              <Alert severity="info" sx={{ borderRadius: 2, '.MuiAlert-message': { overflow: 'hidden' } }}>
                 An email has been sent to&nbsp;
-                <Typography variant="span" sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}>{registeredEmail}</Typography>
+                <Typography component="span" sx={{ fontWeight: 'bold' }}>{registeredEmail}</Typography>
                 <br />Please check and verify your account before logging in!
               </Alert>
             }
           </Box>
-          <Box sx={{ padding: '0 1em 1em 1em' }}>
-            <Box sx={{ marginTop: '1em' }}>
+
+          {/* Inputs */}
+          <Box sx={{ px: 1.5, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box>
               <TextField
-                // autoComplete="nope"
                 autoFocus
                 fullWidth
-                label="Enter Email..."
+                label="Email"
                 type="text"
                 variant="outlined"
                 error={!!errors.email}
@@ -94,10 +121,11 @@ function LoginForm() {
               />
               <FieldErrorAlert errors={errors} fieldName="email" />
             </Box>
-            <Box sx={{ marginTop: '1em' }}>
+
+            <Box>
               <TextField
                 fullWidth
-                label="Enter Password..."
+                label="Password"
                 type="password"
                 variant="outlined"
                 error={!!errors.password}
@@ -112,7 +140,9 @@ function LoginForm() {
               <FieldErrorAlert errors={errors} fieldName="password" />
             </Box>
           </Box>
-          <CardActions sx={{ padding: '0 1em 1em 1em' }}>
+
+          {/* Submit Action */}
+          <CardActions sx={{ px: 1.5, pt: 2.5, pb: 1 }}>
             <Button
               className="interceptor-loading"
               type="submit"
@@ -120,15 +150,27 @@ function LoginForm() {
               color="primary"
               size="large"
               fullWidth
+              sx={{
+                py: 1.3,
+                borderRadius: 2,
+                fontWeight: 700,
+                fontSize: '1rem',
+                textTransform: 'none',
+                boxShadow: '0 4px 14px rgba(12, 102, 228, 0.35)'
+              }}
             >
-              Login
+              Log in
             </Button>
           </CardActions>
-          <Box sx={{ padding: '0 1em 1em 1em', textAlign: 'center' }}>
-            <Typography>New to Trello MERN Stack Advanced?</Typography>
-            <Link to="/register" style={{ textDecoration: 'none' }}>
-              <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}>Create account!</Typography>
-            </Link>
+
+          {/* Bottom link */}
+          <Box sx={{ p: 1.5, textAlign: 'center' }}>
+            <Typography variant="body2" color="text.secondary">
+              Don&apos;t have an account yet?{' '}
+              <Link to="/register" style={{ textDecoration: 'none', fontWeight: 700, color: '#0c66e4' }}>
+                Sign up
+              </Link>
+            </Typography>
           </Box>
         </MuiCard>
       </Zoom>
