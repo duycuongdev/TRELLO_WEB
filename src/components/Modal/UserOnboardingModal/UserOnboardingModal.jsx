@@ -24,14 +24,14 @@ const TOUR_STEPS = [
   {
     stepIndex: 1,
     icon: <DashboardCustomizeIcon sx={{ fontSize: 36, color: '#0052cc' }} />,
-    tag: 'BƯỚC 1 / 5 • KHÁM PHÁ TỔNG QUAN',
+    tag: 'STEP 1 / 5 • WORKSPACE OVERVIEW',
     tagColor: 'primary',
-    title: 'Chào mừng bạn đến với Trello Kanban!',
-    subtitle: 'Không gian làm việc trực quan giúp bạn quản lý mọi dự án, sắp xếp công việc và nâng cao hiệu suất mỗi ngày.',
+    title: 'Welcome to Trello Kanban!',
+    subtitle: 'A visual workspace designed to help you organize projects, manage daily tasks, and boost team productivity.',
     highlights: [
-      'Tạo không giới hạn các Bảng (Boards) cho từng dự án hoặc mục tiêu cá nhân.',
-      'Hỗ trợ chế độ Dark Mode & Light Mode linh hoạt, thân thiện với mắt khi làm việc ban đêm.',
-      'Dễ dàng quản lý Bảng đang hoạt động và Bảng đã lưu trữ (Archive), khôi phục hoặc xóa vĩnh viễn an toàn.'
+      'Create unlimited dedicated Boards for projects, personal goals, or team workflows.',
+      'Full Dark Mode & Light Mode support with smooth, eye-friendly transitions.',
+      'Easily manage active and archived boards with one-click restore or permanent delete.'
     ],
     preview: (
       <Box sx={{
@@ -60,14 +60,14 @@ const TOUR_STEPS = [
   {
     stepIndex: 2,
     icon: <ViewColumnIcon sx={{ fontSize: 36, color: '#0284c7' }} />,
-    tag: 'BƯỚC 2 / 5 • QUY TRÌNH KANBAN',
+    tag: 'STEP 2 / 5 • KANBAN WORKFLOW',
     tagColor: 'info',
-    title: 'Kéo thả Cột (Lists) & Thẻ (Cards) linh hoạt',
-    subtitle: 'Trực quan hóa luồng công việc từ Chưa làm -> Đang làm -> Đã hoàn thành chỉ bằng thao tác kéo thả.',
+    title: 'Flexible Lists & Cards Drag-and-Drop',
+    subtitle: 'Seamlessly visualize your workflow from To Do -> In Progress -> Done with fluid drag-and-drop.',
     highlights: [
-      'Kéo thả mượt mà danh sách cột và từng thẻ công việc bằng công nghệ dnd-kit hiện đại.',
-      'Nhân bản (Copy) thẻ hoặc di chuyển (Move) thẻ sang cột khác nhanh chóng.',
-      'Soạn thảo nội dung mô tả chi tiết bằng Markdown Editor hỗ trợ định dạng trực quan.'
+      'Smoothly reorder columns and cards with modern dnd-kit touch and mouse gestures.',
+      'Instantly duplicate (Copy) or move cards across columns on the board.',
+      'Compose rich task descriptions using the built-in formatted Markdown Editor.'
     ],
     preview: (
       <Box sx={{
@@ -98,14 +98,14 @@ const TOUR_STEPS = [
   {
     stepIndex: 3,
     icon: <CheckCircleOutlineIcon sx={{ fontSize: 36, color: '#16a34a' }} />,
-    tag: 'BƯỚC 3 / 5 • TIẾN ĐỘ & HẠN CHÓT',
+    tag: 'STEP 3 / 5 • CHECKLISTS & DEADLINES',
     tagColor: 'success',
-    title: 'Checklist công việc & Huy hiệu Deadline',
-    subtitle: 'Chia nhỏ nhiệm vụ lớn thành từng mục con và kiểm soát thời gian hoàn thành chính xác.',
+    title: 'Smart Checklists & Due Date Badges',
+    subtitle: 'Break down complex goals into actionable sub-tasks and track deadlines with ease.',
     highlights: [
-      'Tạo nhiều Checklist trong thẻ với thanh tiến độ % tự động cập nhật khi đánh dấu.',
-      'Thiết lập Ngày hết hạn (Due Date) với bộ đếm ngược thông minh.',
-      'Huy hiệu màu trực quan: Xanh (Đã xong), Vàng (Sắp đến hạn), Đỏ (Đã quá hạn).'
+      'Create multiple checklists per card with real-time percentage progress bars.',
+      'Set precise Due Dates with smart countdown countdown badges.',
+      'Automated color badges: Green (Completed), Amber (Due within 24h), Red (Overdue).'
     ],
     preview: (
       <Box sx={{
@@ -116,11 +116,11 @@ const TOUR_STEPS = [
         borderColor: (theme) => theme.palette.mode === 'dark' ? '#334155' : '#86efac'
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-          <Typography sx={{ fontSize: '0.8rem', fontWeight: 700 }}>Tiến độ Checklist: 75%</Typography>
+          <Typography sx={{ fontSize: '0.8rem', fontWeight: 700 }}>Checklist Progress: 75%</Typography>
           <Chip
             size="small"
             icon={<AccessTimeIcon sx={{ fontSize: '14px !important' }} />}
-            label="Hạn: Ngày mai"
+            label="Due: Tomorrow"
             sx={{ bgcolor: '#fef3c7', color: '#b45309', fontWeight: 600, fontSize: '0.72rem' }}
           />
         </Box>
@@ -128,15 +128,15 @@ const TOUR_STEPS = [
         <Stack spacing={0.6}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.75rem', color: 'text.secondary' }}>
             <CheckCircleIcon sx={{ fontSize: 16, color: '#16a34a' }} />
-            <span style={{ textDecoration: 'line-through' }}>Viết tài liệu API</span>
+            <span style={{ textDecoration: 'line-through' }}>API Documentation</span>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.75rem', color: 'text.secondary' }}>
             <CheckCircleIcon sx={{ fontSize: 16, color: '#16a34a' }} />
-            <span style={{ textDecoration: 'line-through' }}>Kiểm thử phân trang</span>
+            <span style={{ textDecoration: 'line-through' }}>Pagination Integration</span>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.75rem', fontWeight: 600 }}>
             <Box sx={{ width: 14, height: 14, borderRadius: '3px', border: '2px solid #cbd5e1' }} />
-            <span>Deploy bản thử nghiệm</span>
+            <span>Production Deployment</span>
           </Box>
         </Stack>
       </Box>
@@ -145,14 +145,14 @@ const TOUR_STEPS = [
   {
     stepIndex: 4,
     icon: <PaletteIcon sx={{ fontSize: 36, color: '#9333ea' }} />,
-    tag: 'BƯỚC 4 / 5 • CÁ NHÂN HÓA',
+    tag: 'STEP 4 / 5 • CUSTOMIZATION',
     tagColor: 'secondary',
-    title: 'Nhãn màu phân loại & Tùy biến hình nền',
-    subtitle: 'Đem lại cá tính riêng cho không gian làm việc và nhận diện mức độ ưu tiên chỉ trong 1 giây.',
+    title: 'Color-Coded Labels & Board Wallpapers',
+    subtitle: 'Give your workspace personality and recognize task priority at a single glance.',
     highlights: [
-      'Gắn nhiều Nhãn màu (Labels) kèm tiêu đề tùy chỉnh (Khẩn cấp, Thiết kế, Lỗi, Tính năng...).',
-      'Đổi ảnh nền bảng chuyên nghiệp: kho ảnh Unsplash chọn lọc hoặc tải ảnh riêng qua Cloudinary.',
-      'Bộ lọc thẻ đa năng: tìm kiếm tức thì theo nhãn, từ khóa hoặc thành viên phụ trách.'
+      'Attach multi-colored Labels with custom titles (Urgent, Bug, Feature, Design, etc.).',
+      'Customize board backgrounds from curated Unsplash photos or upload your own via Cloudinary.',
+      'Filter cards instantly by labels, keywords, or assigned team members.'
     ],
     preview: (
       <Box sx={{
@@ -167,24 +167,24 @@ const TOUR_STEPS = [
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        <Chip size="small" label="🚨 Khẩn cấp" sx={{ bgcolor: '#fee2e2', color: '#b91c1c', fontWeight: 700 }} />
+        <Chip size="small" label="🚨 Urgent" sx={{ bgcolor: '#fee2e2', color: '#b91c1c', fontWeight: 700 }} />
         <Chip size="small" label="✨ Feature" sx={{ bgcolor: '#e0e7ff', color: '#4338ca', fontWeight: 700 }} />
         <Chip size="small" label="🎨 UI/UX Design" sx={{ bgcolor: '#fce7f3', color: '#be185d', fontWeight: 700 }} />
-        <Chip size="small" label="🖼️ Đổi Wallpaper Unsplash" variant="outlined" sx={{ fontWeight: 600 }} />
+        <Chip size="small" label="🖼️ Unsplash Wallpaper" variant="outlined" sx={{ fontWeight: 600 }} />
       </Box>
     )
   },
   {
     stepIndex: 5,
     icon: <GroupAddIcon sx={{ fontSize: 36, color: '#f59e0b' }} />,
-    tag: 'BƯỚC 5 / 5 • CỘNG TÁC THỜI GIAN THỰC',
+    tag: 'STEP 5 / 5 • REAL-TIME COLLABORATION',
     tagColor: 'warning',
-    title: 'Làm việc nhóm & Thông báo thời gian thực',
-    subtitle: 'Kết nối đồng đội dễ dàng, thảo luận liên tục và nắm bắt mọi cập nhật ngay lập tức.',
+    title: 'Teamwork & Instant Socket Notifications',
+    subtitle: 'Connect with teammates, discuss in card comments, and stay synchronized in real time.',
     highlights: [
-      'Mời thành viên vào bảng qua email và quản trị quyền hạn rõ ràng.',
-      'Bình luận thẻ và nhận thông báo (Notification) tức thì qua Socket.io thời gian thực.',
-      'Lưu trữ (Archive) các thẻ/cột đã hoàn thành vào ngăn kéo riêng và khôi phục khi cần.'
+      'Invite members to your boards via email with clear role permissions.',
+      'Comment on cards and receive instant notification alerts powered by Socket.io.',
+      'Archive completed lists and cards to keep your workspace tidy, with one-click restore anytime.'
     ],
     preview: (
       <Box sx={{
@@ -203,7 +203,7 @@ const TOUR_STEPS = [
           <Box sx={{ width: 34, height: 34, borderRadius: '50%', bgcolor: '#16a34a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>B</Box>
           <Box sx={{ width: 34, height: 34, borderRadius: '50%', bgcolor: '#9333ea', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>C</Box>
         </Box>
-        <Chip size="small" label="🔔 Thông báo tức thì qua Socket" sx={{ bgcolor: '#fef3c7', color: '#b45309', fontWeight: 600 }} />
+        <Chip size="small" label="🔔 Real-time Socket Alerts" sx={{ bgcolor: '#fef3c7', color: '#b45309', fontWeight: 600 }} />
       </Box>
     )
   }
@@ -348,7 +348,7 @@ function UserOnboardingModal({ open, onClose }) {
             onClick={handleClose}
             sx={{ color: 'text.secondary', textTransform: 'none', fontWeight: 600 }}
           >
-            Bỏ qua
+            Skip
           </Button>
 
           <Box sx={{ display: 'flex', gap: 1 }}>
@@ -359,7 +359,7 @@ function UserOnboardingModal({ open, onClose }) {
               startIcon={<NavigateBeforeIcon />}
               sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
             >
-              Quay lại
+              Back
             </Button>
 
             <Button
@@ -378,7 +378,7 @@ function UserOnboardingModal({ open, onClose }) {
                 }
               }}
             >
-              {isLastStep ? 'Bắt đầu ngay!' : 'Tiếp theo'}
+              {isLastStep ? 'Get Started!' : 'Next'}
             </Button>
           </Box>
         </Box>

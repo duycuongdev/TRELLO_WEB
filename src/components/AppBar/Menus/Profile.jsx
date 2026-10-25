@@ -7,7 +7,6 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import Avatar from '@mui/material/Avatar'
 import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
-import PersonAdd from '@mui/icons-material/PersonAdd'
 import Settings from '@mui/icons-material/Settings'
 import Logout from '@mui/icons-material/Logout'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
@@ -83,13 +82,7 @@ function Profile({ onOpenTour }) {
           <ListItemIcon>
             <HelpOutlineIcon fontSize="small" />
           </ListItemIcon>
-          Hướng dẫn sử dụng (Tour)
-        </MenuItem>
-        <MenuItem>
-          <ListItemIcon>
-            <PersonAdd fontSize="small" />
-          </ListItemIcon>
-          Add another account
+          Product Tour
         </MenuItem>
         <Link to='/settings/account' style={{ color: 'inherit', textDecoration: 'none' }}>
           <MenuItem>
