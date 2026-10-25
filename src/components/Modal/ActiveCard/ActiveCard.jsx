@@ -387,7 +387,7 @@ function ActiveCard() {
         }
 
         <Box sx={{ mb: 1, mt: -3, pr: 2.5, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <CreditCardIcon />
+          <CreditCardIcon sx={{ color: '#0052cc' }} />
 
           {/* Feature 01: Xử lý tiêu đề của Card */}
           <ToggleFocusInput
@@ -476,7 +476,7 @@ function ActiveCard() {
 
             <Box sx={{ mb: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <SubjectRoundedIcon />
+                <SubjectRoundedIcon sx={{ color: '#0052cc' }} />
                 <Typography variant="span" sx={{ fontWeight: '600', fontSize: '20px' }}>Description</Typography>
               </Box>
 
@@ -503,7 +503,7 @@ function ActiveCard() {
 
             <Box sx={{ mb: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <DvrOutlinedIcon />
+                <DvrOutlinedIcon sx={{ color: '#9333ea' }} />
                 <Typography variant="span" sx={{ fontWeight: '600', fontSize: '20px' }}>Activity</Typography>
               </Box>
 
@@ -528,27 +528,27 @@ function ActiveCard() {
                   className="active"
                   onClick={() => onUpdateCardMembers({ userId: currentUser._id, action: CARD_MEMBER_ACTION.ADD })}
                 >
-                  <PersonOutlineOutlinedIcon fontSize="small" />
+                  <PersonOutlineOutlinedIcon fontSize="small" sx={{ color: '#16a34a' }} />
                   Join
                 </SidebarItem>
               }
               {/* Feature 06: Xử lý hành động cập nhật ảnh Cover của Card */}
               <SidebarItem className="active" component="label">
-                <ImageOutlinedIcon fontSize="small" />
+                <ImageOutlinedIcon fontSize="small" sx={{ color: '#ec4899' }} />
                 Cover
                 <VisuallyHiddenInput type="file" onChange={onUploadCardCover} />
               </SidebarItem>
 
               {/* Feature 10: Nút Upload tệp đính kèm */}
               <SidebarItem className="active" component="label">
-                <AttachFileOutlinedIcon fontSize="small" />
+                <AttachFileOutlinedIcon fontSize="small" sx={{ color: '#0d9488' }} />
                 Attachment
                 <VisuallyHiddenInput type="file" onChange={onUploadCardAttachment} />
               </SidebarItem>
 
               {/* Feature 07: Xử lý chọn & custom nhãn cho Card */}
               <SidebarItem className="active" onClick={handleOpenLabelPopover}>
-                <LocalOfferOutlinedIcon fontSize="small" />
+                <LocalOfferOutlinedIcon fontSize="small" sx={{ color: '#8b5cf6' }} />
                 Labels
               </SidebarItem>
 
@@ -562,7 +562,7 @@ function ActiveCard() {
 
               {/* Feature 08: Thêm Checklist */}
               <SidebarItem className="active" onClick={handleOpenChecklistPopover}>
-                <TaskAltOutlinedIcon fontSize="small" />
+                <TaskAltOutlinedIcon fontSize="small" sx={{ color: '#16a34a' }} />
                 Checklist
               </SidebarItem>
 
@@ -575,7 +575,7 @@ function ActiveCard() {
 
               {/* Feature 09: Chọn Hạn chót Dates */}
               <SidebarItem className="active" onClick={handleOpenDueDatePopover}>
-                <WatchLaterOutlinedIcon fontSize="small" />
+                <WatchLaterOutlinedIcon fontSize="small" sx={{ color: '#f59e0b' }} />
                 Dates
               </SidebarItem>
 
@@ -603,12 +603,12 @@ function ActiveCard() {
                   }
                 }}
               >
-                <DeleteForeverIcon fontSize="small" />
+                <DeleteForeverIcon fontSize="small" sx={{ color: '#ef4444' }} />
                 Delete Card
               </SidebarItem>
 
               <SidebarItem className="active" onClick={handleOpenMovePopover}>
-                <ArrowForwardOutlinedIcon fontSize="small" />
+                <ArrowForwardOutlinedIcon fontSize="small" sx={{ color: '#6366f1' }} />
                 Move
               </SidebarItem>
               <CardMovePopover
@@ -620,7 +620,7 @@ function ActiveCard() {
               />
 
               <SidebarItem className="active" onClick={handleOpenCopyPopover}>
-                <ContentCopyOutlinedIcon fontSize="small" />
+                <ContentCopyOutlinedIcon fontSize="small" sx={{ color: '#0ea5e9' }} />
                 Copy
               </SidebarItem>
               <CardCopyPopover
@@ -633,12 +633,12 @@ function ActiveCard() {
 
               {activeCard?._destroy ? (
                 <SidebarItem className="active" onClick={handleRestoreCard}>
-                  <UndoIcon fontSize="small" />
+                  <UndoIcon fontSize="small" sx={{ color: '#16a34a' }} />
                   Send to board
                 </SidebarItem>
               ) : (
                 <SidebarItem className="active" onClick={handleArchiveCard}>
-                  <ArchiveOutlinedIcon fontSize="small" />
+                  <ArchiveOutlinedIcon fontSize="small" sx={{ color: '#f43f5e' }} />
                   Archive
                 </SidebarItem>
               )}

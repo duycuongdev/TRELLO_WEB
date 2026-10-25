@@ -80,26 +80,26 @@ function Profile({ onOpenTour }) {
           if (onOpenTour) onOpenTour()
         }}>
           <ListItemIcon>
-            <HelpOutlineIcon fontSize="small" />
+            <HelpOutlineIcon fontSize="small" sx={{ color: '#0052cc' }} />
           </ListItemIcon>
           Product Tour
         </MenuItem>
         <Link to='/settings/account' style={{ color: 'inherit', textDecoration: 'none' }}>
           <MenuItem>
             <ListItemIcon>
-              <Settings fontSize="small" />
+              <Settings fontSize="small" sx={{ color: '#6366f1' }} />
             </ListItemIcon>
             Settings
           </MenuItem>
         </Link>
         <MenuItem onClick={handleLogout} sx={{
           '&:hover': {
-            color: 'warning.dark',
-            '& .icon-logout': { color: 'warning.dark' }
+            color: 'error.main',
+            '& .icon-logout': { color: 'error.main' }
           }
         }}>
           <ListItemIcon>
-            <Logout className='icon-logout' fontSize="small" />
+            <Logout className='icon-logout' fontSize="small" sx={{ color: '#ef4444' }} />
           </ListItemIcon>
           Logout
         </MenuItem>

@@ -99,7 +99,7 @@ function CardChecklistSection({ checklists = [], onUpdateCardChecklists }) {
             {/* Header Checklist */}
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <TaskAltOutlinedIcon />
+                <TaskAltOutlinedIcon sx={{ color: '#16a34a' }} />
                 <Typography sx={{ fontWeight: '600', fontSize: '18px' }}>
                   {checklist.title}
                 </Typography>
