@@ -61,7 +61,7 @@ function BoardContent({
 
   useEffect(() => {
     // columns đã được sắp xếp ở component cha cao nhất
-    setOrderedColumns(board.columns)
+    setOrderedColumns(board?.columns || [])
   }, [board])
 
   // tìm 1 cái column theo cardId

@@ -29,13 +29,22 @@ export const activeBoardSlice = createSlice({
   reducers: {
     // luôn cần cặp ngoặc {} trong reducer dù code bên trong có 1 dòng vì đầy là rule của redux
     updateCurrentActiveBoard: (state, action) => {
-      // action.payload là chuẩn đặt tên nhận dữ liệu vào reducer, ở đây chúng ta gán cho nó 1 biến có nghĩa hơn
-      const board = action.payload
-
-      // Xử lý dữ liệu cần thiết
-
-      // update lại dữ liệu currentActiveBoard
-      state.currentActiveBoard = board
+      const incoming = action.payload
+      if (!incoming) {
+        state.currentActiveBoard = null
+        return
+      }
+      // Nếu incoming board không chứa mảng columns nhưng state hiện tại đang có columns, giữ nguyên columns và FE_allUsers
+      if (!incoming.columns && state.currentActiveBoard?.columns) {
+        state.currentActiveBoard = {
+          ...state.currentActiveBoard,
+          ...incoming,
+          columns: state.currentActiveBoard.columns,
+          FE_allUsers: state.currentActiveBoard.FE_allUsers || incoming.FE_allUsers
+        }
+      } else {
+        state.currentActiveBoard = incoming
+      }
     },
     removeCardFromBoard: (state, action) => {
       const cardId = action.payload

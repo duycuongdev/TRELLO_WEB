@@ -14,7 +14,7 @@ import { generatePlaceholderCard } from '~/utils/formatter'
 import { updateCurrentActiveBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { useDispatch, useSelector } from 'react-redux'
 
-function ListColumns({ columns }) {
+function ListColumns({ columns = [] }) {
 
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
@@ -50,7 +50,7 @@ function ListColumns({ columns }) {
     nếu không đúng vẫn kéo thả được nhưng không có animation
   */
   return (
-    <SortableContext items={columns?.map(c => c._id)} strategy={horizontalListSortingStrategy}>
+    <SortableContext items={(columns || []).map(c => c._id)} strategy={horizontalListSortingStrategy}>
       <Box sx={{
         bgcolor: 'inherit',
         width: '100%',
@@ -61,7 +61,7 @@ function ListColumns({ columns }) {
         // thanh scroll thẳng với list card
         '&::-webkit-scrollbar-track': { m: 2 }
       }}>
-        {columns?.map(column => <Column key={column._id} column={column} />)}
+        {(columns || []).map(column => <Column key={column._id} column={column} />)}
 
         {/* add new column */}
         {!openNewColumnForm

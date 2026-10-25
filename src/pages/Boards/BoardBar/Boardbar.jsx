@@ -70,7 +70,7 @@ function BoardBar({ board }) {
 
     toast.promise(
       updateBoardDetailsAPI(board._id, formData).then((updatedBoard) => {
-        dispatch(updateCurrentActiveBoard(updatedBoard))
+        dispatch(updateCurrentActiveBoard({ ...board, ...updatedBoard, columns: board.columns, FE_allUsers: board.FE_allUsers }))
       }),
       {
         pending: 'Uploading background image to Cloudinary...',
