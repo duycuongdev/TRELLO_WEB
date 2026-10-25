@@ -5,14 +5,12 @@ import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-// Grid: https://mui.com/material-ui/react-grid2/#whats-changed
 import Grid from '@mui/material/Unstable_Grid2'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard'
 import ListAltIcon from '@mui/icons-material/ListAlt'
 import HomeIcon from '@mui/icons-material/Home'
-import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import FolderOffOutlinedIcon from '@mui/icons-material/FolderOffOutlined'
 import UndoIcon from '@mui/icons-material/Undo'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
@@ -28,6 +26,7 @@ import { fetchBoardsAPI, reopenBoardAPI, deleteBoardDetailsAPI } from '~/apis/in
 import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants.js'
 import { useConfirm } from 'material-ui-confirm'
 import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom'
 
 // Styles của mấy cái Sidebar item menu, gom lại ra đây cho gọn.
 const SidebarItem = styled(Box)(({ theme }) => ({
@@ -48,6 +47,7 @@ const SidebarItem = styled(Box)(({ theme }) => ({
 }))
 
 function Boards() {
+  const navigate = useNavigate()
   const confirm = useConfirm()
   // Số lượng bản ghi boards hiển thị tối đa trên 1 page tùy dự án (thường sẽ là 12 cái)
   const [boards, setBoards] = useState(null)
@@ -106,7 +106,7 @@ function Boards() {
       } catch (error) {
         toast.error(error?.response?.data?.message || 'Failed to delete board')
       }
-    }).catch(() => {})
+    }).catch(() => { })
   }
 
   // Lúc chưa tồn tại boards > đang chờ gọi api thì hiện loading
@@ -188,7 +188,13 @@ function Boards() {
               <Grid container spacing={2}>
                 {boards.map(b =>
                   <Grid xs={12} sm={6} md={4} key={b._id}>
-                    <Card sx={{ width: '100%', maxWidth: '280px' }}>
+                    <Card
+                      onClick={() => navigate(`/boards/${b._id}`)}
+                      sx={{
+                        width: '100%',
+                        cursor: 'pointer',
+                        maxWidth: '280px'
+                      }}>
                       <Box sx={{
                         height: '50px',
                         backgroundColor: b.background?.startsWith('http') ? 'transparent' : (b.background || randomColor({ seed: b._id })),
@@ -199,20 +205,17 @@ function Boards() {
                         <Typography gutterBottom variant="h6" component="div" sx={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                           {b.title}
                         </Typography>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', mb: 1.5 }}>
-                          {b.description || 'No description provided.'}
-                        </Typography>
 
-                        {isClosedView ? (
+                        {isClosedView && (
                           <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
                             <Button
                               size="small"
                               variant="outlined"
                               startIcon={<UndoIcon fontSize="small" />}
-                              onClick={() => handleReopenBoard(b._id)}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleReopenBoard(b._id)
+                              }}
                               sx={{ textTransform: 'none', fontSize: '12px' }}
                             >
                               Reopen
@@ -222,27 +225,14 @@ function Boards() {
                               color="error"
                               variant="outlined"
                               startIcon={<DeleteOutlineIcon fontSize="small" />}
-                              onClick={() => handleDeleteBoard(b)}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDeleteBoard(b)
+                              }}
                               sx={{ textTransform: 'none', fontSize: '12px' }}
                             >
                               Delete
                             </Button>
-                          </Box>
-                        ) : (
-                          <Box
-                            component={Link}
-                            to={`/boards/${b._id}`}
-                            sx={{
-                              mt: 1,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'flex-end',
-                              color: 'primary.main',
-                              textDecoration: 'none',
-                              fontWeight: 600,
-                              '&:hover': { color: 'primary.light' }
-                            }}>
-                            Go to board <ArrowRightIcon fontSize="small" />
                           </Box>
                         )}
                       </CardContent>
