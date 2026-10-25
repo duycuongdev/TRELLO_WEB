@@ -10,12 +10,13 @@ function ListCards({ cards }) {
 
   const filteredCards = useMemo(() => {
     if (!cards) return []
+    const activeCards = cards.filter(card => !card?._destroy)
     const search = cardFilter?.search?.trim().toLowerCase()
     const filterLabelIds = cardFilter?.labelIds || []
 
-    if (!search && filterLabelIds.length === 0) return cards
+    if (!search && filterLabelIds.length === 0) return activeCards
 
-    return cards.filter(card => {
+    return activeCards.filter(card => {
       // Giữ lại placeholder card để SortableContext và DndKit hoạt động ổn định
       if (card?.FE_PlaceholderCard) return true
 

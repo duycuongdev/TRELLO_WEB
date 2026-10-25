@@ -25,6 +25,7 @@ import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined'
 import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined'
+import UndoIcon from '@mui/icons-material/Undo'
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
 import SubjectRoundedIcon from '@mui/icons-material/SubjectRounded'
 import DvrOutlinedIcon from '@mui/icons-material/DvrOutlined'
@@ -52,15 +53,19 @@ import {
   updateCurrentActiveCard,
   selectIsShowModalActiveCard
 } from '~/redux/activeCard/activeCardSlice'
-import { updateCardInBoard, removeCardFromBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { updateCardInBoard, removeCardFromBoard, selectCurrentActiveBoard, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { styled } from '@mui/material/styles'
+import { cloneDeep } from 'lodash'
+import { generatePlaceholderCard } from '~/utils/formatter'
 import {
   updateCardDetailsAPI,
   deleteCardAPI,
   addCardAttachmentAPI,
   deleteCardAttachmentAPI,
   updateCardCommentAPI,
-  deleteCardCommentAPI
+  deleteCardCommentAPI,
+  archiveCardAPI,
+  restoreCardAPI
 } from '~/apis'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { CARD_MEMBER_ACTION } from '~/utils/constants'
@@ -175,6 +180,56 @@ function ActiveCard() {
         toast.success(res?.deleteResult || 'Card deleted successfully!')
       })
     }).catch(() => {})
+  }
+
+  const handleArchiveCard = async () => {
+    try {
+      await archiveCardAPI(activeCard._id)
+
+      // Xóa card khỏi board columns trong redux
+      const newBoard = cloneDeep(activeBoard)
+      const column = newBoard.columns.find(c => c._id === activeCard.columnId)
+      if (column) {
+        column.cards = column.cards.filter(c => c._id !== activeCard._id)
+        column.cardOrderIds = column.cardOrderIds.filter(id => id !== activeCard._id)
+        if (column.cards.length === 0) {
+          column.cards = [generatePlaceholderCard(column)]
+          column.cardOrderIds = [generatePlaceholderCard(column)._id]
+        }
+        dispatch(updateCurrentActiveBoard(newBoard))
+      }
+
+      dispatch(updateCurrentActiveCard({ ...activeCard, _destroy: true }))
+      toast.success('Card archived!')
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Failed to archive card')
+    }
+  }
+
+  const handleRestoreCard = async () => {
+    try {
+      const restoredCard = await restoreCardAPI(activeCard._id)
+
+      const newBoard = cloneDeep(activeBoard)
+      let column = newBoard.columns.find(c => c._id === restoredCard.columnId)
+      if (!column && newBoard.columns.length > 0) {
+        column = newBoard.columns[0]
+      }
+
+      if (column) {
+        column.cards = (column.cards || []).filter(c => !c.FE_PlaceholderCard)
+        column.cardOrderIds = (column.cardOrderIds || []).filter(id => !id.includes('placeholder-card'))
+
+        column.cards.push(restoredCard)
+        column.cardOrderIds.push(restoredCard._id)
+        dispatch(updateCurrentActiveBoard(newBoard))
+      }
+
+      dispatch(updateCurrentActiveCard({ ...restoredCard, _destroy: false }))
+      toast.success('Card restored to board!')
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Failed to restore card')
+    }
   }
 
   // Gọi API dùng chung cho các trường hợp update Card: title, description, cover...
@@ -299,6 +354,33 @@ function ActiveCard() {
         }}>
           <CancelIcon color="error" sx={{ '&:hover': { color: 'error.light' } }} onClick={handleCloseModal} />
         </Box>
+
+        {/* Banner thông báo thẻ đã lưu trữ */}
+        {activeCard?._destroy && (
+          <Box sx={{
+            bgcolor: (theme) => theme.palette.mode === 'dark' ? '#b26b0033' : '#fff0b3',
+            color: (theme) => theme.palette.mode === 'dark' ? '#ffcc80' : '#172b4d',
+            p: 1.5,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderRadius: '4px',
+            mb: 2.5
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <ArchiveOutlinedIcon fontSize="small" />
+              <Typography variant="body2" fontWeight={600}>This card is archived.</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button size="small" variant="contained" onClick={handleRestoreCard} sx={{ textTransform: 'none' }}>
+                Send to board
+              </Button>
+              <Button size="small" color="error" variant="outlined" onClick={handleDeleteCard} sx={{ textTransform: 'none' }}>
+                Delete
+              </Button>
+            </Box>
+          </Box>
+        )}
 
         {activeCard?.cover &&
           <Box sx={{ mb: 4 }}>
@@ -567,7 +649,19 @@ function ActiveCard() {
               />
 
               <SidebarItem><AutoAwesomeOutlinedIcon fontSize="small" />Make Template</SidebarItem>
-              <SidebarItem><ArchiveOutlinedIcon fontSize="small" />Archive</SidebarItem>
+
+              {activeCard?._destroy ? (
+                <SidebarItem className="active" onClick={handleRestoreCard}>
+                  <UndoIcon fontSize="small" />
+                  Send to board
+                </SidebarItem>
+              ) : (
+                <SidebarItem className="active" onClick={handleArchiveCard}>
+                  <ArchiveOutlinedIcon fontSize="small" />
+                  Archive
+                </SidebarItem>
+              )}
+
               <SidebarItem><ShareOutlinedIcon fontSize="small" />Share</SidebarItem>
             </Stack>
           </Grid>

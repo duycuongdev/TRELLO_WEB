@@ -10,13 +10,13 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ContentCut from '@mui/icons-material/ContentCut'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import ContentPaste from '@mui/icons-material/ContentPaste'
-import Cloud from '@mui/icons-material/Cloud'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 // tooltip là dạng lable
 import Tooltip from '@mui/material/Tooltip'
 import AddcardIcon from '@mui/icons-material/AddCard'
 import DragHandleIcon from '@mui/icons-material/DragHandle'
+import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined'
 import ListCards from './ListCards/ListCards'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -27,7 +27,7 @@ import { useConfirm } from 'material-ui-confirm'
 import { cloneDeep } from 'lodash'
 import { updateCurrentActiveBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { useDispatch, useSelector } from 'react-redux'
-import { createNewCardAPI, deleteColumnDetailsAPI, updateColumnDetailsAPI } from '~/apis/index'
+import { createNewCardAPI, deleteColumnDetailsAPI, updateColumnDetailsAPI, archiveColumnAPI } from '~/apis/index'
 import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
 
 function Column({ column }) {
@@ -127,6 +127,28 @@ function Column({ column }) {
         toast.success(res?.deleteResult, { position: 'top-center' })
       })
     }).catch(() => { })
+  }
+
+  const handleArchiveColumn = () => {
+    confirmDeleteColumn({
+      title: 'Archive Column?',
+      description: 'This column will be moved to the archive. You can restore it anytime from Archived Items.',
+      confirmationText: 'Archive',
+      cancellationText: 'Cancel'
+    }).then(async () => {
+      try {
+        await archiveColumnAPI(column._id)
+
+        const newBoard = cloneDeep(board)
+        newBoard.columns = newBoard.columns.filter(c => c._id !== column._id)
+        newBoard.columnOrderIds = newBoard.columnOrderIds.filter(_id => _id !== column._id)
+        dispatch(updateCurrentActiveBoard(newBoard))
+
+        toast.success('Column archived!')
+      } catch (error) {
+        toast.error(error?.response?.data?.message || 'Failed to archive column')
+      }
+    }).catch(() => {})
   }
 
   const onUpdateColumnTitle = (newTitle) => {
@@ -230,8 +252,11 @@ function Column({ column }) {
                 <ListItemIcon><DeleteForeverIcon className='delete-forever-icon' fontSize="small" /></ListItemIcon>
                 <ListItemText>Delete this column</ListItemText>
               </MenuItem>
-              <MenuItem>
-                <ListItemIcon><Cloud fontSize="small" /></ListItemIcon>
+              <MenuItem onClick={handleArchiveColumn} sx={{
+                '&:hover': { color: 'warning.light' },
+                '&:hover .archive-icon': { color: 'warning.light' }
+              }}>
+                <ListItemIcon><ArchiveOutlinedIcon className='archive-icon' fontSize="small" /></ListItemIcon>
                 <ListItemText>Archive this column</ListItemText>
               </MenuItem>
             </Menu>

@@ -110,3 +110,29 @@ export const removeBoardMemberAPI = async (boardId, userId) => {
   const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/boards/${boardId}/members/${userId}`)
   return response.data
 }
+
+/** Archived Items */
+export const fetchArchivedItemsAPI = async (boardId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/boards/${boardId}/archived_items`)
+  return response.data
+}
+
+export const archiveCardAPI = async (cardId) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/cards/${cardId}/archive`)
+  return response.data
+}
+
+export const restoreCardAPI = async (cardId) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/cards/${cardId}/restore`)
+  return response.data
+}
+
+export const archiveColumnAPI = async (columnId) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/columns/${columnId}/archive`)
+  return response.data
+}
+
+export const restoreColumnAPI = async (columnId) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/columns/${columnId}/restore`)
+  return response.data
+}

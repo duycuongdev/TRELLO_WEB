@@ -7,6 +7,7 @@ import VpnLockIcon from '@mui/icons-material/VpnLock'
 import BoltIcon from '@mui/icons-material/Bolt'
 import FilterIcon from '@mui/icons-material/FilterList'
 import WallpaperOutlinedIcon from '@mui/icons-material/WallpaperOutlined'
+import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined'
 import Tooltip from '@mui/material/Tooltip'
 import { capitalizeFirstLetter } from '~/utils/formatter'
 import { selectCardFilter, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
@@ -16,6 +17,7 @@ import BoardUserGroup from './BoardUserGroup'
 import InviteBoardUser from './InviteBoardUser'
 import BoardCardFilterPopover from './BoardCardFilterPopover'
 import ChangeBoardBackgroundPopover from './ChangeBoardBackgroundPopover'
+import ArchivedItemsDrawer from './ArchivedItemsDrawer'
 
 const MENU_STYLES = {
   color: 'white',
@@ -38,6 +40,7 @@ function BoardBar({ board }) {
 
   const [bgAnchorEl, setBgAnchorEl] = useState(null)
   const isBgOpen = Boolean(bgAnchorEl)
+  const [isArchivedOpen, setIsArchivedOpen] = useState(false)
 
   const cardFilter = useSelector(selectCardFilter)
 
@@ -172,6 +175,21 @@ function BoardBar({ board }) {
           currentBackground={board?.background}
           onSelectBackground={handleSelectBackground}
           onUploadBackgroundFile={handleUploadBackgroundFile}
+        />
+
+        {/* Nút Mở Danh sách Lưu trữ (Archived Items) */}
+        <Chip
+          sx={MENU_STYLES}
+          icon={<ArchiveOutlinedIcon />}
+          label='Archived'
+          clickable
+          onClick={() => setIsArchivedOpen(true)}
+        />
+
+        <ArchivedItemsDrawer
+          isOpen={isArchivedOpen}
+          onClose={() => setIsArchivedOpen(false)}
+          boardId={board?._id}
         />
       </Box>
 
