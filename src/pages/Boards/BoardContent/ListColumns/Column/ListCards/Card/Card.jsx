@@ -81,7 +81,7 @@ function Card({ card }) {
         <Typography>{card?.title}</Typography>
       </CardContent>
       {shouldShowCardActions(card) &&
-        <CardActions sx={{ p: '0 4px 8px 4px', flexWrap: 'wrap', gap: 0.5 }}>
+        <CardActions sx={{ p: '1px 12px', flexWrap: 'wrap', gap: 0.5 }}>
           {/* Due date badge */}
           {!!card?.dueDate && (
             <Button
