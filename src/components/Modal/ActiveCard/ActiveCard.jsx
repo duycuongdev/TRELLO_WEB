@@ -43,6 +43,8 @@ import CardChecklistPopover from './CardChecklistPopover'
 import CardChecklistSection from './CardChecklistSection'
 import CardDueDatePopover from './CardDueDatePopover'
 import CardAttachmentSection from './CardAttachmentSection'
+import CardMovePopover from './CardMovePopover'
+import CardCopyPopover from './CardCopyPopover'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   clearAndHideCurrentActiveCard,
@@ -104,6 +106,16 @@ function ActiveCard() {
   const isDueDateOpen = Boolean(dueDateAnchorEl)
   const handleOpenDueDatePopover = (event) => setDueDateAnchorEl(event.currentTarget)
   const handleCloseDueDatePopover = () => setDueDateAnchorEl(null)
+
+  const [moveAnchorEl, setMoveAnchorEl] = useState(null)
+  const isMoveOpen = Boolean(moveAnchorEl)
+  const handleOpenMovePopover = (event) => setMoveAnchorEl(event.currentTarget)
+  const handleCloseMovePopover = () => setMoveAnchorEl(null)
+
+  const [copyAnchorEl, setCopyAnchorEl] = useState(null)
+  const isCopyOpen = Boolean(copyAnchorEl)
+  const handleOpenCopyPopover = (event) => setCopyAnchorEl(event.currentTarget)
+  const handleCloseCopyPopover = () => setCopyAnchorEl(null)
 
   const handleUpdateCardLabels = (newLabels) => {
     callApiUpdateCard({ labels: newLabels })
@@ -529,8 +541,31 @@ function ActiveCard() {
                 <DeleteForeverIcon fontSize="small" />
                 Delete Card
               </SidebarItem>
-              <SidebarItem><ArrowForwardOutlinedIcon fontSize="small" />Move</SidebarItem>
-              <SidebarItem><ContentCopyOutlinedIcon fontSize="small" />Copy</SidebarItem>
+
+              <SidebarItem className="active" onClick={handleOpenMovePopover}>
+                <ArrowForwardOutlinedIcon fontSize="small" />
+                Move
+              </SidebarItem>
+              <CardMovePopover
+                anchorEl={moveAnchorEl}
+                isOpen={isMoveOpen}
+                onClose={handleCloseMovePopover}
+                card={activeCard}
+                board={activeBoard}
+              />
+
+              <SidebarItem className="active" onClick={handleOpenCopyPopover}>
+                <ContentCopyOutlinedIcon fontSize="small" />
+                Copy
+              </SidebarItem>
+              <CardCopyPopover
+                anchorEl={copyAnchorEl}
+                isOpen={isCopyOpen}
+                onClose={handleCloseCopyPopover}
+                card={activeCard}
+                board={activeBoard}
+              />
+
               <SidebarItem><AutoAwesomeOutlinedIcon fontSize="small" />Make Template</SidebarItem>
               <SidebarItem><ArchiveOutlinedIcon fontSize="small" />Archive</SidebarItem>
               <SidebarItem><ShareOutlinedIcon fontSize="small" />Share</SidebarItem>
