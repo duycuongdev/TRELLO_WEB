@@ -92,8 +92,22 @@ function Board() {
       </Box>
     )
   }
+
   return (
-    <Container disableGutters maxWidth={false} sx={{ height: '100vh' }}>
+    <Container
+      disableGutters
+      maxWidth={false}
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        background: board?.background?.startsWith('http')
+          ? `url("${board.background}") center/cover no-repeat fixed`
+          : (board?.background || ((theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2'))),
+        transition: 'background 0.3s ease'
+      }}
+    >
       <ActiveCard />
       <AppBar />
       <BoardBar board={board} />

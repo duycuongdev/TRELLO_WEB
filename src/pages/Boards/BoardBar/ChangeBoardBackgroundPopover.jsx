@@ -1,0 +1,342 @@
+import { useState } from 'react'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Popover from '@mui/material/Popover'
+import IconButton from '@mui/material/IconButton'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
+import Tooltip from '@mui/material/Tooltip'
+import CloseIcon from '@mui/icons-material/Close'
+import CheckIcon from '@mui/icons-material/Check'
+import RestartAltIcon from '@mui/icons-material/RestartAlt'
+import WallpaperIcon from '@mui/icons-material/Wallpaper'
+import GradientIcon from '@mui/icons-material/Gradient'
+import PaletteIcon from '@mui/icons-material/Palette'
+import LinkIcon from '@mui/icons-material/Link'
+import { toast } from 'react-toastify'
+
+const PRESET_PHOTOS = [
+  {
+    id: 'mountain-peaks',
+    name: 'Mountain Peaks',
+    thumb: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=300&q=70',
+    value: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80'
+  },
+  {
+    id: 'misty-forest',
+    name: 'Misty Forest',
+    thumb: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=300&q=70',
+    value: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1920&q=80'
+  },
+  {
+    id: 'calm-lake',
+    name: 'Calm Lake',
+    thumb: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=70',
+    value: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80'
+  },
+  {
+    id: 'aurora-borealis',
+    name: 'Aurora Borealis',
+    thumb: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=300&q=70',
+    value: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=1920&q=80'
+  },
+  {
+    id: 'starry-galaxy',
+    name: 'Starry Galaxy',
+    thumb: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=300&q=70',
+    value: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=1920&q=80'
+  },
+  {
+    id: 'architecture',
+    name: 'Architecture',
+    thumb: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=300&q=70',
+    value: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1920&q=80'
+  }
+]
+
+const PRESET_GRADIENTS = [
+  { id: 'ocean-blue', name: 'Ocean Blue', value: 'linear-gradient(135deg, #0079bf 0%, #5067c5 100%)' },
+  { id: 'sunset-glow', name: 'Sunset Glow', value: 'linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)' },
+  { id: 'emerald-forest', name: 'Emerald Forest', value: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' },
+  { id: 'neon-night', name: 'Neon Night', value: 'linear-gradient(135deg, #8a2387 0%, #e94057 50%, #f27121 100%)' },
+  { id: 'deep-space', name: 'Deep Space', value: 'linear-gradient(135deg, #141e30 0%, #243b55 100%)' },
+  { id: 'royal-purple', name: 'Royal Purple', value: 'linear-gradient(135deg, #654ea3 0%, #eaafc8 100%)' },
+  { id: 'cherry-blossom', name: 'Cherry Blossom', value: 'linear-gradient(135deg, #f857a6 0%, #ff5858 100%)' },
+  { id: 'midnight-navy', name: 'Midnight Navy', value: 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)' }
+]
+
+const PRESET_COLORS = [
+  { id: 'trello-blue', name: 'Classic Blue', value: '#0079bf' },
+  { id: 'fresh-green', name: 'Fresh Green', value: '#519839' },
+  { id: 'amber-orange', name: 'Amber Orange', value: '#d29034' },
+  { id: 'crimson-red', name: 'Crimson Red', value: '#b04632' },
+  { id: 'amethyst-purple', name: 'Purple', value: '#89609e' },
+  { id: 'bright-cyan', name: 'Bright Cyan', value: '#00aecc' },
+  { id: 'deep-charcoal', name: 'Charcoal', value: '#34495e' },
+  { id: 'elegant-navy', name: 'Navy', value: '#172b4d' }
+]
+
+function ChangeBoardBackgroundPopover({
+  anchorEl,
+  isOpen,
+  onClose,
+  currentBackground,
+  onSelectBackground
+}) {
+  const [tabIndex, setTabIndex] = useState(0)
+  const [customUrl, setCustomUrl] = useState('')
+
+  const handleApplyBackground = (value) => {
+    onSelectBackground(value)
+  }
+
+  const handleApplyCustomUrl = () => {
+    const trimmed = customUrl.trim()
+    if (!trimmed) {
+      toast.error('Please enter an image URL!')
+      return
+    }
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+      toast.error('Image URL must start with http:// or https://')
+      return
+    }
+    onSelectBackground(trimmed)
+    setCustomUrl('')
+  }
+
+  const handleResetDefault = () => {
+    onSelectBackground(null)
+  }
+
+  return (
+    <Popover
+      open={isOpen}
+      anchorEl={anchorEl}
+      onClose={onClose}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      slotProps={{
+        paper: {
+          sx: {
+            width: 340,
+            p: 2,
+            borderRadius: 2,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
+          }
+        }
+      }}
+    >
+      {/* Header */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+        <Typography variant="subtitle1" fontWeight={700}>
+          Change Background
+        </Typography>
+        <IconButton size="small" onClick={onClose}>
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </Box>
+
+      {/* Tabs */}
+      <Tabs
+        value={tabIndex}
+        onChange={(_, val) => setTabIndex(val)}
+        variant="fullWidth"
+        sx={{
+          minHeight: 36,
+          mb: 1.5,
+          '& .MuiTab-root': {
+            minHeight: 36,
+            py: 0.5,
+            fontSize: '12px',
+            textTransform: 'none',
+            fontWeight: 600
+          }
+        }}
+      >
+        <Tab icon={<WallpaperIcon sx={{ fontSize: 16 }} />} iconPosition="start" label="Photos" />
+        <Tab icon={<GradientIcon sx={{ fontSize: 16 }} />} iconPosition="start" label="Gradients" />
+        <Tab icon={<PaletteIcon sx={{ fontSize: 16 }} />} iconPosition="start" label="Colors" />
+        <Tab icon={<LinkIcon sx={{ fontSize: 16 }} />} iconPosition="start" label="Custom" />
+      </Tabs>
+
+      {/* Tab 0: Photos */}
+      {tabIndex === 0 && (
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1 }}>
+          {PRESET_PHOTOS.map((photo) => {
+            const isSelected = currentBackground === photo.value
+            return (
+              <Box
+                key={photo.id}
+                onClick={() => handleApplyBackground(photo.value)}
+                sx={{
+                  position: 'relative',
+                  height: 70,
+                  borderRadius: 1.5,
+                  cursor: 'pointer',
+                  overflow: 'hidden',
+                  backgroundImage: `url("${photo.thumb}")`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  border: isSelected ? '2.5px solid #0079bf' : '1px solid rgba(0,0,0,0.1)',
+                  transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+                  '&:hover': {
+                    transform: 'scale(1.02)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.25)'
+                  }
+                }}
+              >
+                {isSelected && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      inset: 0,
+                      bgcolor: 'rgba(0,0,0,0.3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <CheckIcon sx={{ color: '#fff', fontSize: 24 }} />
+                  </Box>
+                )}
+                <Typography
+                  variant="caption"
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    bgcolor: 'rgba(0,0,0,0.5)',
+                    color: '#fff',
+                    px: 0.5,
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}
+                >
+                  {photo.name}
+                </Typography>
+              </Box>
+            )
+          })}
+        </Box>
+      )}
+
+      {/* Tab 1: Gradients */}
+      {tabIndex === 1 && (
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
+          {PRESET_GRADIENTS.map((grad) => {
+            const isSelected = currentBackground === grad.value
+            return (
+              <Tooltip key={grad.id} title={grad.name}>
+                <Box
+                  onClick={() => handleApplyBackground(grad.value)}
+                  sx={{
+                    height: 52,
+                    borderRadius: 1.5,
+                    cursor: 'pointer',
+                    background: grad.value,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: isSelected ? '2.5px solid #fff' : 'none',
+                    boxShadow: isSelected ? '0 0 0 2px #0079bf' : 'none',
+                    transition: 'transform 0.15s ease',
+                    '&:hover': { transform: 'scale(1.05)' }
+                  }}
+                >
+                  {isSelected && <CheckIcon sx={{ color: '#fff', fontSize: 20 }} />}
+                </Box>
+              </Tooltip>
+            )
+          })}
+        </Box>
+      )}
+
+      {/* Tab 2: Solid Colors */}
+      {tabIndex === 2 && (
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
+          {PRESET_COLORS.map((col) => {
+            const isSelected = currentBackground === col.value
+            return (
+              <Tooltip key={col.id} title={col.name}>
+                <Box
+                  onClick={() => handleApplyBackground(col.value)}
+                  sx={{
+                    height: 52,
+                    borderRadius: 1.5,
+                    cursor: 'pointer',
+                    bgcolor: col.value,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: isSelected ? '2.5px solid #fff' : 'none',
+                    boxShadow: isSelected ? '0 0 0 2px #0079bf' : 'none',
+                    transition: 'transform 0.15s ease',
+                    '&:hover': { transform: 'scale(1.05)' }
+                  }}
+                >
+                  {isSelected && <CheckIcon sx={{ color: '#fff', fontSize: 20 }} />}
+                </Box>
+              </Tooltip>
+            )
+          })}
+        </Box>
+      )}
+
+      {/* Tab 3: Custom URL */}
+      {tabIndex === 3 && (
+        <Box sx={{ mt: 1 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+            Paste any direct image URL (jpg, png, webp):
+          </Typography>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder="https://example.com/image.jpg"
+            value={customUrl}
+            onChange={(e) => setCustomUrl(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                handleApplyCustomUrl()
+              }
+            }}
+            sx={{ mb: 1.5 }}
+          />
+          <Button
+            fullWidth
+            variant="contained"
+            size="small"
+            onClick={handleApplyCustomUrl}
+            disabled={!customUrl.trim()}
+            sx={{ textTransform: 'none', fontWeight: 600 }}
+          >
+            Apply Image
+          </Button>
+        </Box>
+      )}
+
+      {/* Footer: Reset Button */}
+      <Box sx={{ mt: 2, pt: 1.5, borderTop: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'center' }}>
+        <Button
+          size="small"
+          variant="text"
+          color="inherit"
+          startIcon={<RestartAltIcon fontSize="small" />}
+          onClick={handleResetDefault}
+          disabled={!currentBackground}
+          sx={{ textTransform: 'none', fontSize: '13px' }}
+        >
+          Reset to Default Theme
+        </Button>
+      </Box>
+    </Popover>
+  )
+}
+
+export default ChangeBoardBackgroundPopover
