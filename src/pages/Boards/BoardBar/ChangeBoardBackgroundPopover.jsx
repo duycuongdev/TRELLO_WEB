@@ -141,7 +141,8 @@ function ChangeBoardBackgroundPopover({
       slotProps={{
         paper: {
           sx: {
-            width: 380,
+            width: 400,
+            maxWidth: 'calc(100vw - 32px)',
             p: 2,
             borderRadius: 2,
             boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
@@ -163,9 +164,7 @@ function ChangeBoardBackgroundPopover({
       <Tabs
         value={tabIndex}
         onChange={(_, val) => setTabIndex(val)}
-        variant="scrollable"
-        scrollButtons="auto"
-        allowScrollButtonsMobile
+        variant="fullWidth"
         sx={{
           minHeight: 40,
           mb: 1.5,
@@ -173,19 +172,19 @@ function ChangeBoardBackgroundPopover({
           borderColor: 'divider',
           '& .MuiTab-root': {
             minHeight: 40,
-            minWidth: 'auto',
-            px: 1.8,
-            py: 0.5,
+            minWidth: 0,
+            p: '6px 4px',
             fontSize: '13px',
             textTransform: 'none',
-            fontWeight: 600
+            fontWeight: 600,
+            gap: 0.5
           }
         }}
       >
-        <Tab icon={<WallpaperIcon sx={{ fontSize: 16 }} />} iconPosition="start" label="Photos" />
-        <Tab icon={<GradientIcon sx={{ fontSize: 16 }} />} iconPosition="start" label="Gradients" />
-        <Tab icon={<PaletteIcon sx={{ fontSize: 16 }} />} iconPosition="start" label="Colors" />
-        <Tab icon={<CloudUploadOutlinedIcon sx={{ fontSize: 16 }} />} iconPosition="start" label="Upload" />
+        <Tab icon={<WallpaperIcon sx={{ fontSize: 17 }} />} iconPosition="start" label="Photos" />
+        <Tab icon={<GradientIcon sx={{ fontSize: 17 }} />} iconPosition="start" label="Gradients" />
+        <Tab icon={<PaletteIcon sx={{ fontSize: 17 }} />} iconPosition="start" label="Colors" />
+        <Tab icon={<CloudUploadOutlinedIcon sx={{ fontSize: 17 }} />} iconPosition="start" label="Upload" />
       </Tabs>
 
       {/* Tab 0: Photos */}
