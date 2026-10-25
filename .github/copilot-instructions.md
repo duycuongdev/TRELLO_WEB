@@ -18,7 +18,7 @@ Purpose: make AI agents productive fast in this Vite + React + MUI Trello-like b
 ## API integration
 - Base URL is computed in `src/utils/constants.js` from `process.env.BUILD_MODE` (enabled via `define` in `vite.config.js`).
   - dev: http://localhost:1900
-  - production: https://trello-api-z8lo.onrender.com
+  - production: https://trello-api-5hh5.onrender.com
 - API layer lives in `src/apis/index.js` and returns `response.data` only. Endpoints used:
   - GET `/v1/boards/:id` – board details
   - PUT `/v1/boards/:id` – update `columnOrderIds` after column DnD
