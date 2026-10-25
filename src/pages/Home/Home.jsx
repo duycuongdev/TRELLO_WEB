@@ -631,7 +631,7 @@ function Home() {
                 Trello
               </Typography>
               <Typography variant="body2" sx={{ ml: 1 }}>
-                © 2026 Trello Clone. Built with React, Vite, MUI & Node.js.
+                © 2026 Trello || All rights reserved.
               </Typography>
             </Box>
 
