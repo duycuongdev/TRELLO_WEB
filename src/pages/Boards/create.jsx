@@ -85,13 +85,13 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: 600,
+          width: { xs: '92%', sm: 540, md: 600 },
           bgcolor: 'white',
           boxShadow: 24,
           borderRadius: '8px',
           border: 'none',
           outline: 0,
-          padding: '20px 30px',
+          padding: { xs: '20px 16px', sm: '20px 30px' },
           backgroundColor: (theme) => theme.palette.mode === 'dark' ? '#1A2027' : 'white'
         }}>
           <Box sx={{

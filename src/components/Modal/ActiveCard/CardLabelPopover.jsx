@@ -147,7 +147,7 @@ function CardLabelPopover({ anchorEl, isOpen, onClose, activeCardLabels = [], on
         horizontal: 'left'
       }}
     >
-      <Box sx={{ p: 2, width: '300px' }}>
+      <Box sx={{ p: 2, width: { xs: 'min(300px, 88vw)', sm: '300px' }, maxWidth: '88vw' }}>
         {/* VIEW: LIST LABELS */}
         {view === 'list' && (
           <Box>

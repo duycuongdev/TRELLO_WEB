@@ -164,7 +164,7 @@ function ArchivedItemsDrawer({ isOpen, onClose, boardId }) {
       onClose={onClose}
       PaperProps={{
         sx: {
-          width: 360,
+          width: { xs: 'min(320px, 86vw)', sm: 360 },
           p: 2.5,
           bgcolor: (theme) => theme.palette.mode === 'dark' ? '#1e272e' : '#ffffff',
           boxShadow: '-4px 0 20px rgba(0,0,0,0.15)'

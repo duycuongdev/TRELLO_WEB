@@ -329,15 +329,15 @@ function ActiveCard() {
       sx={{ overflowY: 'auto' }}>
       <Box sx={{
         position: 'relative',
-        width: 900,
+        width: { xs: '92%', sm: '90%', md: 900 },
         maxWidth: 900,
         bgcolor: 'white',
         boxShadow: 24,
         borderRadius: '8px',
         border: 'none',
         outline: 0,
-        padding: '40px 20px 20px',
-        margin: '50px auto',
+        padding: { xs: '32px 14px 18px', sm: '40px 20px 20px' },
+        margin: { xs: '20px auto', sm: '35px auto', md: '50px auto' },
         backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : '#fff')
       }}>
         <Box sx={{
@@ -379,7 +379,7 @@ function ActiveCard() {
         {activeCard?.cover &&
           <Box sx={{ mb: 4 }}>
             <img
-              style={{ width: '100%', height: '320px', borderRadius: '6px', objectFit: 'cover' }}
+              style={{ width: '100%', height: 'auto', maxHeight: '320px', borderRadius: '6px', objectFit: 'cover' }}
               src={activeCard?.cover}
               alt="card-cover"
             />

@@ -43,9 +43,9 @@ function AppBar() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      gap: 2,
+      gap: { xs: 1, sm: 2 },
       overflowX: 'auto',
-      paddingX: 2,
+      paddingX: { xs: 1, sm: 2 },
       bgcolor: activeBoard?.background
         ? 'rgba(0, 0, 0, 0.35)'
         : (theme) => (theme.palette.mode === 'dark' ? '#2c3e50' : '#1565c0'),
@@ -55,7 +55,7 @@ function AppBar() {
       // thanh scroll thẳng với list card
       '&::-webkit-scrollbar-track': { m: 2 }
     }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
         <Link to='/boards'>
           <Tooltip title="Board List">
             <AppsIcon sx={{ color: 'white', verticalAlign: 'middle' }} />
@@ -69,7 +69,7 @@ function AppBar() {
         </Link>
       </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
         {/* search board */}
         <AutoCompleteSearchBoard />
 

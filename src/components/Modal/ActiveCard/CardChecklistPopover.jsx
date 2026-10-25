@@ -50,7 +50,7 @@ function CardChecklistPopover({ anchorEl, isOpen, onClose, onAddChecklist }) {
       slotProps={{
         paper: {
           sx: {
-            width: 300,
+            width: { xs: 'min(300px, 88vw)', sm: 300 },
             p: 2,
             borderRadius: 2,
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)'

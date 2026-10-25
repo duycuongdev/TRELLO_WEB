@@ -64,7 +64,7 @@ function InviteBoardUser({ boardId }) {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <form onSubmit={handleSubmit(submitInviteUserToBoard)} style={{ width: '320px' }}>
+        <form onSubmit={handleSubmit(submitInviteUserToBoard)} style={{ width: '320px', maxWidth: 'calc(100vw - 32px)' }}>
           <Box sx={{ p: '15px 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography variant="span" sx={{ fontWeight: 'bold', fontSize: '16px' }}>Invite User To This Board!</Typography>
             <Box>

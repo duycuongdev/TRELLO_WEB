@@ -67,7 +67,7 @@ function SecurityTab() {
           <Typography variant="h5">Security Dashboard</Typography>
         </Box>
         <form onSubmit={handleSubmit(submitChangePassword)}>
-          <Box sx={{ width: '400px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ width: { xs: '100%', sm: '400px' }, maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box>
               <TextField
                 fullWidth

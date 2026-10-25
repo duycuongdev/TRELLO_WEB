@@ -181,8 +181,8 @@ function Boards() {
                       onClick={() => navigate(`/boards/${b._id}`)}
                       sx={{
                         cursor: 'pointer',
-                        width: '220px',
-                        maxWidth: '280px'
+                        width: '100%',
+                        maxWidth: { xs: '100%', sm: '280px' }
                       }}>
                       <Box sx={{
                         height: '50px',

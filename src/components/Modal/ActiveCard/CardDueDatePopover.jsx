@@ -99,7 +99,7 @@ function CardDueDatePopover({ anchorEl, isOpen, onClose, dueDate, isDueDateCompl
       slotProps={{
         paper: {
           sx: {
-            width: 330,
+            width: { xs: 'min(330px, 88vw)', sm: 330 },
             p: 2,
             borderRadius: 2,
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)'

@@ -119,7 +119,7 @@ function AccountTab() {
         </Box>
 
         <form onSubmit={handleSubmit(submitChangeGeneralInformation)}>
-          <Box sx={{ width: '400px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ width: { xs: '100%', sm: '400px' }, maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box>
               <TextField
                 disabled
