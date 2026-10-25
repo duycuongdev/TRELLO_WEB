@@ -8,11 +8,15 @@ import BoltIcon from '@mui/icons-material/Bolt'
 import FilterIcon from '@mui/icons-material/FilterList'
 import WallpaperOutlinedIcon from '@mui/icons-material/WallpaperOutlined'
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined'
+import FolderOffOutlinedIcon from '@mui/icons-material/FolderOffOutlined'
 import Tooltip from '@mui/material/Tooltip'
 import { capitalizeFirstLetter } from '~/utils/formatter'
 import { selectCardFilter, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
-import { updateBoardDetailsAPI } from '~/apis'
+import { updateBoardDetailsAPI, closeBoardAPI } from '~/apis'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 import { toast } from 'react-toastify'
+import { useConfirm } from 'material-ui-confirm'
+import { useNavigate } from 'react-router-dom'
 import BoardUserGroup from './BoardUserGroup'
 import InviteBoardUser from './InviteBoardUser'
 import BoardCardFilterPopover from './BoardCardFilterPopover'
@@ -35,12 +39,34 @@ const MENU_STYLES = {
 
 function BoardBar({ board }) {
   const dispatch = useDispatch()
+  const confirm = useConfirm()
+  const navigate = useNavigate()
+  const currentUser = useSelector(selectCurrentUser)
+  const isOwner = (board?.ownerIds || []).some(id => id.toString() === currentUser?._id?.toString())
+
   const [filterAnchorEl, setFilterAnchorEl] = useState(null)
   const isFilterOpen = Boolean(filterAnchorEl)
 
   const [bgAnchorEl, setBgAnchorEl] = useState(null)
   const isBgOpen = Boolean(bgAnchorEl)
   const [isArchivedOpen, setIsArchivedOpen] = useState(false)
+
+  const handleCloseBoard = () => {
+    confirm({
+      title: 'Close Board?',
+      description: 'You can find and reopen closed boards at the bottom of your boards page.',
+      confirmationText: 'Close',
+      cancellationText: 'Cancel'
+    }).then(async () => {
+      try {
+        await closeBoardAPI(board._id)
+        toast.success('Board closed!')
+        navigate('/boards')
+      } catch (error) {
+        toast.error(error?.response?.data?.message || 'Failed to close board')
+      }
+    }).catch(() => {})
+  }
 
   const cardFilter = useSelector(selectCardFilter)
 
@@ -191,6 +217,22 @@ function BoardBar({ board }) {
           onClose={() => setIsArchivedOpen(false)}
           boardId={board?._id}
         />
+
+        {/* Nút Đóng Bảng (Chỉ dành cho Owner) */}
+        {isOwner && (
+          <Chip
+            sx={{
+              ...MENU_STYLES,
+              '&:hover': {
+                bgcolor: 'error.main'
+              }
+            }}
+            icon={<FolderOffOutlinedIcon />}
+            label='Close board'
+            clickable
+            onClick={handleCloseBoard}
+          />
+        )}
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

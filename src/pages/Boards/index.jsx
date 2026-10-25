@@ -4,6 +4,7 @@ import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
 // Grid: https://mui.com/material-ui/react-grid2/#whats-changed
 import Grid from '@mui/material/Unstable_Grid2'
 import Stack from '@mui/material/Stack'
@@ -12,6 +13,9 @@ import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard'
 import ListAltIcon from '@mui/icons-material/ListAlt'
 import HomeIcon from '@mui/icons-material/Home'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+import FolderOffOutlinedIcon from '@mui/icons-material/FolderOffOutlined'
+import UndoIcon from '@mui/icons-material/Undo'
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Pagination from '@mui/material/Pagination'
@@ -20,8 +24,10 @@ import { Link, useLocation } from 'react-router-dom'
 import randomColor from 'randomcolor'
 import SidebarCreateBoardModal from './create'
 import { styled } from '@mui/material/styles'
-import { fetchBoardsAPI } from '~/apis/index.js'
+import { fetchBoardsAPI, reopenBoardAPI, deleteBoardDetailsAPI } from '~/apis/index.js'
 import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants.js'
+import { useConfirm } from 'material-ui-confirm'
+import { toast } from 'react-toastify'
 
 // Styles của mấy cái Sidebar item menu, gom lại ra đây cho gọn.
 const SidebarItem = styled(Box)(({ theme }) => ({
@@ -42,6 +48,7 @@ const SidebarItem = styled(Box)(({ theme }) => ({
 }))
 
 function Boards() {
+  const confirm = useConfirm()
   // Số lượng bản ghi boards hiển thị tối đa trên 1 page tùy dự án (thường sẽ là 12 cái)
   const [boards, setBoards] = useState(null)
   // Tổng toàn bộ số lượng bản ghi boards có trong Database mà phía BE trả về để FE dùng tính toán phân trang
@@ -50,16 +57,9 @@ function Boards() {
 
   // Xử lý phân trang từ url với MUI: https://mui.com/material-ui/react-pagination/#router-integration
   const location = useLocation()
-  /**
-   * Parse chuỗi string search trong location về đối tượng URLSearchParams trong JavaScript
-   * https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams/URLSearchParams
-   */
   const query = new URLSearchParams(location.search)
-  /**
-   * Lấy giá trị page từ query, default sẽ là 1 nếu không tồn tại page từ url.
-   * Nhắc lại kiến thức cơ bản hàm parseInt cần tham số thứ 2 là Hệ thập phân (hệ đếm cơ số 10) để đảm bảo chuẩn số cho phân trang
-   */
   const page = parseInt(query.get('page') || '1', 10)
+  const isClosedView = query.get('closed') === 'true'
 
   const updateStateData = (res) => {
     setBoards(res.boards || [])
@@ -80,6 +80,33 @@ function Boards() {
     fetchBoardsAPI(location.search)
       .then(updateStateData)
       .catch(() => setLoadError('Unable to refresh boards. Please try again.'))
+  }
+
+  const handleReopenBoard = async (boardId) => {
+    try {
+      await reopenBoardAPI(boardId)
+      toast.success('Board reopened!')
+      fetchBoardsAPI(location.search).then(updateStateData)
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Failed to reopen board')
+    }
+  }
+
+  const handleDeleteBoard = (b) => {
+    confirm({
+      title: 'Delete Board Permanently?',
+      description: `Are you sure you want to permanently delete "${b.title}"? All lists, cards, and invitations will be permanently removed. This action cannot be undone.`,
+      confirmationText: 'Delete permanently',
+      cancellationText: 'Cancel'
+    }).then(async () => {
+      try {
+        await deleteBoardDetailsAPI(b._id)
+        toast.success('Board permanently deleted!')
+        fetchBoardsAPI(location.search).then(updateStateData)
+      } catch (error) {
+        toast.error(error?.response?.data?.message || 'Failed to delete board')
+      }
+    }).catch(() => {})
   }
 
   // Lúc chưa tồn tại boards > đang chờ gọi api thì hiện loading
@@ -105,10 +132,26 @@ function Boards() {
         <Grid container spacing={2}>
           <Grid xs={12} sm={3}>
             <Stack direction="column" spacing={1}>
-              <SidebarItem className="active">
+              <SidebarItem
+                component={Link}
+                to="/boards"
+                className={!isClosedView ? 'active' : ''}
+                sx={{ textDecoration: 'none', color: 'inherit' }}
+              >
                 <SpaceDashboardIcon fontSize="small" />
                 Boards
               </SidebarItem>
+
+              <SidebarItem
+                component={Link}
+                to="/boards?closed=true"
+                className={isClosedView ? 'active' : ''}
+                sx={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <FolderOffOutlinedIcon fontSize="small" />
+                Closed boards
+              </SidebarItem>
+
               <SidebarItem sx={{ opacity: 0.55, cursor: 'not-allowed' }}>
                 <ListAltIcon fontSize="small" />
                 Templates (not available)
@@ -118,53 +161,90 @@ function Boards() {
                 Home (not available)
               </SidebarItem>
             </Stack>
-            <Divider sx={{ my: 1 }} />
-            <Stack direction="column" spacing={1}>
-              <SidebarCreateBoardModal afterCreateNewBoard={afterCreateNewBoard} />
-            </Stack>
+            {!isClosedView && (
+              <>
+                <Divider sx={{ my: 1 }} />
+                <Stack direction="column" spacing={1}>
+                  <SidebarCreateBoardModal afterCreateNewBoard={afterCreateNewBoard} />
+                </Stack>
+              </>
+            )}
           </Grid>
 
           <Grid xs={12} sm={9}>
-            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 3 }}>Your boards:</Typography>
+            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 3 }}>
+              {isClosedView ? 'Closed boards:' : 'Your boards:'}
+            </Typography>
 
             {/* Trường hợp gọi API nhưng không tồn tại cái board nào trong Database trả về */}
             {boards?.length === 0 &&
-              <Typography variant="span" sx={{ fontWeight: 'bold', mb: 3 }}>No result found!</Typography>
+              <Typography variant="body1" sx={{ color: 'text.secondary', mb: 3 }}>
+                {isClosedView ? 'No closed boards found.' : 'No result found!'}
+              </Typography>
             }
 
             {/* Trường hợp gọi API và có boards trong Database trả về thì render danh sách boards */}
             {boards?.length > 0 &&
               <Grid container spacing={2}>
                 {boards.map(b =>
-                  <Grid xs={2} sm={3} md={4} key={b._id}>
-                    <Card sx={{ width: '250px' }}>
-                      {/* Ý tưởng mở rộng về sau làm ảnh Cover cho board nhé */}
-                      {/* <CardMedia component="img" height="100" image="https://picsum.photos/100" /> */}
-                      <Box sx={{ height: '50px', backgroundColor: randomColor({ seed: b._id }) }}></Box>
+                  <Grid xs={12} sm={6} md={4} key={b._id}>
+                    <Card sx={{ width: '100%', maxWidth: '280px' }}>
+                      <Box sx={{
+                        height: '50px',
+                        backgroundColor: b.background?.startsWith('http') ? 'transparent' : (b.background || randomColor({ seed: b._id })),
+                        background: b.background?.startsWith('http') ? `url("${b.background}") center/cover no-repeat` : undefined
+                      }}></Box>
 
                       <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
-                        <Typography gutterBottom variant="h6" component="div">
+                        <Typography gutterBottom variant="h6" component="div" sx={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                           {b.title}
                         </Typography>
                         <Typography
                           variant="body2"
                           color="text.secondary"
-                          sx={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                          {b.description}
+                          sx={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', mb: 1.5 }}>
+                          {b.description || 'No description provided.'}
                         </Typography>
-                        <Box
-                          component={Link}
-                          to={`/boards/${b._id}`}
-                          sx={{
-                            mt: 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'flex-end',
-                            color: 'primary.main',
-                            '&:hover': { color: 'primary.light' }
-                          }}>
-                          Go to board <ArrowRightIcon fontSize="small" />
-                        </Box>
+
+                        {isClosedView ? (
+                          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              startIcon={<UndoIcon fontSize="small" />}
+                              onClick={() => handleReopenBoard(b._id)}
+                              sx={{ textTransform: 'none', fontSize: '12px' }}
+                            >
+                              Reopen
+                            </Button>
+                            <Button
+                              size="small"
+                              color="error"
+                              variant="outlined"
+                              startIcon={<DeleteOutlineIcon fontSize="small" />}
+                              onClick={() => handleDeleteBoard(b)}
+                              sx={{ textTransform: 'none', fontSize: '12px' }}
+                            >
+                              Delete
+                            </Button>
+                          </Box>
+                        ) : (
+                          <Box
+                            component={Link}
+                            to={`/boards/${b._id}`}
+                            sx={{
+                              mt: 1,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'flex-end',
+                              color: 'primary.main',
+                              textDecoration: 'none',
+                              fontWeight: 600,
+                              '&:hover': { color: 'primary.light' }
+                            }}>
+                            Go to board <ArrowRightIcon fontSize="small" />
+                          </Box>
+                        )}
                       </CardContent>
                     </Card>
                   </Grid>
@@ -180,18 +260,21 @@ function Boards() {
                   color="secondary"
                   showFirstButton
                   showLastButton
-                  // Giá trị prop count của component Pagination là để hiển thị tổng số lượng page, công thức là lấy Tổng số lượng bản ghi chia cho số lượng bản ghi muốn hiển thị trên 1 page (ví dụ thường để 12, 24, 26, 48...vv). sau cùng là làm tròn số lên bằng hàm Math.ceil
                   count={Math.ceil(totalBoards / DEFAULT_ITEMS_PER_PAGE)}
-                  // Giá trị của page hiện tại đang đứng
                   page={page}
-                  // Render các page item và đồng thời cũng là những cái link để chúng ta click chuyển trang
-                  renderItem={(item) => (
-                    <PaginationItem
-                      component={Link}
-                      to={`/boards${item.page === DEFAULT_PAGE ? '' : `?page=${item.page}`}`}
-                      {...item}
-                    />
-                  )}
+                  renderItem={(item) => {
+                    const params = new URLSearchParams()
+                    if (isClosedView) params.set('closed', 'true')
+                    if (item.page !== DEFAULT_PAGE) params.set('page', item.page)
+                    const searchStr = params.toString() ? `?${params.toString()}` : ''
+                    return (
+                      <PaginationItem
+                        component={Link}
+                        to={`/boards${searchStr}`}
+                        {...item}
+                      />
+                    )
+                  }}
                 />
               </Box>
             }

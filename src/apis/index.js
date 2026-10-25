@@ -136,3 +136,19 @@ export const restoreColumnAPI = async (columnId) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/columns/${columnId}/restore`)
   return response.data
 }
+
+/** Board Lifecycle (Close, Reopen, Delete) */
+export const closeBoardAPI = async (boardId) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/boards/${boardId}/close`)
+  return response.data
+}
+
+export const reopenBoardAPI = async (boardId) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/boards/${boardId}/reopen`)
+  return response.data
+}
+
+export const deleteBoardDetailsAPI = async (boardId) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/boards/${boardId}`)
+  return response.data
+}

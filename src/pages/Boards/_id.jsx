@@ -10,17 +10,29 @@ import { useEffect } from 'react'
 import {
   updateBoardDetailsAPI,
   updateColumnDetailsAPI,
-  moveCardToDifferentColumnAPI
+  moveCardToDifferentColumnAPI,
+  reopenBoardAPI,
+  deleteBoardDetailsAPI
 } from '~/apis'
 import { fetchBoardDetailsAPI, updateCurrentActiveBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { cloneDeep } from 'lodash'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 import ActiveCard from '~/components/Modal/ActiveCard/ActiveCard'
+import { useConfirm } from 'material-ui-confirm'
+import { toast } from 'react-toastify'
+import FolderOffOutlinedIcon from '@mui/icons-material/FolderOffOutlined'
+import UndoIcon from '@mui/icons-material/Undo'
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
 function Board() {
   const dispatch = useDispatch()
+  const confirm = useConfirm()
+  const navigate = useNavigate()
+  const currentUser = useSelector(selectCurrentUser)
   const board = useSelector(selectCurrentActiveBoard)
   const boardLoading = useSelector(state => state.activeBoard.isLoading)
   const boardError = useSelector(state => state.activeBoard.error)
@@ -90,6 +102,94 @@ function Board() {
         <Typography color="error">Unable to load this board.</Typography>
         <Button variant="contained" onClick={() => dispatch(fetchBoardDetailsAPI(boardId))}>Retry</Button>
       </Box>
+    )
+  }
+
+  // Màn hình khi Bảng đã bị đóng (Closed Board)
+  if (board?._destroy) {
+    const isOwner = (board?.ownerIds || []).some(id => id.toString() === currentUser?._id?.toString())
+
+    const handleReopen = async () => {
+      try {
+        await reopenBoardAPI(boardId)
+        toast.success('Board reopened!')
+        dispatch(fetchBoardDetailsAPI(boardId))
+      } catch (error) {
+        toast.error(error?.response?.data?.message || 'Failed to reopen board')
+      }
+    }
+
+    const handleDeletePermanently = () => {
+      confirm({
+        title: 'Delete Board Permanently?',
+        description: `Are you sure you want to permanently delete "${board.title}"? All lists, cards, and invitations will be permanently removed. This action cannot be undone.`,
+        confirmationText: 'Delete permanently',
+        cancellationText: 'Cancel'
+      }).then(async () => {
+        try {
+          await deleteBoardDetailsAPI(boardId)
+          toast.success('Board permanently deleted!')
+          navigate('/boards')
+        } catch (error) {
+          toast.error(error?.response?.data?.message || 'Failed to delete board')
+        }
+      }).catch(() => {})
+    }
+
+    return (
+      <Container disableGutters maxWidth={false} sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <AppBar />
+        <Box sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 3,
+          textAlign: 'center'
+        }}>
+          <FolderOffOutlinedIcon sx={{ fontSize: 72, color: 'text.secondary', mb: 2 }} />
+          <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
+            {board.title} is closed
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 480, mb: 3 }}>
+            This board is closed. Reopen the board to make changes, or permanently delete it.
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+            {isOwner ? (
+              <>
+                <Button
+                  variant="contained"
+                  startIcon={<UndoIcon />}
+                  onClick={handleReopen}
+                  sx={{ textTransform: 'none', fontWeight: 600 }}
+                >
+                  Reopen board
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteOutlineIcon />}
+                  onClick={handleDeletePermanently}
+                  sx={{ textTransform: 'none', fontWeight: 600 }}
+                >
+                  Permanently delete board
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="contained"
+                startIcon={<ArrowBackIcon />}
+                component={Link}
+                to="/boards"
+                sx={{ textTransform: 'none', fontWeight: 600 }}
+              >
+                Go to my boards
+              </Button>
+            )}
+          </Box>
+        </Box>
+      </Container>
     )
   }
 
