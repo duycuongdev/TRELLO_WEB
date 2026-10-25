@@ -191,8 +191,8 @@ function Boards() {
                     <Card
                       onClick={() => navigate(`/boards/${b._id}`)}
                       sx={{
-                        width: '100%',
                         cursor: 'pointer',
+                        width: '220px',
                         maxWidth: '280px'
                       }}>
                       <Box sx={{
