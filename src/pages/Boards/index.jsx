@@ -9,8 +9,6 @@ import Grid from '@mui/material/Unstable_Grid2'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard'
-import ListAltIcon from '@mui/icons-material/ListAlt'
-import HomeIcon from '@mui/icons-material/Home'
 import FolderOffOutlinedIcon from '@mui/icons-material/FolderOffOutlined'
 import UndoIcon from '@mui/icons-material/Undo'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
@@ -150,15 +148,6 @@ function Boards() {
               >
                 <FolderOffOutlinedIcon fontSize="small" />
                 Closed boards
-              </SidebarItem>
-
-              <SidebarItem sx={{ opacity: 0.55, cursor: 'not-allowed' }}>
-                <ListAltIcon fontSize="small" />
-                Templates (not available)
-              </SidebarItem>
-              <SidebarItem sx={{ opacity: 0.55, cursor: 'not-allowed' }}>
-                <HomeIcon fontSize="small" />
-                Home (not available)
               </SidebarItem>
             </Stack>
             {!isClosedView && (

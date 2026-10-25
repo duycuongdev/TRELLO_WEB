@@ -4,7 +4,6 @@ import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import VpnLockIcon from '@mui/icons-material/VpnLock'
-import BoltIcon from '@mui/icons-material/Bolt'
 import FilterIcon from '@mui/icons-material/FilterList'
 import WallpaperOutlinedIcon from '@mui/icons-material/WallpaperOutlined'
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined'
@@ -146,13 +145,6 @@ function BoardBar({ board }) {
           sx={MENU_STYLES}
           icon={<VpnLockIcon />}
           label={capitalizeFirstLetter(board?.type)}
-          clickable
-        />
-
-        <Chip
-          sx={MENU_STYLES}
-          icon={<BoltIcon />}
-          label='Automation'
           clickable
         />
 
