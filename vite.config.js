@@ -13,7 +13,15 @@ export default defineConfig({
     svgr()
   ],
   optimizeDeps: {
-    include: ['dayjs']
+    include: [
+      '@mui/material',
+      '@mui/material/styles',
+      '@mui/icons-material',
+      '@mui/system',
+      '@emotion/react',
+      '@emotion/styled',
+      'dayjs'
+    ]
   },
   // thay đổi đường dẫn tới thư mục
   resolve: {
