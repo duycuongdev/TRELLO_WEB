@@ -21,6 +21,7 @@ import InviteBoardUser from './InviteBoardUser'
 import BoardCardFilterPopover from './BoardCardFilterPopover'
 import ChangeBoardBackgroundPopover from './ChangeBoardBackgroundPopover'
 import ArchivedItemsDrawer from './ArchivedItemsDrawer'
+import BoardProgress from './BoardProgress'
 
 const MENU_STYLES = {
   color: 'white',
@@ -147,6 +148,9 @@ function BoardBar({ board }) {
           label={capitalizeFirstLetter(board?.type)}
           clickable
         />
+
+        {/* Board Task Completion Progress */}
+        <BoardProgress board={board} />
 
         <Chip
           sx={{
