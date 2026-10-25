@@ -64,6 +64,22 @@ function BoardBar({ board }) {
       })
   }
 
+  const handleUploadBackgroundFile = (file) => {
+    const formData = new FormData()
+    formData.append('boardBackground', file)
+
+    toast.promise(
+      updateBoardDetailsAPI(board._id, formData).then((updatedBoard) => {
+        dispatch(updateCurrentActiveBoard(updatedBoard))
+      }),
+      {
+        pending: 'Uploading background image to Cloudinary...',
+        success: 'Board background updated!',
+        error: 'Failed to upload background image!'
+      }
+    )
+  }
+
   return (
     <Box sx={{
       width: '100%',
@@ -155,6 +171,7 @@ function BoardBar({ board }) {
           onClose={handleCloseBgPopover}
           currentBackground={board?.background}
           onSelectBackground={handleSelectBackground}
+          onUploadBackgroundFile={handleUploadBackgroundFile}
         />
       </Box>
 

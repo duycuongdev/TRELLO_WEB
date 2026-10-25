@@ -8,13 +8,16 @@ import TextField from '@mui/material/TextField'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import Tooltip from '@mui/material/Tooltip'
+import Divider from '@mui/material/Divider'
 import CloseIcon from '@mui/icons-material/Close'
 import CheckIcon from '@mui/icons-material/Check'
 import RestartAltIcon from '@mui/icons-material/RestartAlt'
 import WallpaperIcon from '@mui/icons-material/Wallpaper'
 import GradientIcon from '@mui/icons-material/Gradient'
 import PaletteIcon from '@mui/icons-material/Palette'
-import LinkIcon from '@mui/icons-material/Link'
+import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined'
+import VisuallyHiddenInput from '~/components/Form/VisuallyHiddenInput'
+import { singleFileValidator } from '~/utils/validators'
 import { toast } from 'react-toastify'
 
 const PRESET_PHOTOS = [
@@ -83,7 +86,8 @@ function ChangeBoardBackgroundPopover({
   isOpen,
   onClose,
   currentBackground,
-  onSelectBackground
+  onSelectBackground,
+  onUploadBackgroundFile
 }) {
   const [tabIndex, setTabIndex] = useState(0)
   const [customUrl, setCustomUrl] = useState('')
@@ -104,6 +108,23 @@ function ChangeBoardBackgroundPopover({
     }
     onSelectBackground(trimmed)
     setCustomUrl('')
+  }
+
+  const handleFileChange = (event) => {
+    const file = event.target?.files?.[0]
+    if (!file) return
+
+    const error = singleFileValidator(file)
+    if (error) {
+      toast.error(error)
+      return
+    }
+
+    if (onUploadBackgroundFile) {
+      onUploadBackgroundFile(file)
+    }
+
+    event.target.value = ''
   }
 
   const handleResetDefault = () => {
@@ -158,7 +179,7 @@ function ChangeBoardBackgroundPopover({
         <Tab icon={<WallpaperIcon sx={{ fontSize: 16 }} />} iconPosition="start" label="Photos" />
         <Tab icon={<GradientIcon sx={{ fontSize: 16 }} />} iconPosition="start" label="Gradients" />
         <Tab icon={<PaletteIcon sx={{ fontSize: 16 }} />} iconPosition="start" label="Colors" />
-        <Tab icon={<LinkIcon sx={{ fontSize: 16 }} />} iconPosition="start" label="Custom" />
+        <Tab icon={<CloudUploadOutlinedIcon sx={{ fontSize: 16 }} />} iconPosition="start" label="Upload" />
       </Tabs>
 
       {/* Tab 0: Photos */}
@@ -288,12 +309,39 @@ function ChangeBoardBackgroundPopover({
         </Box>
       )}
 
-      {/* Tab 3: Custom URL */}
+      {/* Tab 3: Upload from Device & Custom URL */}
       {tabIndex === 3 && (
         <Box sx={{ mt: 1 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-            Paste any direct image URL (jpg, png, webp):
+          <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+            UPLOAD FROM COMPUTER:
           </Typography>
+
+          <Button
+            component="label"
+            fullWidth
+            variant="outlined"
+            size="small"
+            startIcon={<CloudUploadOutlinedIcon />}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 600,
+              py: 1,
+              borderStyle: 'dashed',
+              borderWidth: '1.5px',
+              borderRadius: 2
+            }}
+          >
+            Choose image file
+            <VisuallyHiddenInput type="file" accept="image/*" onChange={handleFileChange} />
+          </Button>
+          <Typography variant="caption" sx={{ fontSize: '11px', color: 'text.secondary', display: 'block', mt: 0.5, mb: 1.5, textAlign: 'center' }}>
+            Supported formats: JPG, PNG, WEBP (Max 10MB)
+          </Typography>
+
+          <Divider sx={{ my: 1.5 }}>
+            <Typography variant="caption" color="text.secondary">OR PASTE URL</Typography>
+          </Divider>
+
           <TextField
             fullWidth
             size="small"
@@ -316,7 +364,7 @@ function ChangeBoardBackgroundPopover({
             disabled={!customUrl.trim()}
             sx={{ textTransform: 'none', fontWeight: 600 }}
           >
-            Apply Image
+            Apply Image URL
           </Button>
         </Box>
       )}

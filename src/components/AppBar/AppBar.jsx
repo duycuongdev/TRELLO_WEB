@@ -2,7 +2,6 @@ import ModeSelect from '~/components/ModeSelect/ModeSelect'
 import Box from '@mui/material/Box'
 import AppsIcon from '@mui/icons-material/Apps'
 import TrelloIcon from '~/components/Icons/TrelloIcon'
-
 import Typography from '@mui/material/Typography'
 import Workspaces from './Menus/Workspaces'
 import Recent from './Menus/Recent'
@@ -16,10 +15,13 @@ import LibraryAddIcon from '@mui/icons-material/LibraryAdd'
 import { Link } from 'react-router-dom'
 import Notifications from './Notifications/Notifications'
 import AutoCompleteSearchBoard from './SearchBoards/AutoCompleteSearchBoard'
+import { useSelector } from 'react-redux'
+import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 
 function AppBar() {
+  const activeBoard = useSelector(selectCurrentActiveBoard)
+
   return (
-    // px={2}: padding (16px)
     <Box sx={{
       width: '100%',
       height: (theme) => theme.trello.appBarHeight,
@@ -27,11 +29,15 @@ function AppBar() {
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: 2,
-      // khÃ´ng bá»‹ thá»«a pháº§n tráº¯ng trÃªn web
       overflowX: 'auto',
       paddingX: 2,
-      bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#2c3e50' : '#1565c0'),
-      // thanh scroll tháº³ng vá»›i list card
+      bgcolor: activeBoard?.background
+        ? 'rgba(0, 0, 0, 0.35)'
+        : (theme) => (theme.palette.mode === 'dark' ? '#2c3e50' : '#1565c0'),
+      backdropFilter: activeBoard?.background ? 'blur(6px)' : 'none',
+      borderBottom: activeBoard?.background ? '1px solid rgba(255, 255, 255, 0.15)' : 'none',
+      transition: 'background 0.3s ease',
+      // thanh scroll thẳng với list card
       '&::-webkit-scrollbar-track': { m: 2 }
     }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -55,7 +61,7 @@ function AppBar() {
           <Button
             sx={{
               color: 'white',
-              boder: 'none',
+              border: 'none',
               '&:hover': { border: 'none' }
             }}
             variant="outlined"
