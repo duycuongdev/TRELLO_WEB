@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
-import Avatar from '@mui/material/Avatar'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import FilterIcon from '@mui/icons-material/FilterList'
 import WallpaperOutlinedIcon from '@mui/icons-material/WallpaperOutlined'
@@ -174,32 +173,6 @@ function BoardBar({ board, onlineUsers = [] }) {
 
         {/* Board Task Completion Progress */}
         <BoardProgress board={board} />
-
-        {/* Nút lọc nhanh: My Cards (hỗ trợ phím tắt F) */}
-        <Tooltip title="Filter: Only my cards (Press F to toggle)">
-          <Chip
-            sx={{
-              ...MENU_STYLES,
-              ...(cardFilter?.onlyMyCards && {
-                bgcolor: 'rgba(255, 255, 255, 0.28)',
-                border: '1px solid rgba(255, 255, 255, 0.8)',
-                fontWeight: 700
-              })
-            }}
-            icon={
-              <Avatar
-                src={currentUser?.avatar}
-                alt={currentUser?.displayName}
-                sx={{ width: 20, height: 20, fontSize: '10px', bgcolor: 'primary.dark' }}
-              >
-                {currentUser?.displayName?.[0]?.toUpperCase()}
-              </Avatar>
-            }
-            label={cardFilter?.onlyMyCards ? 'My cards (F)' : 'My cards'}
-            clickable
-            onClick={() => dispatch(setCardFilter({ onlyMyCards: !cardFilter?.onlyMyCards }))}
-          />
-        </Tooltip>
 
         <Chip
           sx={{
