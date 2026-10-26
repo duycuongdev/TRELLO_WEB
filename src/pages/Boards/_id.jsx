@@ -151,7 +151,8 @@ function Board() {
           const nextBoard = cloneDeep(currentBoard)
           const col = nextBoard.columns.find(c => c._id === payload.columnId)
           if (col) {
-            Object.assign(col, payload)
+            col.title = payload.title
+            boardRef.current = nextBoard
             dispatch(updateCurrentActiveBoard(nextBoard))
           }
         }
