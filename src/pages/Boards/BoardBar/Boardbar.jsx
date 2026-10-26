@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
@@ -80,6 +80,23 @@ function BoardBar({ board }) {
   const handleOpenBgPopover = (e) => setBgAnchorEl(e.currentTarget)
   const handleCloseBgPopover = () => setBgAnchorEl(null)
 
+  // Phím tắt bàn phím: bấm 'F' để bật/tắt nhanh bộ lọc "Thẻ của tôi" khi đang xem board
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (
+        (event.key === 'f' || event.key === 'F') &&
+        !['INPUT', 'TEXTAREA'].includes(event.target?.tagName) &&
+        !event.target?.isContentEditable
+      ) {
+        event.preventDefault()
+        dispatch(setCardFilter({ onlyMyCards: !cardFilter?.onlyMyCards }))
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [dispatch, cardFilter?.onlyMyCards])
+
   const handleSelectBackground = (newBackground) => {
     // Cập nhật Redux ngay lập tức để giao diện mượt mà không có độ trễ
     dispatch(updateCurrentActiveBoard({ ...board, background: newBackground }))
@@ -153,29 +170,31 @@ function BoardBar({ board }) {
         {/* Board Task Completion Progress */}
         <BoardProgress board={board} />
 
-        {/* Nút lọc nhanh: My Cards */}
-        <Chip
-          sx={{
-            ...MENU_STYLES,
-            ...(cardFilter?.onlyMyCards && {
-              bgcolor: 'rgba(255, 255, 255, 0.28)',
-              border: '1px solid rgba(255, 255, 255, 0.8)',
-              fontWeight: 700
-            })
-          }}
-          icon={
-            <Avatar
-              src={currentUser?.avatar}
-              alt={currentUser?.displayName}
-              sx={{ width: 20, height: 20, fontSize: '10px', bgcolor: 'primary.dark' }}
-            >
-              {currentUser?.displayName?.[0]?.toUpperCase()}
-            </Avatar>
-          }
-          label="My cards"
-          clickable
-          onClick={() => dispatch(setCardFilter({ onlyMyCards: !cardFilter?.onlyMyCards }))}
-        />
+        {/* Nút lọc nhanh: My Cards (hỗ trợ phím tắt F) */}
+        <Tooltip title="Filter: Only my cards (Press F to toggle)">
+          <Chip
+            sx={{
+              ...MENU_STYLES,
+              ...(cardFilter?.onlyMyCards && {
+                bgcolor: 'rgba(255, 255, 255, 0.28)',
+                border: '1px solid rgba(255, 255, 255, 0.8)',
+                fontWeight: 700
+              })
+            }}
+            icon={
+              <Avatar
+                src={currentUser?.avatar}
+                alt={currentUser?.displayName}
+                sx={{ width: 20, height: 20, fontSize: '10px', bgcolor: 'primary.dark' }}
+              >
+                {currentUser?.displayName?.[0]?.toUpperCase()}
+              </Avatar>
+            }
+            label={cardFilter?.onlyMyCards ? 'My cards (F)' : 'My cards'}
+            clickable
+            onClick={() => dispatch(setCardFilter({ onlyMyCards: !cardFilter?.onlyMyCards }))}
+          />
+        </Tooltip>
 
         <Chip
           sx={{

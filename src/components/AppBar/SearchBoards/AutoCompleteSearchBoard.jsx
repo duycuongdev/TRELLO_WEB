@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -14,6 +15,7 @@ import { useDebounceFn } from '~/CustomHooks/useDebounceFn'
  */
 function AutoCompleteSearchBoard() {
   const navigate = useNavigate()
+  const searchInputRef = useRef(null)
 
   // State xử lý hiển thị kết quả fetch về từ API
   const [open, setOpen] = useState(false)
@@ -21,6 +23,31 @@ function AutoCompleteSearchBoard() {
   const [boards, setBoards] = useState(null)
   // Sẽ hiện loading khi bắt đầu gọi api fetch boards
   const [loading, setLoading] = useState(false)
+
+  // Phím tắt bàn phím: bấm phím '/' để focus vào ô tìm kiếm, bấm 'ESC' để hủy focus
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // Nếu bấm '/' khi không ở trong ô nhập liệu khác
+      if (
+        event.key === '/' &&
+        !['INPUT', 'TEXTAREA'].includes(event.target?.tagName) &&
+        !event.target?.isContentEditable
+      ) {
+        event.preventDefault()
+        searchInputRef.current?.focus()
+        setOpen(true)
+      }
+
+      // Nếu bấm 'Escape' khi đang focus vào ô tìm kiếm
+      if (event.key === 'Escape' && document.activeElement === searchInputRef.current) {
+        searchInputRef.current?.blur()
+        setOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   useEffect(() => {
     // Khi đóng cái phần list kết quả lại thì đồng thời clear cho boards về null
@@ -75,7 +102,6 @@ function AutoCompleteSearchBoard() {
       options={boards || []}
 
       // Fix một cái warning của MUI, vì Autocomplete mặc định khi chúng ta chọn giá trị nó sẽ xảy ra sự so sánh object bên dưới, và mặc dù có 2 json objects trông như nhau trong JavaScript nhưng khi compare sẽ ra false. Vậy nên cần compare chuẩn với value dạng Primitive, ví dụ ở đây là dùng String _id thay vì compare toàn bộ cả cái json object board.
-      // Link chi tiết: https://stackoverflow.com/a/65347275/8324172
       isOptionEqualToValue={(option, value) => option._id === value._id}
 
       // Loading thì đơn giản rồi nhé
@@ -91,6 +117,7 @@ function AutoCompleteSearchBoard() {
       renderInput={(params) => (
         <TextField
           {...params}
+          inputRef={searchInputRef}
           label="Type to search..."
           size="small"
           InputProps={{
@@ -103,6 +130,30 @@ function AutoCompleteSearchBoard() {
             endAdornment: (
               <>
                 {loading ? <CircularProgress sx={{ color: 'white' }} size={20} /> : null}
+                {/* Phím tắt / Badge hiển thị trên desktop/tablet */}
+                {!loading && (
+                  <Box
+                    component="kbd"
+                    sx={{
+                      display: { xs: 'none', sm: 'inline-flex' },
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      px: 0.8,
+                      py: 0.2,
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      color: 'rgba(255, 255, 255, 0.85)',
+                      bgcolor: 'rgba(255, 255, 255, 0.18)',
+                      borderRadius: '4px',
+                      border: '1px solid rgba(255, 255, 255, 0.35)',
+                      lineHeight: 1,
+                      mr: 0.5,
+                      userSelect: 'none'
+                    }}
+                  >
+                    /
+                  </Box>
+                )}
                 {params.InputProps.endAdornment}
               </>
             )

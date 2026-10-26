@@ -13,11 +13,13 @@ import { useSelector } from 'react-redux'
 import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import UserOnboardingModal from '~/components/Modal/UserOnboardingModal/UserOnboardingModal'
+import KeyboardShortcutsModal from '~/components/Modal/KeyboardShortcutsModal/KeyboardShortcutsModal'
 
 function AppBar() {
   const activeBoard = useSelector(selectCurrentActiveBoard)
   const currentUser = useSelector(selectCurrentUser)
   const [openTour, setOpenTour] = useState(false)
+  const [openShortcuts, setOpenShortcuts] = useState(false)
 
   // Tự động bật Tour giới thiệu tính năng khi người dùng đăng nhập lần đầu
   useEffect(() => {
@@ -28,6 +30,23 @@ function AppBar() {
       }
     }
   }, [currentUser?._id])
+
+  // Lắng nghe phím tắt '?' (Shift + /) để mở hướng dẫn phím tắt
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (
+        event.key === '?' &&
+        !['INPUT', 'TEXTAREA'].includes(event.target?.tagName) &&
+        !event.target?.isContentEditable
+      ) {
+        event.preventDefault()
+        setOpenShortcuts(prev => !prev)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   const handleCloseTour = () => {
     setOpenTour(false)
@@ -79,11 +98,17 @@ function AppBar() {
         {/* notifications */}
         <Notifications />
 
-        <Profile onOpenTour={() => setOpenTour(true)} />
+        <Profile
+          onOpenTour={() => setOpenTour(true)}
+          onOpenShortcuts={() => setOpenShortcuts(true)}
+        />
       </Box>
 
       {/* Modal giới thiệu toàn bộ tính năng website cho người dùng */}
       <UserOnboardingModal open={openTour} onClose={handleCloseTour} />
+
+      {/* Modal hướng dẫn phím tắt bàn phím */}
+      <KeyboardShortcutsModal open={openShortcuts} onClose={() => setOpenShortcuts(false)} />
     </Box>
   )
 }

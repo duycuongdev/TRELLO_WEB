@@ -10,12 +10,13 @@ import IconButton from '@mui/material/IconButton'
 import Settings from '@mui/icons-material/Settings'
 import Logout from '@mui/icons-material/Logout'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
+import KeyboardOutlinedIcon from '@mui/icons-material/KeyboardOutlined'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentUser, logoutUserAPI } from '~/redux/user/userSlice'
 import { useConfirm } from 'material-ui-confirm'
 import { Link } from 'react-router-dom'
 
-function Profile({ onOpenTour }) {
+function Profile({ onOpenTour, onOpenShortcuts }) {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const open = Boolean(anchorEl)
   const handleClick = (event) => {
@@ -83,6 +84,15 @@ function Profile({ onOpenTour }) {
             <HelpOutlineIcon fontSize="small" sx={{ color: '#0052cc' }} />
           </ListItemIcon>
           Product Tour
+        </MenuItem>
+        <MenuItem onClick={() => {
+          handleClose()
+          if (onOpenShortcuts) onOpenShortcuts()
+        }}>
+          <ListItemIcon>
+            <KeyboardOutlinedIcon fontSize="small" sx={{ color: '#0ea5e9' }} />
+          </ListItemIcon>
+          Shortcuts (?)
         </MenuItem>
         <Link to='/settings/account' style={{ color: 'inherit', textDecoration: 'none' }}>
           <MenuItem>
