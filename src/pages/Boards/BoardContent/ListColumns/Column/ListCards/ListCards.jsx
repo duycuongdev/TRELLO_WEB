@@ -37,17 +37,14 @@ function ListCards({ cards }) {
         if (!hasMatchingLabel) return false
       }
 
-      // Lọc thẻ của tôi (Only my cards)
-      if (onlyMyCards && currentUser?._id) {
+      // Lọc theo thành viên (OR logic: hiển thị thẻ được gán cho Tôi HOẶC bất kỳ thành viên nào được chọn)
+      const targetMemberIds = [
+        ...(onlyMyCards && currentUser?._id ? [currentUser._id.toString()] : []),
+        ...filterMemberIds.map(id => id.toString())
+      ]
+      if (targetMemberIds.length > 0) {
         const cardMemberIds = (card.memberIds || []).map(id => id.toString())
-        const isAssignedToMe = cardMemberIds.includes(currentUser._id.toString())
-        if (!isAssignedToMe) return false
-      }
-
-      // Lọc theo thành viên cụ thể
-      if (filterMemberIds.length > 0) {
-        const cardMemberIds = (card.memberIds || []).map(id => id.toString())
-        const hasSelectedMember = filterMemberIds.some(id => cardMemberIds.includes(id.toString()))
+        const hasSelectedMember = targetMemberIds.some(targetId => cardMemberIds.includes(targetId))
         if (!hasSelectedMember) return false
       }
 

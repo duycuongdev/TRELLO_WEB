@@ -80,13 +80,16 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
               isMatch = false
             }
           }
-          if (onlyMyCards && currentUser?._id) {
+          // Lọc theo thành viên (OR logic: hiển thị thẻ được gán cho Tôi HOẶC bất kỳ thành viên nào được chọn)
+          const targetMemberIds = [
+            ...(onlyMyCards && currentUser?._id ? [currentUser._id.toString()] : []),
+            ...filterMemberIds.map(id => id.toString())
+          ]
+          if (targetMemberIds.length > 0) {
             const cardMemberIds = (card.memberIds || []).map(id => id.toString())
-            if (!cardMemberIds.includes(currentUser._id.toString())) isMatch = false
-          }
-          if (filterMemberIds.length > 0) {
-            const cardMemberIds = (card.memberIds || []).map(id => id.toString())
-            if (!filterMemberIds.some(id => cardMemberIds.includes(id.toString()))) isMatch = false
+            if (!targetMemberIds.some(targetId => cardMemberIds.includes(targetId))) {
+              isMatch = false
+            }
           }
           if (isMatch) matched++
         }
