@@ -4,17 +4,22 @@ import Box from '@mui/material/Box'
 import Card from './Card/Card'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { selectCardFilter } from '~/redux/activeBoard/activeBoardSlice'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 
 function ListCards({ cards }) {
   const cardFilter = useSelector(selectCardFilter)
+  const currentUser = useSelector(selectCurrentUser)
 
   const filteredCards = useMemo(() => {
     if (!cards) return []
     const activeCards = cards.filter(card => !card?._destroy)
     const search = cardFilter?.search?.trim().toLowerCase()
     const filterLabelIds = cardFilter?.labelIds || []
+    const onlyMyCards = Boolean(cardFilter?.onlyMyCards)
+    const filterMemberIds = cardFilter?.memberIds || []
 
-    if (!search && filterLabelIds.length === 0) return activeCards
+    const hasFilter = Boolean(search || filterLabelIds.length > 0 || onlyMyCards || filterMemberIds.length > 0)
+    if (!hasFilter) return activeCards
 
     return activeCards.filter(card => {
       // Giữ lại placeholder card để SortableContext và DndKit hoạt động ổn định
@@ -32,9 +37,23 @@ function ListCards({ cards }) {
         if (!hasMatchingLabel) return false
       }
 
+      // Lọc thẻ của tôi (Only my cards)
+      if (onlyMyCards && currentUser?._id) {
+        const cardMemberIds = (card.memberIds || []).map(id => id.toString())
+        const isAssignedToMe = cardMemberIds.includes(currentUser._id.toString())
+        if (!isAssignedToMe) return false
+      }
+
+      // Lọc theo thành viên cụ thể
+      if (filterMemberIds.length > 0) {
+        const cardMemberIds = (card.memberIds || []).map(id => id.toString())
+        const hasSelectedMember = filterMemberIds.some(id => cardMemberIds.includes(id.toString()))
+        if (!hasSelectedMember) return false
+      }
+
       return true
     })
-  }, [cards, cardFilter])
+  }, [cards, cardFilter, currentUser])
 
   return (
     <SortableContext items={filteredCards?.map(c => c._id)} strategy={verticalListSortingStrategy}>

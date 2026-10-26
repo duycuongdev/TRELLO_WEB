@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
+import Avatar from '@mui/material/Avatar'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import VpnLockIcon from '@mui/icons-material/VpnLock'
 import FilterIcon from '@mui/icons-material/FilterList'
@@ -10,7 +11,7 @@ import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined'
 import FolderOffOutlinedIcon from '@mui/icons-material/FolderOffOutlined'
 import Tooltip from '@mui/material/Tooltip'
 import { capitalizeFirstLetter } from '~/utils/formatter'
-import { selectCardFilter, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { selectCardFilter, setCardFilter, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { updateBoardDetailsAPI, closeBoardAPI } from '~/apis'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { toast } from 'react-toastify'
@@ -70,7 +71,7 @@ function BoardBar({ board }) {
 
   const cardFilter = useSelector(selectCardFilter)
 
-  const activeFilterCount = (cardFilter?.search ? 1 : 0) + (cardFilter?.labelIds?.length || 0)
+  const activeFilterCount = (cardFilter?.search ? 1 : 0) + (cardFilter?.labelIds?.length || 0) + (cardFilter?.onlyMyCards ? 1 : 0) + (cardFilter?.memberIds?.length || 0)
   const hasActiveFilter = activeFilterCount > 0
 
   const handleOpenFilter = (e) => setFilterAnchorEl(e.currentTarget)
@@ -151,6 +152,30 @@ function BoardBar({ board }) {
 
         {/* Board Task Completion Progress */}
         <BoardProgress board={board} />
+
+        {/* Nút lọc nhanh: My Cards */}
+        <Chip
+          sx={{
+            ...MENU_STYLES,
+            ...(cardFilter?.onlyMyCards && {
+              bgcolor: 'rgba(255, 255, 255, 0.28)',
+              border: '1px solid rgba(255, 255, 255, 0.8)',
+              fontWeight: 700
+            })
+          }}
+          icon={
+            <Avatar
+              src={currentUser?.avatar}
+              alt={currentUser?.displayName}
+              sx={{ width: 20, height: 20, fontSize: '10px', bgcolor: 'primary.dark' }}
+            >
+              {currentUser?.displayName?.[0]?.toUpperCase()}
+            </Avatar>
+          }
+          label="My cards"
+          clickable
+          onClick={() => dispatch(setCardFilter({ onlyMyCards: !cardFilter?.onlyMyCards }))}
+        />
 
         <Chip
           sx={{

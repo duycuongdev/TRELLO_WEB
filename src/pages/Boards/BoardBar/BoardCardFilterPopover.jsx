@@ -9,6 +9,8 @@ import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Divider from '@mui/material/Divider'
 import InputAdornment from '@mui/material/InputAdornment'
+import Avatar from '@mui/material/Avatar'
+import Checkbox from '@mui/material/Checkbox'
 import SearchIcon from '@mui/icons-material/Search'
 import ClearIcon from '@mui/icons-material/Clear'
 import CloseIcon from '@mui/icons-material/Close'
@@ -19,12 +21,14 @@ import {
   setCardFilter,
   clearCardFilter
 } from '~/redux/activeBoard/activeBoardSlice'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 
 function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
   const dispatch = useDispatch()
   const cardFilter = useSelector(selectCardFilter)
+  const currentUser = useSelector(selectCurrentUser)
 
-  // Tổng hợp tất cả các nhãn thực tế do người dùng tạo và gán vào các thẻ trên board (không dùng mockdata)
+  // Tổng hợp tất cả các nhãn thực tế do người dùng tạo và gán vào các thẻ trên board
   const availableLabels = useMemo(() => {
     const labelMap = new Map()
 
@@ -57,6 +61,8 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
     let matched = 0
     const search = cardFilter?.search?.trim().toLowerCase()
     const filterLabelIds = cardFilter?.labelIds || []
+    const onlyMyCards = Boolean(cardFilter?.onlyMyCards)
+    const filterMemberIds = cardFilter?.memberIds || []
 
     board?.columns?.forEach(column => {
       column.cards?.forEach(card => {
@@ -74,14 +80,27 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
               isMatch = false
             }
           }
+          if (onlyMyCards && currentUser?._id) {
+            const cardMemberIds = (card.memberIds || []).map(id => id.toString())
+            if (!cardMemberIds.includes(currentUser._id.toString())) isMatch = false
+          }
+          if (filterMemberIds.length > 0) {
+            const cardMemberIds = (card.memberIds || []).map(id => id.toString())
+            if (!filterMemberIds.some(id => cardMemberIds.includes(id.toString()))) isMatch = false
+          }
           if (isMatch) matched++
         }
       })
     })
     return { totalCards: total, matchedCards: matched }
-  }, [board, cardFilter])
+  }, [board, cardFilter, currentUser])
 
-  const hasActiveFilter = Boolean(cardFilter?.search || cardFilter?.labelIds?.length > 0)
+  const hasActiveFilter = Boolean(
+    cardFilter?.search ||
+    cardFilter?.labelIds?.length > 0 ||
+    cardFilter?.onlyMyCards ||
+    cardFilter?.memberIds?.length > 0
+  )
 
   const handleToggleLabel = (labelId) => {
     const currentLabelIds = cardFilter.labelIds || []
@@ -89,6 +108,14 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
       ? currentLabelIds.filter(id => id !== labelId)
       : [...currentLabelIds, labelId]
     dispatch(setCardFilter({ labelIds: newLabelIds }))
+  }
+
+  const handleToggleMember = (memberId) => {
+    const currentMemberIds = cardFilter.memberIds || []
+    const newMemberIds = currentMemberIds.includes(memberId)
+      ? currentMemberIds.filter(id => id !== memberId)
+      : [...currentMemberIds, memberId]
+    dispatch(setCardFilter({ memberIds: newMemberIds }))
   }
 
   return (
@@ -164,6 +191,108 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
 
       <Divider sx={{ my: 1.5 }} />
 
+      {/* Lọc theo Thành viên (Members / Only my cards) */}
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="caption" fontWeight={600} sx={{ color: 'text.secondary', mb: 1, display: 'block' }}>
+          MEMBERS
+        </Typography>
+
+        {/* Nút lọc nhanh: Chỉ thẻ của tôi */}
+        <Box
+          onClick={() => dispatch(setCardFilter({ onlyMyCards: !cardFilter.onlyMyCards }))}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: 1.5,
+            py: 1,
+            mb: 1,
+            borderRadius: 1.5,
+            bgcolor: cardFilter.onlyMyCards
+              ? (theme) => (theme.palette.mode === 'dark' ? 'rgba(25, 118, 210, 0.2)' : 'primary.50')
+              : (theme) => (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#f4f5f7'),
+            border: '1px solid',
+            borderColor: cardFilter.onlyMyCards ? 'primary.main' : 'divider',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+            '&:hover': {
+              bgcolor: cardFilter.onlyMyCards ? 'primary.100' : 'action.hover'
+            }
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+            <Avatar
+              src={currentUser?.avatar}
+              alt={currentUser?.displayName}
+              sx={{ width: 26, height: 26, fontSize: '0.75rem', bgcolor: '#0052cc' }}
+            >
+              {currentUser?.displayName?.[0]?.toUpperCase()}
+            </Avatar>
+            <Box>
+              <Typography variant="body2" fontWeight={600}>
+                Cards assigned to me
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Only my cards
+              </Typography>
+            </Box>
+          </Box>
+          <Checkbox
+            size="small"
+            checked={Boolean(cardFilter.onlyMyCards)}
+            sx={{ p: 0 }}
+          />
+        </Box>
+
+        {/* Danh sách các thành viên khác trên board (nếu có) */}
+        {board?.FE_allUsers?.length > 1 && (
+          <Stack spacing={0.5} sx={{ maxHeight: 150, overflowY: 'auto', pr: 0.5 }}>
+            {board.FE_allUsers
+              .filter(user => user._id !== currentUser?._id)
+              .map((user) => {
+                const isSelected = cardFilter.memberIds?.includes(user._id)
+                return (
+                  <Box
+                    key={user._id}
+                    onClick={() => handleToggleMember(user._id)}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      px: 1.2,
+                      py: 0.6,
+                      borderRadius: 1,
+                      cursor: 'pointer',
+                      bgcolor: isSelected ? 'action.selected' : 'transparent',
+                      '&:hover': { bgcolor: 'action.hover' }
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Avatar
+                        src={user.avatar}
+                        alt={user.displayName}
+                        sx={{ width: 22, height: 22, fontSize: '0.7rem' }}
+                      >
+                        {user.displayName?.[0]?.toUpperCase()}
+                      </Avatar>
+                      <Typography variant="body2" sx={{ fontSize: '0.825rem' }}>
+                        {user.displayName}
+                      </Typography>
+                    </Box>
+                    <Checkbox
+                      size="small"
+                      checked={Boolean(isSelected)}
+                      sx={{ p: 0 }}
+                    />
+                  </Box>
+                )
+              })}
+          </Stack>
+        )}
+      </Box>
+
+      <Divider sx={{ my: 1.5 }} />
+
       {/* Lọc theo Nhãn (Labels) do người dùng tạo */}
       <Box sx={{ mb: 2 }}>
         <Typography variant="caption" fontWeight={600} sx={{ color: 'text.secondary', mb: 1, display: 'block' }}>
@@ -188,7 +317,7 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
             </Typography>
           </Box>
         ) : (
-          <Stack spacing={0.75} sx={{ maxHeight: 220, overflowY: 'auto', pr: 0.5 }}>
+          <Stack spacing={0.75} sx={{ maxHeight: 200, overflowY: 'auto', pr: 0.5 }}>
             {availableLabels.map((label) => {
               const isSelected = cardFilter.labelIds?.includes(label.id)
               return (

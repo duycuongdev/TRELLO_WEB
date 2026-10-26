@@ -10,7 +10,7 @@ const initialState = {
   currentActiveBoard: null,
   isLoading: false,
   error: null,
-  cardFilter: { search: '', labelIds: [] }
+  cardFilter: { search: '', labelIds: [], onlyMyCards: false, memberIds: [] }
 }
 
 // Gọi api (bất đồng bộ) và cập nhật dữ liệu vào redux, dùng middleware createAsyncThunk đi kèm với extraReducers
@@ -88,7 +88,7 @@ export const activeBoardSlice = createSlice({
       state.cardFilter = { ...state.cardFilter, ...action.payload }
     },
     clearCardFilter: (state) => {
-      state.cardFilter = { search: '', labelIds: [] }
+      state.cardFilter = { search: '', labelIds: [], onlyMyCards: false, memberIds: [] }
     }
   },
 
@@ -152,7 +152,7 @@ export const selectCurrentActiveBoard = (state) => {
 }
 
 export const selectCardFilter = (state) => {
-  return state.activeBoard.cardFilter || { search: '', labelIds: [] }
+  return state.activeBoard.cardFilter || { search: '', labelIds: [], onlyMyCards: false, memberIds: [] }
 }
 
 // file này tên là activeBoardSlice nhưng export 1 thứ tên là reducer
