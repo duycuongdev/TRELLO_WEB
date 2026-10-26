@@ -19,7 +19,6 @@ import InviteBoardUser from './InviteBoardUser'
 import BoardCardFilterPopover from './BoardCardFilterPopover'
 import ChangeBoardBackgroundPopover from './ChangeBoardBackgroundPopover'
 import ArchivedItemsDrawer from './ArchivedItemsDrawer'
-import BoardProgress from './BoardProgress'
 import { emitBoardUpdate, BOARD_ACTION_TYPES } from '~/sockets/boardSocketClient'
 
 const MENU_STYLES = {
@@ -170,9 +169,6 @@ function BoardBar({ board, onlineUsers = [] }) {
             clickable
           />
         </Tooltip>
-
-        {/* Board Task Completion Progress */}
-        <BoardProgress board={board} />
 
         <Chip
           sx={{
