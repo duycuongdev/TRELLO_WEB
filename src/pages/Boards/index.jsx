@@ -142,7 +142,7 @@ function Boards() {
       <Container maxWidth="xl" sx={{ py: 4, px: { xs: 2, sm: 3, md: 4 } }}>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
           {/* Sidebar */}
-          <Box sx={{ width: { xs: '100%', md: '240px' }, flexShrink: 0 }}>
+          <Box sx={{ width: { xs: '100%', md: '300px' }, flexShrink: 0, mr: 10 }}>
             <Stack direction="column" spacing={1}>
               <SidebarItem
                 component={Link}
