@@ -28,13 +28,14 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
   const cardFilter = useSelector(selectCardFilter)
   const currentUser = useSelector(selectCurrentUser)
 
-  // Tổng hợp tất cả các nhãn thực tế do người dùng tạo và gán vào các thẻ trên board
+  // Tổng hợp tất cả các nhãn thực tế do người dùng tạo và gán vào các thẻ trên board kèm số lượng thẻ
   const availableLabels = useMemo(() => {
     const labelMap = new Map()
 
     board?.columns?.forEach(column => {
       column.cards?.forEach(card => {
         if (!card?.FE_PlaceholderCard && Array.isArray(card.labels)) {
+          const seenInCard = new Set()
           card.labels.forEach(label => {
             if (label && label.color) {
               const title = (label.title || '').trim()
@@ -43,8 +44,13 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
                 labelMap.set(id, {
                   id,
                   color: label.color,
-                  title
+                  title,
+                  count: 0
                 })
+              }
+              if (!seenInCard.has(id)) {
+                seenInCard.add(id)
+                labelMap.get(id).count += 1
               }
             }
           })
@@ -139,6 +145,8 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
           sx: {
             width: 320,
             maxWidth: 'calc(100vw - 32px)',
+            maxHeight: 'calc(100vh - 80px)',
+            overflowY: 'auto',
             p: 2,
             borderRadius: 2,
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
@@ -320,7 +328,23 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
             </Typography>
           </Box>
         ) : (
-          <Stack spacing={0.75} sx={{ maxHeight: 200, overflowY: 'auto', pr: 0.5 }}>
+          <Stack
+            spacing={0.75}
+            sx={{
+              maxHeight: '180px',
+              overflowY: 'auto',
+              pr: 0.5,
+              '&::-webkit-scrollbar': { width: '5px' },
+              '&::-webkit-scrollbar-track': { backgroundColor: 'transparent' },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: (theme) => (theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'),
+                borderRadius: '4px'
+              },
+              '&::-webkit-scrollbar-thumb:hover': {
+                backgroundColor: (theme) => (theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.35)' : 'rgba(0, 0, 0, 0.35)')
+              }
+            }}
+          >
             {availableLabels.map((label) => {
               const isSelected = cardFilter.labelIds?.includes(label.id)
               return (
@@ -340,7 +364,7 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
                     fontWeight: 600,
                     fontSize: '0.85rem',
                     boxShadow: isSelected ? '0 0 0 2.5px #1976d2' : 'none',
-                    opacity: isSelected ? 1 : 0.85,
+                    opacity: isSelected ? 1 : 0.9,
                     transition: 'all 0.15s ease',
                     '&:hover': {
                       opacity: 1,
@@ -348,10 +372,33 @@ function BoardCardFilterPopover({ anchorEl, isOpen, onClose, board }) {
                     }
                   }}
                 >
-                  <Typography variant="body2" sx={{ fontWeight: 600, color: 'white' }}>
-                    {label.title || '(Không có tiêu đề)'}
-                  </Typography>
-                  {isSelected && <CheckIcon fontSize="small" sx={{ color: 'white' }} />}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, overflow: 'hidden' }}>
+                    <Typography
+                      variant="body2"
+                      noWrap
+                      sx={{
+                        fontWeight: 600,
+                        color: 'white',
+                        fontSize: '0.85rem',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                    >
+                      {label.title || '(Không có tiêu đề)'}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: 'rgba(255, 255, 255, 0.85)',
+                        fontSize: '0.75rem',
+                        fontWeight: 500,
+                        flexShrink: 0
+                      }}
+                    >
+                      ({label.count})
+                    </Typography>
+                  </Box>
+                  {isSelected && <CheckIcon fontSize="small" sx={{ color: 'white', flexShrink: 0, ml: 1 }} />}
                 </Box>
               )
             })}
