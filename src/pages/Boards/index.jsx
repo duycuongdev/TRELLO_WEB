@@ -5,7 +5,6 @@ import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-import Grid from '@mui/material/Unstable_Grid2'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard'
@@ -16,7 +15,7 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Pagination from '@mui/material/Pagination'
 import PaginationItem from '@mui/material/PaginationItem'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import randomColor from 'randomcolor'
 import SidebarCreateBoardModal from './create'
 import { styled } from '@mui/material/styles'
@@ -24,7 +23,6 @@ import { fetchBoardsAPI, reopenBoardAPI, deleteBoardDetailsAPI } from '~/apis/in
 import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants.js'
 import { useConfirm } from 'material-ui-confirm'
 import { toast } from 'react-toastify'
-import { useNavigate } from 'react-router-dom'
 
 // Styles của mấy cái Sidebar item menu, gom lại ra đây cho gọn.
 const SidebarItem = styled(Box)(({ theme }) => ({
@@ -126,9 +124,10 @@ function Boards() {
   return (
     <Container disableGutters maxWidth={false}>
       <AppBar />
-      <Box sx={{ paddingX: 2, my: 4 }}>
-        <Grid container spacing={2}>
-          <Grid xs={12} sm={3}>
+      <Box sx={{ paddingX: 3, my: 4 }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
+          {/* Sidebar */}
+          <Box sx={{ width: { xs: '100%', md: '240px' }, flexShrink: 0 }}>
             <Stack direction="column" spacing={1}>
               <SidebarItem
                 component={Link}
@@ -158,82 +157,130 @@ function Boards() {
                 </Stack>
               </>
             )}
-          </Grid>
+          </Box>
 
-          <Grid xs={12} sm={9}>
-            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 3 }}>
+          {/* Main Content */}
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
               {isClosedView ? 'Closed boards:' : 'Your boards:'}
             </Typography>
 
             {/* Trường hợp gọi API nhưng không tồn tại cái board nào trong Database trả về */}
-            {boards?.length === 0 &&
+            {boards?.length === 0 && (
               <Typography variant="body1" sx={{ color: 'text.secondary', mb: 3 }}>
                 {isClosedView ? 'No closed boards found.' : 'No result found!'}
               </Typography>
-            }
+            )}
 
-            {/* Trường hợp gọi API và có boards trong Database trả về thì render danh sách boards */}
-            {boards?.length > 0 &&
-              <Grid container spacing={2}>
-                {boards.map(b =>
-                  <Grid xs={12} sm={6} md={4} key={b._id}>
-                    <Card
-                      onClick={() => navigate(`/boards/${b._id}`)}
-                      sx={{
-                        cursor: 'pointer',
-                        width: '100%',
-                        maxWidth: { xs: '100%', sm: '280px' }
-                      }}>
-                      <Box sx={{
-                        height: '50px',
-                        backgroundColor: b.background?.startsWith('http') ? 'transparent' : (b.background || randomColor({ seed: b._id })),
-                        background: b.background?.startsWith('http') ? `url("${b.background}") center/cover no-repeat` : undefined
-                      }}></Box>
+            {/* Render danh sách boards theo CSS Grid 5 cột trên hàng */}
+            {boards?.length > 0 && (
+              <Box sx={{
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: 'repeat(1, 1fr)',
+                  sm: 'repeat(2, 1fr)',
+                  md: 'repeat(3, 1fr)',
+                  lg: 'repeat(5, 1fr)'
+                },
+                gap: 2
+              }}>
+                {boards.map(b => (
+                  <Card
+                    key={b._id}
+                    onClick={() => navigate(`/boards/${b._id}`)}
+                    sx={{
+                      cursor: 'pointer',
+                      width: '100%',
+                      height: '135px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      boxShadow: (theme) => theme.palette.mode === 'dark' ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.08)',
+                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                      '&:hover': {
+                        transform: 'translateY(-3px)',
+                        boxShadow: (theme) => theme.palette.mode === 'dark' ? '0 6px 16px rgba(0,0,0,0.5)' : '0 6px 16px rgba(0,0,0,0.15)'
+                      }
+                    }}
+                  >
+                    <Box sx={{
+                      height: '50px',
+                      backgroundColor: b.background?.startsWith('http') ? 'transparent' : (b.background || randomColor({ seed: b._id })),
+                      background: b.background?.startsWith('http') ? `url("${b.background}") center/cover no-repeat` : undefined,
+                      flexShrink: 0
+                    }} />
 
-                      <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
-                        <Typography gutterBottom variant="h6" component="div" sx={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                          {b.title}
-                        </Typography>
+                    <CardContent sx={{
+                      p: 1.5,
+                      flex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      '&:last-child': { pb: 1.5 }
+                    }}>
+                      <Typography
+                        variant="subtitle1"
+                        component="div"
+                        sx={{
+                          fontWeight: 600,
+                          overflow: 'hidden',
+                          whiteSpace: 'nowrap',
+                          textOverflow: 'ellipsis',
+                          lineHeight: 1.3
+                        }}
+                      >
+                        {b.title}
+                      </Typography>
 
-                        {isClosedView && (
-                          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              startIcon={<UndoIcon fontSize="small" />}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleReopenBoard(b._id)
-                              }}
-                              sx={{ textTransform: 'none', fontSize: '12px' }}
-                            >
-                              Reopen
-                            </Button>
-                            <Button
-                              size="small"
-                              color="error"
-                              variant="outlined"
-                              startIcon={<DeleteOutlineIcon fontSize="small" />}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleDeleteBoard(b)
-                              }}
-                              sx={{ textTransform: 'none', fontSize: '12px' }}
-                            >
-                              Delete
-                            </Button>
-                          </Box>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                )}
-              </Grid>
-            }
+                      {isClosedView ? (
+                        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', pt: 0.8, borderTop: '1px solid', borderColor: 'divider' }}>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            startIcon={<UndoIcon fontSize="small" />}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleReopenBoard(b._id)
+                            }}
+                            sx={{ textTransform: 'none', fontSize: '11px', py: 0.2, px: 0.8 }}
+                          >
+                            Reopen
+                          </Button>
+                          <Button
+                            size="small"
+                            color="error"
+                            variant="outlined"
+                            startIcon={<DeleteOutlineIcon fontSize="small" />}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDeleteBoard(b)
+                            }}
+                            sx={{ textTransform: 'none', fontSize: '11px', py: 0.2, px: 0.8 }}
+                          >
+                            Delete
+                          </Button>
+                        </Box>
+                      ) : (
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pt: 0.8, borderTop: '1px solid', borderColor: 'divider' }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'capitalize', fontSize: '11px' }}>
+                            {b.type || 'Workspace'}
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 600, fontSize: '11px' }}>
+                            Open board →
+                          </Typography>
+                        </Box>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+            )}
 
-            {/* Trường hợp gọi API và có totalBoards trong Database trả về thì render khu vực phân trang  */}
-            {(totalBoards > 0) &&
-              <Box sx={{ my: 3, pr: 5, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+            {/* Phân trang */}
+            {(totalBoards > 0) && (
+              <Box sx={{ my: 3, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                 <Pagination
                   size="large"
                   color="secondary"
@@ -256,9 +303,9 @@ function Boards() {
                   }}
                 />
               </Box>
-            }
-          </Grid>
-        </Grid>
+            )}
+          </Box>
+        </Box>
       </Box>
     </Container>
   )
