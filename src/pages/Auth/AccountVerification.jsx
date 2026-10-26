@@ -1,35 +1,42 @@
-import { useState, useEffect } from 'react'
-import { useSearchParams, Navigate } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { useSearchParams, useNavigate, Navigate } from 'react-router-dom'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 import { verifyUserAPI } from '~/apis'
+import { toast } from 'react-toastify'
 
 const AccountVerification = () => {
-  // lấy giá trị query param từ url
   const [searchParams] = useSearchParams()
   const { email, token } = Object.fromEntries([...searchParams])
+  const navigate = useNavigate()
+  const hasRequested = useRef(false)
 
-  // tạo 1 biến để biết đã verify thành công hay chưa
-  const [isVerified, setIsVerified] = useState(false)
-
-  // Gọi API để verify tài khoản
   useEffect(() => {
-    if (email && token) {
-      verifyUserAPI({ email, token }).then(() => setIsVerified(true))
-    }
-  }, [email, token])
+    if (!email || !token) return
+    if (hasRequested.current) return
+    hasRequested.current = true
 
-  // Nếu url có vấn đề, không tồn tại 1 trong 2 giá trị email hoặc token thì đá ra trang 404 luôn
+    verifyUserAPI({ email, token })
+      .then(() => {
+        toast.success('Your email has been verified! Welcome to Trello.')
+        navigate(`/login?verifiedEmail=${encodeURIComponent(email)}`, { replace: true })
+      })
+      .catch((error) => {
+        const errorMsg = error?.response?.data?.message || ''
+        if (errorMsg.toLowerCase().includes('already active')) {
+          toast.info('Your account is already active. Please log in.')
+          navigate(`/login?verifiedEmail=${encodeURIComponent(email)}`, { replace: true })
+        } else {
+          toast.error(errorMsg || 'Verification failed or invalid token. Please log in or try again.')
+          navigate('/login', { replace: true })
+        }
+      })
+  }, [email, token, navigate])
+
   if (!email || !token) {
-    return <Navigate to='/404' />
+    return <Navigate to='/404' replace />
   }
 
-  // Nếu chưa verify xong thì hiện loading
-  if (!isVerified) {
-    return <PageLoadingSpinner caption='Verifying your account...' />
-  }
-
-  // Cuối cùng nếu không gặp vấn đề gì + với verify thành công thì điều hướng về trang login cùng giá trị verifiedEmail
-  return <Navigate to={`/login?verifiedEmail=${email}`} />
+  return <PageLoadingSpinner caption='Verifying your account...' />
 }
 
 export default AccountVerification

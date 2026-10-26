@@ -25,10 +25,15 @@ function LoginForm() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  const { handleSubmit, register, formState: { errors } } = useForm()
   const [searchParams] = useSearchParams()
   const registeredEmail = searchParams.get('registeredEmail')
   const verifiedEmail = searchParams.get('verifiedEmail')
+
+  const { handleSubmit, register, formState: { errors } } = useForm({
+    defaultValues: {
+      email: verifiedEmail || registeredEmail || ''
+    }
+  })
 
   const submitLogIn = (data) => {
     const { email, password } = data

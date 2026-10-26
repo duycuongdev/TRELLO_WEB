@@ -1,4 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
@@ -7,6 +8,9 @@ import TrelloIcon from '~/components/Icons/TrelloIcon'
 import CardActions from '@mui/material/CardActions'
 import TextField from '@mui/material/TextField'
 import Zoom from '@mui/material/Zoom'
+import Alert from '@mui/material/Alert'
+import MarkEmailReadOutlinedIcon from '@mui/icons-material/MarkEmailReadOutlined'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import {
   EMAIL_RULE,
   EMAIL_RULE_MESSAGE,
@@ -21,16 +25,137 @@ import { registerUserAPI } from '~/apis'
 import { toast } from 'react-toastify'
 
 function RegisterForm() {
-  const { handleSubmit, register, formState: { errors }, watch } = useForm()
-  const navigate = useNavigate()
+  const [registeredEmail, setRegisteredEmail] = useState(null)
+  const { handleSubmit, register, formState: { errors }, watch, reset } = useForm()
 
   const submitRegister = (data) => {
     const { email, password } = data
     toast.promise(registerUserAPI({ email, password }), {
-      pending: 'Registering your account...'
+      pending: 'Registering your account...',
+      success: 'Registration successful! Please check your email to activate.',
+      error: (err) => err?.response?.data?.message || 'Registration failed!'
     }).then((user) => {
-      navigate(`/login?registeredEmail=${user.email}`)
-    })
+      // Giữ nguyên ở trang đăng ký và lưu email để hiển thị thông báo hướng dẫn vào hộp thư xác thực
+      setRegisteredEmail(user?.email || email)
+    }).catch(() => {})
+  }
+
+  // Khi đăng ký thành công, giữ ở trang đăng ký và hiển thị màn hình xác nhận email trực quan
+  if (registeredEmail) {
+    const isGmail = registeredEmail.toLowerCase().endsWith('@gmail.com')
+
+    return (
+      <Box sx={{ width: '100%', maxWidth: 440 }}>
+        <Zoom in={true} style={{ transitionDelay: '150ms' }}>
+          <MuiCard sx={{
+            width: '100%',
+            borderRadius: 3.5,
+            boxShadow: (theme) => theme.palette.mode === 'dark'
+              ? '0 12px 40px rgba(0, 0, 0, 0.45)'
+              : '0 12px 36px rgba(0, 0, 0, 0.08)',
+            border: '1px solid',
+            borderColor: 'divider',
+            bgcolor: (theme) => theme.palette.mode === 'dark' ? '#1e293b' : '#ffffff',
+            p: 3,
+            textAlign: 'center'
+          }}>
+            {/* Animated mail icon container */}
+            <Box sx={{
+              width: 68,
+              height: 68,
+              borderRadius: '50%',
+              bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(12, 102, 228, 0.2)' : '#e9f2ff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'primary.main',
+              mx: 'auto',
+              mb: 2,
+              boxShadow: '0 4px 16px rgba(12, 102, 228, 0.25)'
+            }}>
+              <MarkEmailReadOutlinedIcon sx={{ fontSize: 38 }} />
+            </Box>
+
+            <Typography variant="h5" fontWeight={800} sx={{ letterSpacing: '-0.5px', mb: 1 }}>
+              Check your email
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, lineHeight: 1.6 }}>
+              We have sent an activation link to:
+            </Typography>
+
+            <Box sx={{
+              p: 1.5,
+              mb: 2.5,
+              bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#f4f5f7',
+              borderRadius: 2,
+              border: '1px dashed',
+              borderColor: 'primary.main'
+            }}>
+              <Typography variant="body1" fontWeight={700} color="primary.main" sx={{ wordBreak: 'break-all' }}>
+                {registeredEmail}
+              </Typography>
+            </Box>
+
+            <Alert severity="info" sx={{ mb: 3, borderRadius: 2, textAlign: 'left', fontSize: '0.825rem' }}>
+              Please check your inbox and click the verification link to activate your account. If you don&apos;t see it, check your <strong>Spam / Junk</strong> folder!
+            </Alert>
+
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              {isGmail && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  fullWidth
+                  endIcon={<OpenInNewIcon fontSize="small" />}
+                  onClick={() => window.open('https://mail.google.com', '_blank')}
+                  sx={{
+                    py: 1.3,
+                    borderRadius: 2,
+                    fontWeight: 700,
+                    textTransform: 'none',
+                    boxShadow: '0 4px 14px rgba(12, 102, 228, 0.35)'
+                  }}
+                >
+                  Open Gmail
+                </Button>
+              )}
+
+              <Button
+                component={Link}
+                to={`/login?registeredEmail=${encodeURIComponent(registeredEmail)}`}
+                variant={isGmail ? 'outlined' : 'contained'}
+                color="primary"
+                size="large"
+                fullWidth
+                sx={{
+                  py: 1.3,
+                  borderRadius: 2,
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  ...(!isGmail && { boxShadow: '0 4px 14px rgba(12, 102, 228, 0.35)' })
+                }}
+              >
+                Go to Log in
+              </Button>
+
+              <Button
+                variant="text"
+                size="small"
+                onClick={() => {
+                  setRegisteredEmail(null)
+                  reset()
+                }}
+                sx={{ textTransform: 'none', color: 'text.secondary', mt: 0.5 }}
+              >
+                Use a different email address
+              </Button>
+            </Box>
+          </MuiCard>
+        </Zoom>
+      </Box>
+    )
   }
 
   return (
