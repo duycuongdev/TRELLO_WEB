@@ -149,7 +149,7 @@ function BoardBar({ board, onlineUsers = [] }) {
       paddingX: 2,
       bgcolor: board?.background
         ? 'rgba(0, 0, 0, 0.25)'
-        : (theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2'),
+        : (theme) => (theme.palette.mode === 'dark' ? '#1e293b' : '#0747a6'),
       backdropFilter: board?.background ? 'blur(6px)' : 'none',
       borderBottom: board?.background ? '1px solid rgba(255, 255, 255, 0.15)' : 'none',
       transition: 'background 0.3s ease',

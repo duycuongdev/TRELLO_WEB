@@ -18,23 +18,28 @@ import { styled } from '@mui/material/styles'
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: '10px',
   cursor: 'pointer',
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  backgroundColor: theme.palette.mode === 'dark' ? '#1e293b' : '#ffffff',
   padding: '12px 16px',
   borderRadius: '8px',
+  fontWeight: 500,
+  border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
+  boxShadow: theme.palette.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.3)' : '0 1px 3px rgba(0,0,0,0.04)',
+  transition: 'all 0.15s ease',
   '&:hover': {
-    backgroundColor: theme.palette.mode === 'dark' ? '#33485D' : theme.palette.grey[300]
+    backgroundColor: theme.palette.mode === 'dark' ? '#334155' : '#eef2f6'
   },
   '&.active': {
-    color: theme.palette.mode === 'dark' ? '#90caf9' : '#0c66e4',
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#e9f2ff'
+    color: '#0052cc',
+    fontWeight: 600,
+    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(0, 82, 204, 0.15)' : '#e9f2ff',
+    borderColor: theme.palette.mode === 'dark' ? 'rgba(0, 82, 204, 0.4)' : '#b3d4ff'
   }
 }))
 
 /**
- * Bản chất của cái component SidebarCreateBoardModal này chúng ta sẽ trả về một cái SidebarItem để hiển thị ở màn Board List cho phù hợp giao diện bên đó, đồng thời nó cũng chứa thêm một cái Modal để xử lý riêng form create board nhé.
- * Note: Modal là một low-component mà bọn MUI sử dụng bên trong những thứ như Dialog, Drawer, Menu, Popover. Ở đây dĩ nhiên chúng ta có thể sử dụng Dialog cũng không thành vấn đề gì, nhưng sẽ sử dụng Modal để dễ linh hoạt tùy biến giao diện từ con số 0 cho phù hợp với mọi nhu cầu nhé.
+ * Component SidebarCreateBoardModal: nút SidebarItem mở Modal tạo Board mới.
  */
 function SidebarCreateBoardModal({ afterCreateNewBoard }) {
   const { register, handleSubmit, reset, formState: { errors } } = useForm()
@@ -43,31 +48,26 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
   const handleOpenModal = () => setIsOpen(true)
   const handleCloseModal = () => {
     setIsOpen(false)
-    // Reset lại toàn bộ form khi đóng Modal
     reset()
   }
 
-
   const submitCreateNewBoard = (data) => {
     createNewBoardAPI(data).then(() => {
-      // close modal
       handleCloseModal()
-      // notice to child component (index.jsx) call API fetchBoardsAPI() reupdate new list of boards
       afterCreateNewBoard()
     })
   }
 
-  // <>...</> nhắc lại cho bạn anof chưa biết hoặc quên nhé: nó là React Fragment, dùng để bọc các phần tử lại mà không cần chỉ định DOM Node cụ thể nào cả.
   return (
     <>
       <SidebarItem onClick={handleOpenModal}>
-        <LibraryAddIcon fontSize="small" />
+        <LibraryAddIcon fontSize="small" sx={{ color: '#0052cc' }} />
         Create a new board
       </SidebarItem>
 
       <Modal
         open={isOpen}
-        // onClose={handleCloseModal} // chỉ sử dụng onClose trong trường hợp muốn đóng Modal bằng nút ESC hoặc click ra ngoài Modal
+        onClose={handleCloseModal}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -76,39 +76,42 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: { xs: '92%', sm: 540, md: 600 },
-          bgcolor: 'white',
-          boxShadow: 24,
-          borderRadius: '8px',
-          border: 'none',
+          width: { xs: '92%', sm: 540, md: 580 },
+          bgcolor: (theme) => theme.palette.mode === 'dark' ? '#1e293b' : '#ffffff',
+          color: (theme) => theme.palette.mode === 'dark' ? '#f1f5f9' : '#172b4d',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
+          borderRadius: '12px',
+          border: '1px solid',
+          borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
           outline: 0,
-          padding: { xs: '20px 16px', sm: '20px 30px' },
-          backgroundColor: (theme) => theme.palette.mode === 'dark' ? '#1A2027' : 'white'
+          padding: { xs: '20px 16px', sm: '24px 30px' }
         }}>
           <Box sx={{
             position: 'absolute',
-            top: '10px',
-            right: '10px',
+            top: '12px',
+            right: '12px',
             cursor: 'pointer'
           }}>
             <CancelIcon
-              color="error"
-              sx={{ '&:hover': { color: 'error.light' } }}
-              onClick={handleCloseModal} />
+              color="action"
+              sx={{ '&:hover': { color: 'error.main' } }}
+              onClick={handleCloseModal}
+            />
           </Box>
-          <Box id="modal-modal-title" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <LibraryAddIcon />
-            <Typography variant="h6" component="h2"> Create a new board</Typography>
+          <Box id="modal-modal-title" sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 1 }}>
+            <LibraryAddIcon color="primary" />
+            <Typography variant="h6" component="h2" fontWeight={700}>Create a new board</Typography>
           </Box>
           <Box id="modal-modal-description" sx={{ my: 2 }}>
             <form onSubmit={handleSubmit(submitCreateNewBoard)}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                 <Box>
                   <TextField
                     fullWidth
                     label="Title"
                     type="text"
                     variant="outlined"
+                    placeholder="e.g. Project Roadmap, Marketing Campaign..."
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -133,6 +136,8 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
                     type="text"
                     variant="outlined"
                     multiline
+                    rows={3}
+                    placeholder="Brief description about the purpose of this board..."
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -150,12 +155,21 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
                   <FieldErrorAlert errors={errors} fieldName={'description'} />
                 </Box>
 
-                <Box sx={{ alignSelf: 'flex-end' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5, mt: 1 }}>
+                  <Button
+                    variant="outlined"
+                    color="inherit"
+                    onClick={handleCloseModal}
+                    sx={{ textTransform: 'none', fontWeight: 600 }}
+                  >
+                    Cancel
+                  </Button>
                   <Button
                     className="interceptor-loading"
                     type="submit"
                     variant="contained"
                     color="primary"
+                    sx={{ textTransform: 'none', fontWeight: 600, px: 3 }}
                   >
                     Create
                   </Button>

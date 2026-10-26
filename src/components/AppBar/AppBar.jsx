@@ -67,10 +67,12 @@ function AppBar() {
       paddingX: { xs: 1, sm: 2 },
       bgcolor: activeBoard?.background
         ? 'rgba(0, 0, 0, 0.35)'
-        : (theme) => (theme.palette.mode === 'dark' ? '#2c3e50' : '#1565c0'),
+        : (theme) => (theme.palette.mode === 'dark' ? '#0f172a' : '#0052cc'),
       backdropFilter: activeBoard?.background ? 'blur(6px)' : 'none',
-      borderBottom: activeBoard?.background ? '1px solid rgba(255, 255, 255, 0.15)' : 'none',
-      transition: 'background 0.3s ease',
+      borderBottom: activeBoard?.background
+        ? '1px solid rgba(255, 255, 255, 0.15)'
+        : (theme) => (theme.palette.mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)'),
+      transition: 'background 0.3s ease, border-color 0.3s ease',
       // thanh scroll thẳng với list card
       '&::-webkit-scrollbar-track': { m: 2 }
     }}>

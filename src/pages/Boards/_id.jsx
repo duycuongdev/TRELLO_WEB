@@ -444,7 +444,7 @@ function Board() {
         overflow: 'hidden',
         background: board?.background?.startsWith('http')
           ? `url("${board.background}") center/cover no-repeat fixed`
-          : (board?.background || ((theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2'))),
+          : (board?.background || ((theme) => (theme.palette.mode === 'dark' ? '#0f172a' : '#0052cc'))),
         transition: 'background 0.3s ease'
       }}
     >

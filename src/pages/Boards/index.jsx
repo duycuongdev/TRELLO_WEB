@@ -24,21 +24,27 @@ import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants.js'
 import { useConfirm } from 'material-ui-confirm'
 import { toast } from 'react-toastify'
 
-// Styles của mấy cái Sidebar item menu, gom lại ra đây cho gọn.
+// Styles của các Sidebar item menu theo chuẩn Atlassian Surface
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: '10px',
   cursor: 'pointer',
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  backgroundColor: theme.palette.mode === 'dark' ? '#1e293b' : '#ffffff',
   padding: '12px 16px',
   borderRadius: '8px',
+  fontWeight: 500,
+  border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
+  boxShadow: theme.palette.mode === 'dark' ? '0 1px 3px rgba(0,0,0,0.3)' : '0 1px 3px rgba(0,0,0,0.04)',
+  transition: 'all 0.15s ease',
   '&:hover': {
-    backgroundColor: theme.palette.mode === 'dark' ? '#33485D' : theme.palette.grey[300]
+    backgroundColor: theme.palette.mode === 'dark' ? '#334155' : '#eef2f6'
   },
   '&.active': {
-    color: theme.palette.mode === 'dark' ? '#90caf9' : '#0c66e4',
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#e9f2ff'
+    color: '#0052cc',
+    fontWeight: 600,
+    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(0, 82, 204, 0.15)' : '#e9f2ff',
+    borderColor: theme.palette.mode === 'dark' ? 'rgba(0, 82, 204, 0.4)' : '#b3d4ff'
   }
 }))
 
@@ -112,19 +118,28 @@ function Boards() {
 
   if (loadError) {
     return (
-      <Container disableGutters maxWidth={false}>
+      <Box sx={{
+        minHeight: '100vh',
+        bgcolor: (theme) => theme.palette.mode === 'dark' ? '#0f172a' : '#f4f5f7',
+        color: (theme) => theme.palette.mode === 'dark' ? '#f1f5f9' : '#172b4d'
+      }}>
         <AppBar />
         <Box sx={{ p: 4, textAlign: 'center' }}>
           <Typography color="error">{loadError}</Typography>
         </Box>
-      </Container>
+      </Box>
     )
   }
 
   return (
-    <Container disableGutters maxWidth={false}>
+    <Box sx={{
+      minHeight: '100vh',
+      bgcolor: (theme) => theme.palette.mode === 'dark' ? '#0f172a' : '#f4f5f7',
+      color: (theme) => theme.palette.mode === 'dark' ? '#f1f5f9' : '#172b4d',
+      transition: 'background-color 0.3s ease, color 0.3s ease'
+    }}>
       <AppBar />
-      <Box sx={{ paddingX: 3, my: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4, px: { xs: 2, sm: 3, md: 4 } }}>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
           {/* Sidebar */}
           <Box sx={{ width: { xs: '100%', md: '240px' }, flexShrink: 0 }}>
@@ -182,7 +197,7 @@ function Boards() {
                   md: 'repeat(3, 1fr)',
                   lg: 'repeat(5, 1fr)'
                 },
-                gap: 2
+                gap: 2.5
               }}>
                 {boards.map(b => (
                   <Card
@@ -191,17 +206,21 @@ function Boards() {
                     sx={{
                       cursor: 'pointer',
                       width: '100%',
-                      height: '135px',
+                      height: '140px',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between',
-                      borderRadius: '8px',
+                      borderRadius: '10px',
                       overflow: 'hidden',
-                      boxShadow: (theme) => theme.palette.mode === 'dark' ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.08)',
-                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                      bgcolor: (theme) => theme.palette.mode === 'dark' ? '#1e293b' : '#ffffff',
+                      border: '1px solid',
+                      borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+                      boxShadow: (theme) => theme.palette.mode === 'dark' ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 6px rgba(0,0,0,0.04)',
+                      transition: 'all 0.2s ease',
                       '&:hover': {
                         transform: 'translateY(-3px)',
-                        boxShadow: (theme) => theme.palette.mode === 'dark' ? '0 6px 16px rgba(0,0,0,0.5)' : '0 6px 16px rgba(0,0,0,0.15)'
+                        borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0, 82, 204, 0.35)',
+                        boxShadow: (theme) => theme.palette.mode === 'dark' ? '0 8px 20px rgba(0,0,0,0.5)' : '0 8px 20px rgba(0,0,0,0.1)'
                       }
                     }}
                   >
@@ -303,8 +322,8 @@ function Boards() {
             )}
           </Box>
         </Box>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   )
 }
 

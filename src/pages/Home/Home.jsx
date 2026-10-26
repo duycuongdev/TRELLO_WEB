@@ -137,7 +137,7 @@ function Home() {
         pb: { xs: 8, md: 14 },
         background: (theme) => theme.palette.mode === 'dark'
           ? 'radial-gradient(circle at 50% 20%, rgba(37, 99, 235, 0.15) 0%, rgba(11, 17, 32, 0) 70%)'
-          : 'radial-gradient(circle at 50% 20%, rgba(224, 242, 254, 0.8) 0%, rgba(255, 255, 255, 0) 70%)'
+          : 'radial-gradient(circle at 50% 20%, rgba(0, 82, 204, 0.12) 0%, rgba(12, 102, 228, 0.04) 40%, rgba(255, 255, 255, 0) 70%)'
       }}>
         <Container maxWidth="lg">
           <Box sx={{ textAlign: 'center', maxWidth: 840, mx: 'auto', mb: { xs: 5, md: 8 } }}>
@@ -151,7 +151,7 @@ function Home() {
                 fontSize: '0.85rem',
                 borderRadius: 4,
                 borderColor: 'primary.light',
-                bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(37, 99, 235, 0.1)' : 'rgba(224, 242, 254, 0.5)'
+                bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(37, 99, 235, 0.1)' : 'rgba(0, 82, 204, 0.08)'
               }}
             />
 
@@ -230,7 +230,7 @@ function Home() {
           <Box sx={{
             p: { xs: 1.5, sm: 2.5 },
             borderRadius: 3.5,
-            bgcolor: (theme) => theme.palette.mode === 'dark' ? '#1e293b' : '#0055cc',
+            bgcolor: (theme) => theme.palette.mode === 'dark' ? '#1e293b' : '#0052cc',
             boxShadow: '0 25px 60px -12px rgba(0, 0, 0, 0.35)',
             border: '1px solid',
             borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.2)'
