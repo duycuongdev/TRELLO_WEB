@@ -267,9 +267,6 @@ function Boards() {
                           <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'capitalize', fontSize: '11px' }}>
                             {b.type || 'Workspace'}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 600, fontSize: '11px' }}>
-                            Open board →
-                          </Typography>
                         </Box>
                       )}
                     </CardContent>

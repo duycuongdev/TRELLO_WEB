@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -131,29 +130,6 @@ function AutoCompleteSearchBoard() {
               <>
                 {loading ? <CircularProgress sx={{ color: 'white' }} size={20} /> : null}
                 {/* Phím tắt / Badge hiển thị trên desktop/tablet */}
-                {!loading && (
-                  <Box
-                    component="kbd"
-                    sx={{
-                      display: { xs: 'none', sm: 'inline-flex' },
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      px: 0.8,
-                      py: 0.2,
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      color: 'rgba(255, 255, 255, 0.85)',
-                      bgcolor: 'rgba(255, 255, 255, 0.18)',
-                      borderRadius: '4px',
-                      border: '1px solid rgba(255, 255, 255, 0.35)',
-                      lineHeight: 1,
-                      mr: 0.5,
-                      userSelect: 'none'
-                    }}
-                  >
-                    /
-                  </Box>
-                )}
                 {params.InputProps.endAdornment}
               </>
             )
