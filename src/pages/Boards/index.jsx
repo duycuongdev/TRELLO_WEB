@@ -265,7 +265,7 @@ function Boards() {
                       ) : (
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pt: 0.8, borderTop: '1px solid', borderColor: 'divider' }}>
                           <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'capitalize', fontSize: '11px' }}>
-                            {b.type || 'Workspace'}
+                            Workspace
                           </Typography>
                         </Box>
                       )}

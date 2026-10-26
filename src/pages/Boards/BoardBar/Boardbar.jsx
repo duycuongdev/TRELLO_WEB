@@ -4,13 +4,11 @@ import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Avatar from '@mui/material/Avatar'
 import DashboardIcon from '@mui/icons-material/Dashboard'
-import VpnLockIcon from '@mui/icons-material/VpnLock'
 import FilterIcon from '@mui/icons-material/FilterList'
 import WallpaperOutlinedIcon from '@mui/icons-material/WallpaperOutlined'
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined'
 import FolderOffOutlinedIcon from '@mui/icons-material/FolderOffOutlined'
 import Tooltip from '@mui/material/Tooltip'
-import { capitalizeFirstLetter } from '~/utils/formatter'
 import { selectCardFilter, setCardFilter, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { updateBoardDetailsAPI, closeBoardAPI } from '~/apis'
 import { selectCurrentUser } from '~/redux/user/userSlice'
@@ -173,13 +171,6 @@ function BoardBar({ board, onlineUsers = [] }) {
             clickable
           />
         </Tooltip>
-
-        <Chip
-          sx={MENU_STYLES}
-          icon={<VpnLockIcon />}
-          label={capitalizeFirstLetter(board?.type)}
-          clickable
-        />
 
         {/* Board Task Completion Progress */}
         <BoardProgress board={board} />
