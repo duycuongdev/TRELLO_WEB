@@ -26,6 +26,8 @@ import {
   restoreColumnAPI,
   deleteColumnDetailsAPI
 } from '~/apis'
+import { selectCurrentUser } from '~/redux/user/userSlice'
+import { emitBoardUpdate, BOARD_ACTION_TYPES } from '~/sockets/boardSocketClient'
 import {
   selectCurrentActiveBoard,
   updateCurrentActiveBoard,
@@ -35,6 +37,7 @@ import {
 function ArchivedItemsDrawer({ isOpen, onClose, boardId }) {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
+  const currentUser = useSelector(selectCurrentUser)
   const confirm = useConfirm()
 
   const [tabIndex, setTabIndex] = useState(0)
@@ -100,6 +103,12 @@ function ArchivedItemsDrawer({ isOpen, onClose, boardId }) {
         targetCol.cardOrderIds.push(restoredCard._id)
 
         dispatch(updateCurrentActiveBoard(newBoard))
+        emitBoardUpdate({
+          boardId: board._id,
+          actionType: BOARD_ACTION_TYPES.RESTORE_CARD,
+          payload: restoredCard,
+          currentUser
+        })
       }
 
       setArchivedCards(prev => prev.filter(c => c._id !== card._id))
@@ -119,6 +128,12 @@ function ArchivedItemsDrawer({ isOpen, onClose, boardId }) {
     }).then(async () => {
       try {
         await deleteCardAPI(card._id)
+        emitBoardUpdate({
+          boardId: board._id,
+          actionType: BOARD_ACTION_TYPES.DELETE_CARD,
+          payload: { cardId: card._id },
+          currentUser
+        })
         setArchivedCards(prev => prev.filter(c => c._id !== card._id))
         toast.success('Card permanently deleted!')
       } catch (error) {
@@ -132,6 +147,12 @@ function ArchivedItemsDrawer({ isOpen, onClose, boardId }) {
     try {
       await restoreColumnAPI(column._id)
       dispatch(fetchBoardDetailsAPI(boardId))
+      emitBoardUpdate({
+        boardId: board._id,
+        actionType: BOARD_ACTION_TYPES.UPDATE_BOARD,
+        payload: {},
+        currentUser
+      })
       setArchivedColumns(prev => prev.filter(c => c._id !== column._id))
       toast.success('List restored to board!')
     } catch (error) {
@@ -149,6 +170,12 @@ function ArchivedItemsDrawer({ isOpen, onClose, boardId }) {
     }).then(async () => {
       try {
         await deleteColumnDetailsAPI(column._id)
+        emitBoardUpdate({
+          boardId: board._id,
+          actionType: BOARD_ACTION_TYPES.DELETE_COLUMN,
+          payload: { columnId: column._id },
+          currentUser
+        })
         setArchivedColumns(prev => prev.filter(c => c._id !== column._id))
         toast.success('List permanently deleted!')
       } catch (error) {

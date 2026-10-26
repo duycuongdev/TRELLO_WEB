@@ -23,13 +23,16 @@ import { toast } from 'react-toastify'
 import { useConfirm } from 'material-ui-confirm'
 import { cloneDeep } from 'lodash'
 import { updateCurrentActiveBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { createNewCardAPI, deleteColumnDetailsAPI, updateColumnDetailsAPI, archiveColumnAPI } from '~/apis/index'
 import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
+import { emitBoardUpdate, BOARD_ACTION_TYPES } from '~/sockets/boardSocketClient'
 
 function Column({ column }) {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
+  const currentUser = useSelector(selectCurrentUser)
 
   const [anchorEl, setAnchorEl] = useState(null)
   const open = Boolean(anchorEl)
@@ -73,7 +76,6 @@ function Column({ column }) {
       return
     }
 
-    // console.log(newCardTitle)
     // gọi api
     const newCardData = {
       title: newCardTitle,
@@ -99,6 +101,14 @@ function Column({ column }) {
     }
     dispatch(updateCurrentActiveBoard(newBoard))
 
+    // Bắn socket realtime tới các client khác
+    emitBoardUpdate({
+      boardId: board._id,
+      actionType: BOARD_ACTION_TYPES.CREATE_CARD,
+      payload: createdCard,
+      currentUser
+    })
+
     // đóng trang thái thêm Card mới và clear input
     toggleOpenNewCardForm()
     setNewCardTitle('')
@@ -118,6 +128,13 @@ function Column({ column }) {
       newBoard.columns = newBoard.columns.filter(c => c._id !== column._id)
       newBoard.columnOrderIds = newBoard.columnOrderIds.filter(_id => _id !== column._id)
       dispatch(updateCurrentActiveBoard(newBoard))
+
+      emitBoardUpdate({
+        boardId: board._id,
+        actionType: BOARD_ACTION_TYPES.DELETE_COLUMN,
+        payload: { columnId: column._id },
+        currentUser
+      })
 
       // gọi API xử lý phía BE
       deleteColumnDetailsAPI(column._id).then(res => {
@@ -141,6 +158,13 @@ function Column({ column }) {
         newBoard.columnOrderIds = newBoard.columnOrderIds.filter(_id => _id !== column._id)
         dispatch(updateCurrentActiveBoard(newBoard))
 
+        emitBoardUpdate({
+          boardId: board._id,
+          actionType: BOARD_ACTION_TYPES.ARCHIVE_COLUMN,
+          payload: { columnId: column._id },
+          currentUser
+        })
+
         toast.success('Column archived!')
       } catch (error) {
         toast.error(error?.response?.data?.message || 'Failed to archive column')
@@ -156,8 +180,16 @@ function Column({ column }) {
         columnToUpdate.title = newTitle
       }
       dispatch(updateCurrentActiveBoard(newBoard))
+
+      emitBoardUpdate({
+        boardId: board._id,
+        actionType: BOARD_ACTION_TYPES.UPDATE_COLUMN,
+        payload: { columnId: column._id, title: newTitle },
+        currentUser
+      })
     })
   }
+
   return (
     // phải bọc div ở đây vì chiều cao của column khi kéo thả sẽ có bug Flickering
     <div ref={setNodeRef} style={dndKitColumnStyles} {...attributes} >
@@ -182,14 +214,6 @@ function Column({ column }) {
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          {/* <Typography variant='h6' sx={{
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            fontSize: '1rem'
-          }}>
-            {column?.title}
-          </Typography> */}
-
           <ToggleFocusInput
             value={column?.title}
             onChangedValue={onUpdateColumnTitle}
@@ -219,7 +243,6 @@ function Column({ column }) {
               onClick={handleClose}
               MenuListProps={{
                 'aria-labelledby': 'basic-column-propdown'
-
               }}
             >
               <MenuItem onClick={toggleOpenNewCardForm} sx={{

@@ -12,12 +12,14 @@ import { createNewColumnAPI } from '~/apis'
 import { cloneDeep } from 'lodash'
 import { generatePlaceholderCard } from '~/utils/formatter'
 import { updateCurrentActiveBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
+import { emitBoardUpdate, BOARD_ACTION_TYPES } from '~/sockets/boardSocketClient'
 
 function ListColumns({ columns = [] }) {
-
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
+  const currentUser = useSelector(selectCurrentUser)
 
   const [openNewColumnForm, setOpenNewColumnForm] = useState(false)
   const toggleOpenNewColumnForm = () => setOpenNewColumnForm(!openNewColumnForm)
@@ -39,12 +41,22 @@ function ListColumns({ columns = [] }) {
       newBoard.columns.push(createdColumn)
       newBoard.columnOrderIds.push(createdColumn._id)
       dispatch(updateCurrentActiveBoard(newBoard))
+
+      // Gửi sự kiện realtime tới các client khác
+      emitBoardUpdate({
+        boardId: board._id,
+        actionType: BOARD_ACTION_TYPES.CREATE_COLUMN,
+        payload: createdColumn,
+        currentUser
+      })
+
       toggleOpenNewColumnForm()
       setNewColumnTitle('')
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Unable to create column')
     }
   }
+
   /*
     SorttableContext yêu cầu items là 1 mảng dạng ['id-01', 'id-02'] chứ không phải [{id: 'id-1'}, {id: 'id-2'}]
     nếu không đúng vẫn kéo thả được nhưng không có animation

@@ -64,6 +64,7 @@ import {
 } from '~/apis'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { CARD_MEMBER_ACTION } from '~/utils/constants'
+import { emitBoardUpdate, BOARD_ACTION_TYPES } from '~/sockets/boardSocketClient'
 
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -171,6 +172,12 @@ function ActiveCard() {
       const cardId = activeCard._id
       dispatch(clearAndHideCurrentActiveCard())
       dispatch(removeCardFromBoard(cardId))
+      emitBoardUpdate({
+        boardId: activeBoard._id,
+        actionType: BOARD_ACTION_TYPES.DELETE_CARD,
+        payload: { cardId, columnId: activeCard.columnId },
+        currentUser
+      })
       deleteCardAPI(cardId).then(res => {
         toast.success(res?.deleteResult || 'Card deleted successfully!')
       })
@@ -195,6 +202,12 @@ function ActiveCard() {
       }
 
       dispatch(updateCurrentActiveCard({ ...activeCard, _destroy: true }))
+      emitBoardUpdate({
+        boardId: activeBoard._id,
+        actionType: BOARD_ACTION_TYPES.ARCHIVE_CARD,
+        payload: { cardId: activeCard._id, columnId: activeCard.columnId },
+        currentUser
+      })
       toast.success('Card archived!')
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Failed to archive card')
@@ -221,6 +234,12 @@ function ActiveCard() {
       }
 
       dispatch(updateCurrentActiveCard({ ...restoredCard, _destroy: false }))
+      emitBoardUpdate({
+        boardId: activeBoard._id,
+        actionType: BOARD_ACTION_TYPES.RESTORE_CARD,
+        payload: restoredCard,
+        currentUser
+      })
       toast.success('Card restored to board!')
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Failed to restore card')
@@ -235,6 +254,13 @@ function ActiveCard() {
     dispatch(updateCurrentActiveCard(updatedCard))
     // Cập nhật lại cái bản ghi card trong cái activeBoard (nested data)
     dispatch(updateCardInBoard(updatedCard))
+
+    emitBoardUpdate({
+      boardId: activeBoard._id,
+      actionType: BOARD_ACTION_TYPES.UPDATE_CARD,
+      payload: updatedCard,
+      currentUser
+    })
 
     return updatedCard
   }
@@ -278,6 +304,12 @@ function ActiveCard() {
       addCardAttachmentAPI(activeCard._id, formData).then(updatedCard => {
         dispatch(updateCurrentActiveCard(updatedCard))
         dispatch(updateCardInBoard(updatedCard))
+        emitBoardUpdate({
+          boardId: activeBoard._id,
+          actionType: BOARD_ACTION_TYPES.UPDATE_CARD,
+          payload: updatedCard,
+          currentUser
+        })
       }).finally(() => {
         event.target.value = ''
       }),
@@ -290,6 +322,12 @@ function ActiveCard() {
     deleteCardAttachmentAPI(activeCard._id, attachmentId).then(updatedCard => {
       dispatch(updateCurrentActiveCard(updatedCard))
       dispatch(updateCardInBoard(updatedCard))
+      emitBoardUpdate({
+        boardId: activeBoard._id,
+        actionType: BOARD_ACTION_TYPES.UPDATE_CARD,
+        payload: updatedCard,
+        currentUser
+      })
       toast.success('Attachment deleted!')
     })
   }
@@ -315,6 +353,12 @@ function ActiveCard() {
     const updatedCard = await deleteCardCommentAPI(activeCard._id, commentId)
     dispatch(updateCurrentActiveCard(updatedCard))
     dispatch(updateCardInBoard(updatedCard))
+    emitBoardUpdate({
+      boardId: activeBoard._id,
+      actionType: BOARD_ACTION_TYPES.UPDATE_CARD,
+      payload: updatedCard,
+      currentUser
+    })
     return updatedCard
   }
 

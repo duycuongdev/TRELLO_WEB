@@ -23,6 +23,7 @@ import BoardCardFilterPopover from './BoardCardFilterPopover'
 import ChangeBoardBackgroundPopover from './ChangeBoardBackgroundPopover'
 import ArchivedItemsDrawer from './ArchivedItemsDrawer'
 import BoardProgress from './BoardProgress'
+import { emitBoardUpdate, BOARD_ACTION_TYPES } from '~/sockets/boardSocketClient'
 
 const MENU_STYLES = {
   color: 'white',
@@ -38,7 +39,7 @@ const MENU_STYLES = {
   }
 }
 
-function BoardBar({ board }) {
+function BoardBar({ board, onlineUsers = [] }) {
   const dispatch = useDispatch()
   const confirm = useConfirm()
   const navigate = useNavigate()
@@ -101,6 +102,13 @@ function BoardBar({ board }) {
     // Cập nhật Redux ngay lập tức để giao diện mượt mà không có độ trễ
     dispatch(updateCurrentActiveBoard({ ...board, background: newBackground }))
 
+    emitBoardUpdate({
+      boardId: board._id,
+      actionType: BOARD_ACTION_TYPES.UPDATE_BOARD,
+      payload: { background: newBackground },
+      currentUser
+    })
+
     updateBoardDetailsAPI(board._id, { background: newBackground })
       .then(() => {
         toast.success('Board background updated!')
@@ -118,6 +126,12 @@ function BoardBar({ board }) {
     toast.promise(
       updateBoardDetailsAPI(board._id, formData).then((updatedBoard) => {
         dispatch(updateCurrentActiveBoard({ ...board, ...updatedBoard, columns: board.columns, FE_allUsers: board.FE_allUsers }))
+        emitBoardUpdate({
+          boardId: board._id,
+          actionType: BOARD_ACTION_TYPES.UPDATE_BOARD,
+          payload: { background: updatedBoard?.background },
+          currentUser
+        })
       }),
       {
         pending: 'Uploading background image to Cloudinary...',
@@ -275,12 +289,47 @@ function BoardBar({ board }) {
         )}
       </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        {/* Live Active Viewers Indicator */}
+        {onlineUsers.length > 0 && (
+          <Tooltip title={`Online on this board: ${onlineUsers.map(u => u.displayName || u.email).join(', ')}`}>
+            <Chip
+              size="small"
+              icon={
+                <Box sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  bgcolor: '#22c55e',
+                  boxShadow: '0 0 6px #22c55e',
+                  ml: 0.5
+                }} />
+              }
+              label={`${onlineUsers.length} live`}
+              sx={{
+                bgcolor: 'rgba(34, 197, 94, 0.2)',
+                color: '#bbf7d0',
+                border: '1px solid rgba(74, 222, 128, 0.4)',
+                fontWeight: 600,
+                height: 28,
+                cursor: 'pointer',
+                '& .MuiChip-label': { px: 1, fontSize: '0.75rem' }
+              }}
+            />
+          </Tooltip>
+        )}
+
         {/* handle invite user into board */}
         <InviteBoardUser boardId={board?._id} />
 
         {/* handle user group */}
-        <BoardUserGroup boardUsers={board?.FE_allUsers} />
+        <BoardUserGroup
+          boardUsers={board?.FE_allUsers}
+          onlineUsers={onlineUsers}
+          boardId={board?._id}
+          ownerIds={board?.ownerIds}
+          isOwner={isOwner}
+        />
       </Box>
     </Box>
   )

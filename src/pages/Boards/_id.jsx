@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 import AppBar from '~/components/AppBar/AppBar'
 import BoardBar from './BoardBar/Boardbar'
 import BoardContent from './BoardContent/BoardContent'
-import { useEffect } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import {
   updateBoardDetailsAPI,
   updateColumnDetailsAPI,
@@ -14,7 +14,18 @@ import {
   reopenBoardAPI,
   deleteBoardDetailsAPI
 } from '~/apis'
-import { fetchBoardDetailsAPI, updateCurrentActiveBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import {
+  fetchBoardDetailsAPI,
+  updateCurrentActiveBoard,
+  selectCurrentActiveBoard,
+  updateCardInBoard,
+  removeCardFromBoard
+} from '~/redux/activeBoard/activeBoardSlice'
+import {
+  selectCurrentActiveCard,
+  updateCurrentActiveCard,
+  clearAndHideCurrentActiveCard
+} from '~/redux/activeCard/activeCardSlice'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { cloneDeep } from 'lodash'
@@ -27,6 +38,13 @@ import FolderOffOutlinedIcon from '@mui/icons-material/FolderOffOutlined'
 import UndoIcon from '@mui/icons-material/Undo'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { socketIoInstance } from '~/socketClient'
+import {
+  joinBoardRoom,
+  leaveBoardRoom,
+  emitBoardUpdate,
+  BOARD_ACTION_TYPES
+} from '~/sockets/boardSocketClient'
 
 function Board() {
   const dispatch = useDispatch()
@@ -34,14 +52,202 @@ function Board() {
   const navigate = useNavigate()
   const currentUser = useSelector(selectCurrentUser)
   const board = useSelector(selectCurrentActiveBoard)
+  const activeCard = useSelector(selectCurrentActiveCard)
   const boardLoading = useSelector(state => state.activeBoard.isLoading)
   const boardError = useSelector(state => state.activeBoard.error)
 
+  const [onlineUsers, setOnlineUsers] = useState([])
+
   const { boardId } = useParams()
+
+  // Dùng ref để giữ giá trị mới nhất mà không gây re-subscribe socket listener
+  const boardRef = useRef(board)
+  useEffect(() => {
+    boardRef.current = board
+  }, [board])
+
+  const activeCardRef = useRef(activeCard)
+  useEffect(() => {
+    activeCardRef.current = activeCard
+  }, [activeCard])
 
   useEffect(() => {
     dispatch(fetchBoardDetailsAPI(boardId))
   }, [dispatch, boardId])
+
+  // Lắng nghe và quản lý Socket.io Real-time
+  useEffect(() => {
+    if (!boardId) return
+
+    // Tham gia phòng Socket của bảng
+    joinBoardRoom(boardId, currentUser)
+
+    const onConnect = () => {
+      joinBoardRoom(boardId, currentUser)
+    }
+    socketIoInstance.on('connect', onConnect)
+
+    // Nhận danh sách người dùng đang cùng xem bảng
+    const onReceiveOnlineUsers = (users) => {
+      setOnlineUsers(users || [])
+    }
+    socketIoInstance.on('BE_BOARD_USERS_ONLINE', onReceiveOnlineUsers)
+
+    // Nhận cập nhật thời gian thực từ các thành viên khác
+    const onReceiveBoardUpdated = (data) => {
+      if (!data || data.boardId !== boardId) return
+
+      const { actionType, payload, senderName } = data
+      const currentBoard = boardRef.current
+
+      switch (actionType) {
+      case BOARD_ACTION_TYPES.MOVE_COLUMN: {
+        if (payload?.columns && payload?.columnOrderIds && currentBoard) {
+          dispatch(updateCurrentActiveBoard({
+            ...currentBoard,
+            columns: payload.columns,
+            columnOrderIds: payload.columnOrderIds
+          }))
+        }
+        break
+      }
+      case BOARD_ACTION_TYPES.MOVE_CARD_SAME_COLUMN: {
+        if (payload?.columnId && currentBoard?.columns) {
+          const nextBoard = cloneDeep(currentBoard)
+          const col = nextBoard.columns.find(c => c._id === payload.columnId)
+          if (col) {
+            col.cards = payload.cards
+            col.cardOrderIds = payload.cardOrderIds
+            dispatch(updateCurrentActiveBoard(nextBoard))
+          }
+        }
+        break
+      }
+      case BOARD_ACTION_TYPES.MOVE_CARD_DIFF_COLUMN: {
+        if (payload?.dndOrderedColumns && currentBoard?.columns) {
+          const nextBoard = cloneDeep(currentBoard)
+          nextBoard.columns = payload.dndOrderedColumns
+          nextBoard.columnOrderIds = payload.dndOrderedColumns.map(c => c._id)
+          dispatch(updateCurrentActiveBoard(nextBoard))
+        }
+        break
+      }
+      case BOARD_ACTION_TYPES.CREATE_COLUMN: {
+        if (payload?._id && currentBoard?.columns) {
+          const nextBoard = cloneDeep(currentBoard)
+          if (!nextBoard.columns.some(c => c._id === payload._id)) {
+            nextBoard.columns.push(payload)
+            nextBoard.columnOrderIds.push(payload._id)
+            dispatch(updateCurrentActiveBoard(nextBoard))
+            if (senderName) {
+              toast.info(`📋 ${senderName} added column "${payload.title}"`, { autoClose: 2500, position: 'bottom-right' })
+            }
+          }
+        }
+        break
+      }
+      case BOARD_ACTION_TYPES.UPDATE_COLUMN: {
+        if (payload?.columnId && currentBoard?.columns) {
+          const nextBoard = cloneDeep(currentBoard)
+          const col = nextBoard.columns.find(c => c._id === payload.columnId)
+          if (col) {
+            Object.assign(col, payload)
+            dispatch(updateCurrentActiveBoard(nextBoard))
+          }
+        }
+        break
+      }
+      case BOARD_ACTION_TYPES.DELETE_COLUMN:
+      case BOARD_ACTION_TYPES.ARCHIVE_COLUMN: {
+        if (payload?.columnId && currentBoard?.columns) {
+          const nextBoard = cloneDeep(currentBoard)
+          nextBoard.columns = (nextBoard.columns || []).filter(c => c._id !== payload.columnId)
+          nextBoard.columnOrderIds = (nextBoard.columnOrderIds || []).filter(id => id !== payload.columnId)
+          dispatch(updateCurrentActiveBoard(nextBoard))
+        }
+        break
+      }
+      case BOARD_ACTION_TYPES.CREATE_CARD: {
+        if (payload?._id && payload?.columnId && currentBoard?.columns) {
+          const nextBoard = cloneDeep(currentBoard)
+          const col = nextBoard.columns.find(c => c._id === payload.columnId)
+          if (col) {
+            if (col.cards.some(c => c.FE_PlaceholderCard)) {
+              col.cards = [payload]
+              col.cardOrderIds = [payload._id]
+            } else if (!col.cards.some(c => c._id === payload._id)) {
+              col.cards.push(payload)
+              col.cardOrderIds.push(payload._id)
+            }
+            dispatch(updateCurrentActiveBoard(nextBoard))
+            if (senderName) {
+              toast.info(`📝 ${senderName} added card "${payload.title}"`, { autoClose: 2500, position: 'bottom-right' })
+            }
+          }
+        }
+        break
+      }
+      case BOARD_ACTION_TYPES.UPDATE_CARD: {
+        if (payload?._id) {
+          dispatch(updateCardInBoard(payload))
+          // Nếu người dùng đang mở xem chi tiết chính thẻ này, cập nhật modal luôn
+          if (activeCardRef.current?._id === payload._id) {
+            dispatch(updateCurrentActiveCard(payload))
+          }
+        }
+        break
+      }
+      case BOARD_ACTION_TYPES.DELETE_CARD:
+      case BOARD_ACTION_TYPES.ARCHIVE_CARD: {
+        if (payload?.cardId) {
+          dispatch(removeCardFromBoard(payload.cardId))
+          if (activeCardRef.current?._id === payload.cardId) {
+            dispatch(clearAndHideCurrentActiveCard())
+            toast.info('The card you were viewing was removed or archived by a teammate.', { position: 'bottom-right' })
+          }
+        }
+        break
+      }
+      case BOARD_ACTION_TYPES.RESTORE_CARD: {
+        if (payload?._id && payload?.columnId && currentBoard?.columns) {
+          const nextBoard = cloneDeep(currentBoard)
+          let col = nextBoard.columns.find(c => c._id === payload.columnId) || nextBoard.columns[0]
+          if (col) {
+            col.cards = (col.cards || []).filter(c => !c.FE_PlaceholderCard)
+            col.cardOrderIds = (col.cardOrderIds || []).filter(id => !id.includes('placeholder-card'))
+            if (!col.cards.some(c => c._id === payload._id)) {
+              col.cards.push(payload)
+              col.cardOrderIds.push(payload._id)
+            }
+            dispatch(updateCurrentActiveBoard(nextBoard))
+          }
+        }
+        break
+      }
+      case BOARD_ACTION_TYPES.UPDATE_BOARD: {
+        if (payload && currentBoard) {
+          dispatch(updateCurrentActiveBoard({
+            ...currentBoard,
+            ...payload,
+            columns: currentBoard.columns,
+            FE_allUsers: currentBoard.FE_allUsers
+          }))
+        }
+        break
+      }
+      default:
+        break
+      }
+    }
+    socketIoInstance.on('BE_BOARD_UPDATED', onReceiveBoardUpdated)
+
+    return () => {
+      leaveBoardRoom(boardId)
+      socketIoInstance.off('connect', onConnect)
+      socketIoInstance.off('BE_BOARD_USERS_ONLINE', onReceiveOnlineUsers)
+      socketIoInstance.off('BE_BOARD_UPDATED', onReceiveBoardUpdated)
+    }
+  }, [boardId, currentUser, dispatch])
 
   const moveColumns = (dndOrderedColumns) => {
     const dndOrderedColumnsIds = dndOrderedColumns.map(c => c._id)
@@ -49,6 +255,16 @@ function Board() {
     newBoard.columns = dndOrderedColumns
     newBoard.columnOrderIds = dndOrderedColumnsIds
     dispatch(updateCurrentActiveBoard(newBoard))
+
+    emitBoardUpdate({
+      boardId: newBoard._id,
+      actionType: BOARD_ACTION_TYPES.MOVE_COLUMN,
+      payload: {
+        columns: dndOrderedColumns,
+        columnOrderIds: dndOrderedColumnsIds
+      },
+      currentUser
+    })
 
     updateBoardDetailsAPI(newBoard._id, { columnOrderIds: dndOrderedColumnsIds })
       .catch(() => {
@@ -65,6 +281,17 @@ function Board() {
     }
     dispatch(updateCurrentActiveBoard(newBoard))
 
+    emitBoardUpdate({
+      boardId: newBoard._id,
+      actionType: BOARD_ACTION_TYPES.MOVE_CARD_SAME_COLUMN,
+      payload: {
+        columnId,
+        cards: dndOrderedCards,
+        cardOrderIds: dndOrderedCardsIds
+      },
+      currentUser
+    })
+
     updateColumnDetailsAPI(columnId, { cardOrderIds: dndOrderedCardsIds })
       .catch(() => {
         dispatch(updateCurrentActiveBoard(board))
@@ -77,6 +304,18 @@ function Board() {
     newBoard.columns = dndOrderedColumns
     newBoard.columnOrderIds = dndOrderedColumnsIds
     dispatch(updateCurrentActiveBoard(newBoard))
+
+    emitBoardUpdate({
+      boardId: newBoard._id,
+      actionType: BOARD_ACTION_TYPES.MOVE_CARD_DIFF_COLUMN,
+      payload: {
+        currentCardId,
+        prevColumnId,
+        nextColumnId,
+        dndOrderedColumns
+      },
+      currentUser
+    })
 
     let prevCardOrderIds = dndOrderedColumns.find(c => c._id === prevColumnId)?.cardOrderIds || []
     if (prevCardOrderIds[0]?.includes('placeholder-card')) prevCardOrderIds = []
@@ -210,7 +449,7 @@ function Board() {
     >
       <ActiveCard />
       <AppBar />
-      <BoardBar board={board} />
+      <BoardBar board={board} onlineUsers={onlineUsers} />
       <BoardContent
         board={board}
         moveColumns={moveColumns}
