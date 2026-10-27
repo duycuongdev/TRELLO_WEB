@@ -2,7 +2,7 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import { interceptorLoadingElements } from './formatter'
 import { refreshTokenAPI } from '~/apis/index'
-import { logoutUserAPI } from '~/redux/user/userSlice'
+import { logoutUserAPI, setAccessToken } from '~/redux/user/userSlice'
 /**
  * Không thể import { store } from '~/redux/store' theo cách thông thường ở đây
  * Giải pháp: Inject store: là kỹ thuật khi cần sử dụng biến redux store ở các file ngoài phạm vi component như file authorizeAxios hiện tại
@@ -28,6 +28,15 @@ authorizedAxiosInstance.interceptors.request.use(
   (config) => {
     // Kỹ thuật chặn spam click (xem kỹ mô tả ở file formatters chứa function)
     interceptorLoadingElements(true)
+
+    // Lấy accessToken từ Redux store và đính kèm vào Authorization header (Bearer token)
+    // Giúp hỗ trợ cơ chế Dual-Auth: vừa hoạt động với HttpOnly Cookie, vừa hoạt động với Bearer Token trên các trình duyệt di động chặn Third-party cookie (như Safari trên iOS)
+    const currentUser = axiosReduxStore?.getState()?.user?.currentUser
+    const accessToken = currentUser?.accessToken
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`
+    }
+
     return config
   },
   (error) => {
@@ -68,9 +77,13 @@ authorizedAxiosInstance.interceptors.response.use(
 
       // kiểm tra nếu refreshTokenPromise chưa tồn tại thì mới tạo mới, còn nếu đã tồn tại thì sẽ dùng lại promise cũ
       if (!refreshTokenPromise) {
-        refreshTokenPromise = refreshTokenAPI()
+        const currentRefreshToken = axiosReduxStore?.getState()?.user?.currentUser?.refreshToken
+        refreshTokenPromise = refreshTokenAPI(currentRefreshToken)
           .then((data) => {
-            // accessToken đã nằm trong httpOnly cookie (xử lý ở BE)
+            // Cập nhật accessToken mới vào Redux store
+            if (data?.accessToken) {
+              axiosReduxStore.dispatch(setAccessToken(data.accessToken))
+            }
             return data?.accessToken
           })
           .catch((_error) => {
@@ -85,13 +98,10 @@ authorizedAxiosInstance.interceptors.response.use(
       }
 
       // Cần return trường hợp refreshTokenPromise chạy thành công và xử lý thêm ở đây:
-      // eslint-disable-next-line no-unused-vars
       return refreshTokenPromise.then((accessToken) => {
-        /**
-        * Bước 1: Đối với trường hợp nếu dự án cần lưu accessToken vào localstorage hoặc đâu đó thì sẽ viết thêm code xử lý ở đây.
-        * Hiện tại ở đây không cần bước 1 này vì chúng ta đã đưa accessToken vào cookie (xử lý từ phía BE) sau khi api refreshToken được gọi thành công.
-        */
-
+        if (accessToken) {
+          originalRequests.headers.Authorization = `Bearer ${accessToken}`
+        }
         // Bước 2: Bước Quan trọng: Return lại axios instance của chúng ta kết hợp các originalRequests để gọi lại những api ban đầu bị lỗi
         return authorizedAxiosInstance(originalRequests)
       })

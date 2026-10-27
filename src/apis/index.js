@@ -55,8 +55,12 @@ export const verifyUserAPI = async (data) => {
   return response.data
 }
 
-export const refreshTokenAPI = async () => {
-  const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/users/refresh_token`)
+export const refreshTokenAPI = async (refreshToken) => {
+  const headers = {}
+  if (refreshToken) {
+    headers['x-refresh-token'] = refreshToken
+  }
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/users/refresh_token`, { headers })
   return response.data
 }
 

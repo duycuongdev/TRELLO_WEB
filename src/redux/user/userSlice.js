@@ -59,22 +59,30 @@ export const updateUserAPI = createAsyncThunk(
 export const userSlice = createSlice({
   name: 'user',
   initialState,
-  reducers: {},
+  reducers: {
+    setAccessToken: (state, action) => {
+      if (state.currentUser) {
+        state.currentUser.accessToken = action.payload
+      }
+    }
+  },
 
   extraReducers: (builder) => {
     builder.addCase(loginUserApi.fulfilled, (state, action) => {
       const user = action.payload
-
       state.currentUser = user
     })
     builder.addCase(loginGoogleUserAPI.fulfilled, (state, action) => {
       const user = action.payload
-
       state.currentUser = user
     })
     builder.addCase(fetchCurrentUserAPI.fulfilled, (state, action) => {
       const user = action.payload
-      state.currentUser = user
+      // Bảo toàn token trong state nếu API /me chỉ trả về user info
+      state.currentUser = {
+        ...state.currentUser,
+        ...user
+      }
     })
     builder.addCase(logoutUserAPI.fulfilled, (state) => {
       /**
@@ -88,10 +96,15 @@ export const userSlice = createSlice({
     })
     builder.addCase(updateUserAPI.fulfilled, (state, action) => {
       const user = action.payload
-      state.currentUser = user
+      state.currentUser = {
+        ...state.currentUser,
+        ...user
+      }
     })
   }
 })
+
+export const { setAccessToken } = userSlice.actions
 
 export const selectCurrentUser = (state) => {
   return state.user.currentUser
