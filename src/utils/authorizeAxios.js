@@ -55,8 +55,8 @@ authorizedAxiosInstance.interceptors.response.use(
     const originalRequests = error.config
 
     /** Quan trọng: Xử lý Refresh Token tự động */
-    // Trường hợp 1: Nếu như nhận mã 401 từ BE, thì gọi api đăng xuất luôn (ngoại trừ khi đang ở endpoint login / register)
-    if (error.response?.status === 401 && !originalRequests?.url?.includes('/users/login') && !originalRequests?.url?.includes('/users/register')) {
+    // Trường hợp 1: Nếu như nhận mã 401 từ BE, thì gọi api đăng xuất luôn (ngoại trừ khi đang ở endpoint login / register / logout)
+    if (error.response?.status === 401 && !originalRequests?.url?.includes('/users/login') && !originalRequests?.url?.includes('/users/register') && !originalRequests?.url?.includes('/users/logout')) {
       axiosReduxStore.dispatch(logoutUserAPI(false))
     }
 

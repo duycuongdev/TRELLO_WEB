@@ -1,10 +1,11 @@
+import { useEffect } from 'react'
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import Board from '~/pages/Boards/_id'
 import NotFound from '~/pages/404/NotFound'
 import Auth from '~/pages/Auth/Auth'
 import AccountVerification from '~/pages/Auth/AccountVerification'
-import { useSelector } from 'react-redux'
-import { selectCurrentUser } from '~/redux/user/userSlice'
+import { useSelector, useDispatch } from 'react-redux'
+import { selectCurrentUser, fetchCurrentUserAPI } from '~/redux/user/userSlice'
 import Settings from '~/pages/Settings/Settings'
 import Boards from '~/pages/Boards/index.jsx'
 import Home from '~/pages/Home/Home'
@@ -22,7 +23,19 @@ const ProtectedRoute = ({ user }) => {
 }
 
 function App() {
+  const dispatch = useDispatch()
   const currentUser = useSelector(selectCurrentUser)
+  const currentUserId = currentUser?._id
+
+  // Khi ứng dụng mount, nếu có currentUser trong Redux (phục hồi từ redux-persist),
+  // gọi API /v1/users/me để xác thực phiên làm việc.
+  // Nếu user đã bị xóa hoặc vô hiệu hóa trong DB, interceptor 401 sẽ tự động kích hoạt logoutUserAPI.
+  useEffect(() => {
+    if (currentUserId) {
+      dispatch(fetchCurrentUserAPI())
+    }
+  }, [dispatch, currentUserId])
+
   return (
     <Routes>
       {/* Landing Page: khách chưa đăng nhập xem trang giới thiệu; đã đăng nhập tự chuyển vào /boards */}

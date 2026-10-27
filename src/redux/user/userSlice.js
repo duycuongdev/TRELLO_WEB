@@ -15,14 +15,28 @@ export const loginUserApi = createAsyncThunk(
   }
 )
 
+export const fetchCurrentUserAPI = createAsyncThunk(
+  'user/fetchCurrentUserAPI',
+  async () => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/users/me`)
+    return response.data
+  }
+)
+
 export const logoutUserAPI = createAsyncThunk(
   'user/logoutUserAPI',
   async (showSuccessMessage = true) => {
-    const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/users/logout`)
+    let responseData = {}
+    try {
+      const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/users/logout`)
+      responseData = response.data
+    } catch (_error) {
+      // Dù API logout có bị lỗi mạng hay gì đi chăng nữa, thì client vẫn phải logout thành công
+    }
     if (showSuccessMessage) {
       toast.success('Logged out successfully!')
     }
-    return response.data
+    return responseData
   }
 )
 
@@ -45,11 +59,18 @@ export const userSlice = createSlice({
 
       state.currentUser = user
     })
+    builder.addCase(fetchCurrentUserAPI.fulfilled, (state, action) => {
+      const user = action.payload
+      state.currentUser = user
+    })
     builder.addCase(logoutUserAPI.fulfilled, (state) => {
       /**
        * API logout sau khi gọi thành công thì sẽ clear thông tin currentUser về null ở đây
        * Kết hợp ProtectedRoute đã làm ở App.js => code sẽ điều hướng chuẩn về trang Login
        */
+      state.currentUser = null
+    })
+    builder.addCase(logoutUserAPI.rejected, (state) => {
       state.currentUser = null
     })
     builder.addCase(updateUserAPI.fulfilled, (state, action) => {
