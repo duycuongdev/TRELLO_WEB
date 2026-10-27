@@ -8,6 +8,7 @@ import CardActions from '@mui/material/CardActions'
 import TextField from '@mui/material/TextField'
 import Zoom from '@mui/material/Zoom'
 import Alert from '@mui/material/Alert'
+import Divider from '@mui/material/Divider'
 import { useForm } from 'react-hook-form'
 import {
   EMAIL_RULE,
@@ -19,7 +20,8 @@ import {
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { toast } from 'react-toastify'
 import { useDispatch } from 'react-redux'
-import { loginUserApi } from '~/redux/user/userSlice'
+import { loginUserApi, loginGoogleUserAPI } from '~/redux/user/userSlice'
+import { GoogleLogin } from '@react-oauth/google'
 
 function LoginForm() {
   const dispatch = useDispatch()
@@ -42,6 +44,19 @@ function LoginForm() {
     }).then((res) => {
       if (!res.error) { navigate('/') }
     })
+  }
+
+  const handleGoogleLoginSuccess = (credentialResponse) => {
+    if (!credentialResponse?.credential) return
+    toast.promise(dispatch(loginGoogleUserAPI({ token: credentialResponse.credential })), {
+      pending: 'Signing in with Google...'
+    }).then((res) => {
+      if (!res.error) { navigate('/') }
+    })
+  }
+
+  const handleGoogleLoginError = () => {
+    toast.error('Google Sign In was unsuccessful. Please try again.')
   }
 
   return (
@@ -167,6 +182,28 @@ function LoginForm() {
               Log in
             </Button>
           </CardActions>
+
+          {/* Divider */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, my: 1.5, px: 1.5 }}>
+            <Divider sx={{ flex: 1 }} />
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Or continue with
+            </Typography>
+            <Divider sx={{ flex: 1 }} />
+          </Box>
+
+          {/* Google Sign In */}
+          <Box sx={{ px: 1.5, mb: 1, display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <GoogleLogin
+              onSuccess={handleGoogleLoginSuccess}
+              onError={handleGoogleLoginError}
+              theme="outline"
+              size="large"
+              width="360"
+              text="signin_with"
+              shape="rectangular"
+            />
+          </Box>
 
           {/* Bottom link */}
           <Box sx={{ p: 1.5, textAlign: 'center' }}>

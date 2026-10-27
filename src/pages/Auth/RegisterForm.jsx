@@ -9,6 +9,7 @@ import CardActions from '@mui/material/CardActions'
 import TextField from '@mui/material/TextField'
 import Zoom from '@mui/material/Zoom'
 import Alert from '@mui/material/Alert'
+import Divider from '@mui/material/Divider'
 import MarkEmailReadOutlinedIcon from '@mui/icons-material/MarkEmailReadOutlined'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import {
@@ -23,11 +24,28 @@ import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { useForm } from 'react-hook-form'
 import { registerUserAPI } from '~/apis'
 import { toast } from 'react-toastify'
+import { useDispatch } from 'react-redux'
+import { loginGoogleUserAPI } from '~/redux/user/userSlice'
+import { GoogleLogin } from '@react-oauth/google'
 
 function RegisterForm() {
+  const dispatch = useDispatch()
   const navigate = useNavigate()
   const [registeredEmail, setRegisteredEmail] = useState(null)
   const { handleSubmit, register, formState: { errors }, watch, reset } = useForm()
+
+  const handleGoogleLoginSuccess = (credentialResponse) => {
+    if (!credentialResponse?.credential) return
+    toast.promise(dispatch(loginGoogleUserAPI({ token: credentialResponse.credential })), {
+      pending: 'Signing up with Google...'
+    }).then((res) => {
+      if (!res.error) { navigate('/') }
+    })
+  }
+
+  const handleGoogleLoginError = () => {
+    toast.error('Google Sign Up was unsuccessful. Please try again.')
+  }
 
   // Lắng nghe tín hiệu kích hoạt từ tab xác thực email (BroadcastChannel & localStorage event)
   // Khi người dùng bấm xác nhận email ở bất kỳ tab nào, tab đăng ký cũ này sẽ tự động chuyển sang trang Login!
@@ -323,6 +341,28 @@ function RegisterForm() {
               Sign up
             </Button>
           </CardActions>
+
+          {/* Divider */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, my: 1.5, px: 1.5 }}>
+            <Divider sx={{ flex: 1 }} />
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Or continue with
+            </Typography>
+            <Divider sx={{ flex: 1 }} />
+          </Box>
+
+          {/* Google Sign Up */}
+          <Box sx={{ px: 1.5, mb: 1, display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <GoogleLogin
+              onSuccess={handleGoogleLoginSuccess}
+              onError={handleGoogleLoginError}
+              theme="outline"
+              size="large"
+              width="360"
+              text="signup_with"
+              shape="rectangular"
+            />
+          </Box>
 
           {/* Bottom link */}
           <Box sx={{ p: 1.5, textAlign: 'center' }}>

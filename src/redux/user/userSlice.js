@@ -15,6 +15,14 @@ export const loginUserApi = createAsyncThunk(
   }
 )
 
+export const loginGoogleUserAPI = createAsyncThunk(
+  'user/loginGoogleUserAPI',
+  async (data) => {
+    const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/google-login`, data)
+    return response.data
+  }
+)
+
 export const fetchCurrentUserAPI = createAsyncThunk(
   'user/fetchCurrentUserAPI',
   async () => {
@@ -55,6 +63,11 @@ export const userSlice = createSlice({
 
   extraReducers: (builder) => {
     builder.addCase(loginUserApi.fulfilled, (state, action) => {
+      const user = action.payload
+
+      state.currentUser = user
+    })
+    builder.addCase(loginGoogleUserAPI.fulfilled, (state, action) => {
       const user = action.payload
 
       state.currentUser = user
