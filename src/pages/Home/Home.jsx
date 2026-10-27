@@ -72,7 +72,7 @@ function Home() {
             }}>
               <TrelloIcon fontSize="small" sx={{ color: 'white' }} />
             </Box>
-            <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main', letterSpacing: '-0.5px' }}>
+            <Typography component="span" variant="h5" sx={{ fontWeight: 800, color: 'primary.main', letterSpacing: '-0.5px' }}>
               Trello
             </Typography>
           </Link>
@@ -186,6 +186,7 @@ function Home() {
             />
 
             <Typography
+              component="h1"
               variant="h2"
               sx={{
                 fontWeight: 900,
@@ -442,7 +443,7 @@ function Home() {
             <Typography variant="overline" color="primary" fontWeight={700} letterSpacing={1.5}>
               POWERFUL CAPABILITIES
             </Typography>
-            <Typography variant="h3" fontWeight={800} letterSpacing="-1px" sx={{ mt: 1, mb: 2 }}>
+            <Typography component="h2" variant="h3" fontWeight={800} letterSpacing="-1px" sx={{ mt: 1, mb: 2 }}>
               Everything you need to stay in flow
             </Typography>
             <Typography variant="body1" color="text.secondary" fontSize="1.1rem">
@@ -466,7 +467,7 @@ function Home() {
                   <Box sx={{ width: 48, height: 48, borderRadius: 2, bgcolor: 'primary.main', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', mb: 2.5 }}>
                     <DashboardIcon />
                   </Box>
-                  <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                  <Typography component="h3" variant="h6" fontWeight={700} sx={{ mb: 1 }}>
                     Flexible Kanban
                   </Typography>
                   <Typography variant="body2" color="text.secondary" lineHeight={1.6}>
@@ -491,7 +492,7 @@ function Home() {
                   <Box sx={{ width: 48, height: 48, borderRadius: 2, bgcolor: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', mb: 2.5 }}>
                     <TaskAltIcon />
                   </Box>
-                  <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                  <Typography component="h3" variant="h6" fontWeight={700} sx={{ mb: 1 }}>
                     Smart Checklists & Dates
                   </Typography>
                   <Typography variant="body2" color="text.secondary" lineHeight={1.6}>
@@ -516,7 +517,7 @@ function Home() {
                   <Box sx={{ width: 48, height: 48, borderRadius: 2, bgcolor: '#8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', mb: 2.5 }}>
                     <WallpaperOutlinedIcon />
                   </Box>
-                  <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                  <Typography component="h3" variant="h6" fontWeight={700} sx={{ mb: 1 }}>
                     Visual Personalization
                   </Typography>
                   <Typography variant="body2" color="text.secondary" lineHeight={1.6}>
@@ -541,7 +542,7 @@ function Home() {
                   <Box sx={{ width: 48, height: 48, borderRadius: 2, bgcolor: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', mb: 2.5 }}>
                     <GroupOutlinedIcon />
                   </Box>
-                  <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                  <Typography component="h3" variant="h6" fontWeight={700} sx={{ mb: 1 }}>
                     Team Collaboration
                   </Typography>
                   <Typography variant="body2" color="text.secondary" lineHeight={1.6}>
@@ -559,7 +560,7 @@ function Home() {
         <Grid container spacing={6} alignItems="center">
           <Grid xs={12} md={6}>
             <Chip label="DEEP ORGANIZATION" color="primary" size="small" sx={{ fontWeight: 700, mb: 2 }} />
-            <Typography variant="h3" fontWeight={800} letterSpacing="-1px" sx={{ mb: 2.5 }}>
+            <Typography component="h2" variant="h3" fontWeight={800} letterSpacing="-1px" sx={{ mb: 2.5 }}>
               Cards that carry every single detail
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 3, fontSize: '1.1rem', lineHeight: 1.7 }}>
@@ -620,7 +621,7 @@ function Home() {
         textAlign: 'center'
       }}>
         <Container maxWidth="md">
-          <Typography variant="h3" fontWeight={800} letterSpacing="-1px" sx={{ mb: 2, fontSize: { xs: '2rem', md: '2.8rem' } }}>
+          <Typography component="h2" variant="h3" fontWeight={800} letterSpacing="-1px" sx={{ mb: 2, fontSize: { xs: '2rem', md: '2.8rem' } }}>
             Ready to supercharge your workflow?
           </Typography>
           <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 400, mb: 4, maxWidth: 600, mx: 'auto' }}>

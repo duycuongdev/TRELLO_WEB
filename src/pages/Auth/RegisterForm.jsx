@@ -255,7 +255,7 @@ function RegisterForm() {
             }}>
               <TrelloIcon fontSize="medium" sx={{ color: 'white' }} />
             </Box>
-            <Typography variant="h5" fontWeight={800} sx={{ letterSpacing: '-0.5px' }}>
+            <Typography component="h1" variant="h5" fontWeight={800} sx={{ letterSpacing: '-0.5px' }}>
               Sign up for your account
             </Typography>
             <Typography variant="body2" color="text.secondary">

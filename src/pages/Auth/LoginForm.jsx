@@ -95,7 +95,7 @@ function LoginForm() {
             }}>
               <TrelloIcon fontSize="medium" sx={{ color: 'white' }} />
             </Box>
-            <Typography variant="h5" fontWeight={800} sx={{ letterSpacing: '-0.5px' }}>
+            <Typography component="h1" variant="h5" fontWeight={800} sx={{ letterSpacing: '-0.5px' }}>
               Log in to continue
             </Typography>
             <Typography variant="body2" color="text.secondary">
