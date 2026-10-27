@@ -24,12 +24,13 @@ import {
 import {
   selectCurrentActiveCard,
   updateCurrentActiveCard,
-  clearAndHideCurrentActiveCard
+  clearAndHideCurrentActiveCard,
+  showModalActiveCard
 } from '~/redux/activeCard/activeCardSlice'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { cloneDeep } from 'lodash'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 import ActiveCard from '~/components/Modal/ActiveCard/ActiveCard'
 import { useConfirm } from 'material-ui-confirm'
@@ -74,6 +75,26 @@ function Board() {
   useEffect(() => {
     dispatch(fetchBoardDetailsAPI(boardId))
   }, [dispatch, boardId])
+
+  const [searchParams, setSearchParams] = useSearchParams()
+  const targetCardId = searchParams.get('cardId')
+
+  // Tự động mở modal chi tiết thẻ khi có param cardId từ thông báo Deadline
+  useEffect(() => {
+    if (board && targetCardId) {
+      for (const column of (board.columns || [])) {
+        const foundCard = (column.cards || []).find(c => c._id === targetCardId)
+        if (foundCard) {
+          dispatch(updateCurrentActiveCard(foundCard))
+          dispatch(showModalActiveCard())
+          const newParams = new URLSearchParams(searchParams)
+          newParams.delete('cardId')
+          setSearchParams(newParams, { replace: true })
+          break
+        }
+      }
+    }
+  }, [board, targetCardId, dispatch, searchParams, setSearchParams])
 
   // Lắng nghe và quản lý Socket.io Real-time
   useEffect(() => {
