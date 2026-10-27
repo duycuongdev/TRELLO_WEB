@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
 import Board from '~/pages/Boards/_id'
 import NotFound from '~/pages/404/NotFound'
 import Auth from '~/pages/Auth/Auth'
@@ -24,17 +24,36 @@ const ProtectedRoute = ({ user }) => {
 
 function App() {
   const dispatch = useDispatch()
+  const location = useLocation()
   const currentUser = useSelector(selectCurrentUser)
   const currentUserId = currentUser?._id
 
-  // Khi ứng dụng mount, nếu có currentUser trong Redux (phục hồi từ redux-persist),
-  // gọi API /v1/users/me để xác thực phiên làm việc.
-  // Nếu user đã bị xóa hoặc vô hiệu hóa trong DB, interceptor 401 sẽ tự động kích hoạt logoutUserAPI.
+  // Xác thực phiên làm việc liên tục:
+  // 1. Khi app mount hoặc currentUserId thay đổi
+  // 2. Khi người dùng click chuyển hướng giữa các trang (location.pathname)
+  // 3. Khi người dùng switch tab quay lại cửa sổ trình duyệt (window focus & visibilitychange)
+  // Nếu user đã bị xóa hoặc vô hiệu hóa trong DB, interceptor 401 sẽ tự động kích hoạt logoutUserAPI ngay lập tức.
   useEffect(() => {
-    if (currentUserId) {
-      dispatch(fetchCurrentUserAPI())
+    if (!currentUserId) return
+
+    // Kiểm tra ngay khi mount hoặc khi route thay đổi
+    dispatch(fetchCurrentUserAPI())
+
+    // Kiểm tra ngay lập tức khi người dùng quay lại tab (ví dụ sau khi thao tác xóa tài khoản trong DB)
+    const handleCheckSession = () => {
+      if (document.visibilityState === 'visible') {
+        dispatch(fetchCurrentUserAPI())
+      }
     }
-  }, [dispatch, currentUserId])
+
+    window.addEventListener('focus', handleCheckSession)
+    document.addEventListener('visibilitychange', handleCheckSession)
+
+    return () => {
+      window.removeEventListener('focus', handleCheckSession)
+      document.removeEventListener('visibilitychange', handleCheckSession)
+    }
+  }, [dispatch, currentUserId, location.pathname])
 
   return (
     <Routes>

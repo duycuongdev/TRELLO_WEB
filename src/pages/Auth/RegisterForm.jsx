@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
@@ -25,8 +25,51 @@ import { registerUserAPI } from '~/apis'
 import { toast } from 'react-toastify'
 
 function RegisterForm() {
+  const navigate = useNavigate()
   const [registeredEmail, setRegisteredEmail] = useState(null)
   const { handleSubmit, register, formState: { errors }, watch, reset } = useForm()
+
+  // Lắng nghe tín hiệu kích hoạt từ tab xác thực email (BroadcastChannel & localStorage event)
+  // Khi người dùng bấm xác nhận email ở bất kỳ tab nào, tab đăng ký cũ này sẽ tự động chuyển sang trang Login!
+  useEffect(() => {
+    if (!registeredEmail) return
+
+    const handleVerified = (verifiedEmail) => {
+      if (!verifiedEmail || verifiedEmail.toLowerCase() === registeredEmail.toLowerCase()) {
+        navigate(`/login?verifiedEmail=${encodeURIComponent(registeredEmail)}`, { replace: true })
+      }
+    }
+
+    let authChannel = null
+    try {
+      authChannel = new BroadcastChannel('trello-auth-channel')
+      authChannel.onmessage = (event) => {
+        if (event.data?.type === 'ACCOUNT_VERIFIED') {
+          handleVerified(event.data.email)
+        }
+      }
+    } catch (_err) {
+      // BroadcastChannel may not be supported
+    }
+
+    const handleStorage = (event) => {
+      if (event.key === 'trello_account_verified' && event.newValue) {
+        try {
+          const data = JSON.parse(event.newValue)
+          handleVerified(data?.email)
+        } catch (_err) {
+          // Ignore invalid JSON in storage event
+        }
+      }
+    }
+
+    window.addEventListener('storage', handleStorage)
+
+    return () => {
+      if (authChannel) authChannel.close()
+      window.removeEventListener('storage', handleStorage)
+    }
+  }, [registeredEmail, navigate])
 
   const submitRegister = (data) => {
     const { email, password } = data
