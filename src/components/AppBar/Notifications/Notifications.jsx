@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import dayjs from 'dayjs'
 import Badge from '@mui/material/Badge'
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone'
@@ -10,12 +10,18 @@ import Chip from '@mui/material/Chip'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Divider from '@mui/material/Divider'
+import IconButton from '@mui/material/IconButton'
+import Avatar from '@mui/material/Avatar'
 import GroupAddIcon from '@mui/icons-material/GroupAdd'
 import DoneIcon from '@mui/icons-material/Done'
 import NotInterestedIcon from '@mui/icons-material/NotInterested'
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm'
 import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import DoneAllIcon from '@mui/icons-material/DoneAll'
+import DeleteSweepOutlinedIcon from '@mui/icons-material/DeleteSweepOutlined'
+import CloseIcon from '@mui/icons-material/Close'
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   fetchInvitationsAPI,
@@ -39,69 +45,155 @@ function Notifications() {
   const [anchorEl, setAnchorEl] = useState(null)
   const open = Boolean(anchorEl)
 
-  // get data noti from redux store
-  const notifications = useSelector(selectCurrentNotifications)
-
-  // get current user from redux store
+  // Dữ liệu thông báo từ Redux store
+  const rawNotifications = useSelector(selectCurrentNotifications)
   const currentUser = useSelector(selectCurrentUser)
+  const userId = currentUser?._id
 
-  // check noti
-  const [newNotification, setNewNotification] = useState(false)
+  // Quản lý danh sách ID thông báo đã đọc & đã xóa (lưu trong localStorage theo từng User)
+  const readStorageKey = userId ? `trello_read_notis_${userId}` : null
+  const dismissedStorageKey = userId ? `trello_dismissed_notis_${userId}` : null
 
-  // Kiểm tra xem có lời mời chưa chấp nhận hoặc task sắp/quá hạn không
-  const hasAlerts = notifications?.some(n =>
-    n.type === 'CARD_DEADLINE' ||
-    n.boardInvitation?.status === BOARD_INVITATION_STATUS.PENDING
-  )
+  const [readIds, setReadIds] = useState(() => {
+    if (!readStorageKey) return []
+    try {
+      return JSON.parse(localStorage.getItem(readStorageKey) || '[]')
+    } catch {
+      return []
+    }
+  })
+
+  const [dismissedIds, setDismissedIds] = useState(() => {
+    if (!dismissedStorageKey) return []
+    try {
+      return JSON.parse(localStorage.getItem(dismissedStorageKey) || '[]')
+    } catch {
+      return []
+    }
+  })
+
+  // Đồng bộ lại khi đổi tài khoản
+  useEffect(() => {
+    if (readStorageKey) {
+      try {
+        setReadIds(JSON.parse(localStorage.getItem(readStorageKey) || '[]'))
+      } catch {
+        setReadIds([])
+      }
+    }
+    if (dismissedStorageKey) {
+      try {
+        setDismissedIds(JSON.parse(localStorage.getItem(dismissedStorageKey) || '[]'))
+      } catch {
+        setDismissedIds([])
+      }
+    }
+  }, [readStorageKey, dismissedStorageKey])
+
+  // Lọc các thông báo chưa bị xóa
+  const activeNotifications = useMemo(() => {
+    return (rawNotifications || []).filter(n => !dismissedIds.includes(n._id))
+  }, [rawNotifications, dismissedIds])
+
+  // Đếm số lượng thông báo chưa đọc
+  const unreadCount = useMemo(() => {
+    return activeNotifications.filter(n => !readIds.includes(n._id)).length
+  }, [activeNotifications, readIds])
 
   const handleClickNotificationIcon = (event) => {
     setAnchorEl(event.currentTarget)
-    // when click notification icon, set newNotification to false
-    setNewNotification(false)
   }
+
   const handleClose = () => {
     setAnchorEl(null)
   }
 
+  // Đánh dấu tất cả thông báo là đã đọc
+  const handleMarkAllAsRead = useCallback(() => {
+    if (!readStorageKey) return
+    const allIds = activeNotifications.map(n => n._id)
+    const updated = Array.from(new Set([...readIds, ...allIds]))
+    setReadIds(updated)
+    try {
+      localStorage.setItem(readStorageKey, JSON.stringify(updated))
+    } catch {
+      // ignore storage quota error
+    }
+  }, [activeNotifications, readIds, readStorageKey])
+
+  // Đánh dấu 1 thông báo cụ thể là đã đọc
+  const markAsRead = useCallback((notificationId) => {
+    if (!readStorageKey || readIds.includes(notificationId)) return
+    const updated = [...readIds, notificationId]
+    setReadIds(updated)
+    try {
+      localStorage.setItem(readStorageKey, JSON.stringify(updated))
+    } catch {
+      // ignore storage quota error
+    }
+  }, [readIds, readStorageKey])
+
+  // Xóa tất cả thông báo (Clear All)
+  const handleClearAll = useCallback(() => {
+    if (!dismissedStorageKey) return
+    const allIds = activeNotifications.map(n => n._id)
+    const updated = Array.from(new Set([...dismissedIds, ...allIds]))
+    setDismissedIds(updated)
+    try {
+      localStorage.setItem(dismissedStorageKey, JSON.stringify(updated))
+    } catch {
+      // ignore storage quota error
+    }
+  }, [activeNotifications, dismissedIds, dismissedStorageKey])
+
+  // Xóa 1 thông báo cụ thể (Clear One)
+  const handleClearOne = useCallback((notificationId, event) => {
+    if (event) event.stopPropagation()
+    if (!dismissedStorageKey) return
+    const updated = Array.from(new Set([...dismissedIds, notificationId]))
+    setDismissedIds(updated)
+    try {
+      localStorage.setItem(dismissedStorageKey, JSON.stringify(updated))
+    } catch {
+      // ignore storage quota error
+    }
+  }, [dismissedIds, dismissedStorageKey])
+
   useEffect(() => {
-    if (currentUser?._id) {
-      socketIoInstance.emit('FE_USER_JOIN_ROOM', currentUser._id)
+    if (userId) {
+      socketIoInstance.emit('FE_USER_JOIN_ROOM', userId)
     }
 
     dispatch(fetchInvitationsAPI())
 
-    // handle get event real time
     const onReceiveInvitation = (invitation) => {
-      if (invitation.inviteeId === currentUser?._id) {
-        // update invitation to redux store
+      if (invitation.inviteeId === userId) {
         dispatch(addNotification(invitation))
-        // update state newNotification to true
-        setNewNotification(true)
       }
     }
 
-    // listen to event from server
     socketIoInstance.on('BE_USER_INVITED_TO_BOARD', onReceiveInvitation)
 
     const onConnect = () => {
-      if (currentUser?._id) {
-        socketIoInstance.emit('FE_USER_JOIN_ROOM', currentUser._id)
+      if (userId) {
+        socketIoInstance.emit('FE_USER_JOIN_ROOM', userId)
       }
     }
     socketIoInstance.on('connect', onConnect)
 
-    // clear event to except resign
     return () => {
       socketIoInstance.off('BE_USER_INVITED_TO_BOARD', onReceiveInvitation)
       socketIoInstance.off('connect', onConnect)
     }
-  }, [dispatch, currentUser?._id])
+  }, [dispatch, userId])
 
   const updateBoardInvitation = (status, invitationId) => {
+    markAsRead(invitationId)
     dispatch(updateBoardInvitationAPI({ status, invitationId }))
       .then(res => {
         if (res.payload.boardInvitation.status === BOARD_INVITATION_STATUS.ACCEPTED) {
           navigate(`/boards/${res.payload.boardInvitation.boardId}`)
+          handleClose()
         }
       })
   }
@@ -110,8 +202,9 @@ function Notifications() {
     <Box>
       <Tooltip title="Notifications">
         <Badge
-          color="warning"
-          variant={(hasAlerts || newNotification) ? 'dot' : 'none'}
+          color="error"
+          badgeContent={unreadCount > 0 ? unreadCount : null}
+          max={99}
           sx={{ cursor: 'pointer' }}
           id="basic-button-open-notification"
           aria-controls={open ? 'basic-notification-drop-down' : undefined}
@@ -119,161 +212,309 @@ function Notifications() {
           aria-expanded={open ? 'true' : undefined}
           onClick={handleClickNotificationIcon}
         >
-          <NotificationsNoneIcon sx={{ color: (hasAlerts || newNotification) ? '#f59e0b' : 'white' }} />
+          <NotificationsNoneIcon sx={{ color: unreadCount > 0 ? '#f59e0b' : 'white' }} />
         </Badge>
       </Tooltip>
 
       <Menu
-        sx={{ mt: 2 }}
+        sx={{ mt: 1.5 }}
         id="basic-notification-drop-down"
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        MenuListProps={{ 'aria-labelledby': 'basic-button-open-notification' }}
+        MenuListProps={{ 'aria-labelledby': 'basic-button-open-notification', sx: { p: 0 } }}
         PaperProps={{
           sx: {
-            maxHeight: 460,
-            width: { xs: 'min(360px, 92vw)', sm: 380 }
+            maxHeight: 520,
+            width: { xs: 'min(360px, 92vw)', sm: 400 },
+            borderRadius: 2,
+            boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+            overflow: 'hidden'
           }
         }}
       >
-        {(!notifications || notifications.length === 0) && (
-          <MenuItem sx={{ minWidth: 200, color: 'text.secondary' }}>
-            You do not have any new notifications.
-          </MenuItem>
-        )}
+        {/* Header Thông Báo Đồng Bộ */}
+        <Box sx={{
+          px: 2,
+          py: 1.2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+          bgcolor: (theme) => theme.palette.mode === 'dark' ? '#1e293b' : '#f8fafc'
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: '0.95rem' }}>
+              Notifications
+            </Typography>
+            {unreadCount > 0 && (
+              <Chip
+                label={`${unreadCount} new`}
+                size="small"
+                color="primary"
+                sx={{ height: 20, fontSize: '0.68rem', fontWeight: 700 }}
+              />
+            )}
+          </Box>
 
-        {notifications?.map((notification, index) => {
-          // Trường hợp 1: Thông báo Task Quá hạn hoặc Sắp hết hạn
-          if (notification.type === 'CARD_DEADLINE') {
-            const isOverdue = notification.deadlineStatus === 'OVERDUE'
-            return (
-              <Box key={notification._id || index}>
-                <MenuItem
-                  onClick={() => {
-                    navigate(`/boards/${notification.boardId}?cardId=${notification.cardId}`)
-                    handleClose()
-                  }}
-                  sx={{
-                    py: 1.5,
-                    px: 2,
-                    whiteSpace: 'normal',
-                    borderLeft: (theme) => `4px solid ${isOverdue ? theme.palette.error.main : theme.palette.warning.main}`,
-                    bgcolor: (theme) => isOverdue
-                      ? (theme.palette.mode === 'dark' ? 'rgba(239, 83, 80, 0.08)' : 'rgba(239, 83, 80, 0.04)')
-                      : (theme.palette.mode === 'dark' ? 'rgba(255, 167, 38, 0.08)' : 'rgba(255, 167, 38, 0.04)'),
-                    '&:hover': {
-                      bgcolor: (theme) => isOverdue
-                        ? (theme.palette.mode === 'dark' ? 'rgba(239, 83, 80, 0.16)' : 'rgba(239, 83, 80, 0.1)')
-                        : (theme.palette.mode === 'dark' ? 'rgba(255, 167, 38, 0.16)' : 'rgba(255, 167, 38, 0.1)')
-                    }
-                  }}
+          {activeNotifications.length > 0 && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Tooltip title="Mark all as read">
+                <span>
+                  <IconButton
+                    size="small"
+                    onClick={handleMarkAllAsRead}
+                    disabled={unreadCount === 0}
+                    sx={{ p: 0.8 }}
+                  >
+                    <DoneAllIcon fontSize="small" sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </span>
+              </Tooltip>
+
+              <Tooltip title="Clear all">
+                <IconButton
+                  size="small"
+                  onClick={handleClearAll}
+                  sx={{ p: 0.8, color: 'text.secondary', '&:hover': { color: 'error.main' } }}
                 >
-                  <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 0.8 }}>
-                    {/* Header với Icon & Chip */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                        {isOverdue ? (
-                          <AccessAlarmIcon fontSize="small" color="error" />
+                  <DeleteSweepOutlinedIcon fontSize="small" sx={{ fontSize: 18 }} />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          )}
+        </Box>
+
+        {/* Danh sách thông báo hoặc Trạng thái trống */}
+        <Box sx={{ maxHeight: 440, overflowY: 'auto' }}>
+          {activeNotifications.length === 0 ? (
+            <Box sx={{
+              py: 5,
+              px: 3,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 1.2,
+              textAlign: 'center'
+            }}>
+              <CheckCircleOutlineIcon sx={{ fontSize: 44, color: 'success.main', opacity: 0.85 }} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                You&apos;re all caught up!
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'text.secondary', maxWidth: 260 }}>
+                No active task deadlines or board invitations at this time.
+              </Typography>
+            </Box>
+          ) : (
+            activeNotifications.map((notification, index) => {
+              const isRead = readIds.includes(notification._id)
+
+              // Trường hợp 1: Thông báo Deadline công việc (Quá hạn hoặc Sắp đến hạn)
+              if (notification.type === 'CARD_DEADLINE') {
+                const isOverdue = notification.deadlineStatus === 'OVERDUE'
+                return (
+                  <Box key={notification._id || index}>
+                    <MenuItem
+                      onClick={() => {
+                        markAsRead(notification._id)
+                        navigate(`/boards/${notification.boardId}?cardId=${notification.cardId}`)
+                        handleClose()
+                      }}
+                      sx={{
+                        py: 1.5,
+                        px: 2,
+                        whiteSpace: 'normal',
+                        borderLeft: (theme) => `4px solid ${isOverdue ? theme.palette.error.main : theme.palette.warning.main}`,
+                        bgcolor: (theme) => !isRead
+                          ? (isOverdue
+                            ? (theme.palette.mode === 'dark' ? 'rgba(239, 83, 80, 0.12)' : 'rgba(239, 83, 80, 0.06)')
+                            : (theme.palette.mode === 'dark' ? 'rgba(255, 167, 38, 0.12)' : 'rgba(255, 167, 38, 0.06)'))
+                          : 'transparent',
+                        '&:hover': {
+                          bgcolor: (theme) => isOverdue
+                            ? (theme.palette.mode === 'dark' ? 'rgba(239, 83, 80, 0.18)' : 'rgba(239, 83, 80, 0.1)')
+                            : (theme.palette.mode === 'dark' ? 'rgba(255, 167, 38, 0.18)' : 'rgba(255, 167, 38, 0.1)')
+                        }
+                      }}
+                    >
+                      <Box sx={{ width: '100%', display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                        {/* Avatar / Icon phân loại */}
+                        <Avatar
+                          sx={{
+                            width: 36,
+                            height: 36,
+                            bgcolor: isOverdue ? 'rgba(239, 83, 80, 0.15)' : 'rgba(255, 167, 38, 0.15)',
+                            color: isOverdue ? 'error.main' : 'warning.main',
+                            flexShrink: 0
+                          }}
+                        >
+                          {isOverdue ? <AccessAlarmIcon fontSize="small" /> : <WatchLaterOutlinedIcon fontSize="small" />}
+                        </Avatar>
+
+                        {/* Nội dung chi tiết */}
+                        <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0.6 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 0.5 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                              <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.82rem', color: isOverdue ? 'error.main' : 'warning.main' }}>
+                                {isOverdue ? 'Task Overdue' : 'Task Due Soon'}
+                              </Typography>
+                              {!isRead && (
+                                <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: isOverdue ? 'error.main' : 'warning.main' }} />
+                              )}
+                            </Box>
+                            <Chip
+                              label={isOverdue ? 'OVERDUE' : 'DUE SOON'}
+                              color={isOverdue ? 'error' : 'warning'}
+                              size="small"
+                              sx={{ height: 18, fontSize: '0.62rem', fontWeight: 800 }}
+                            />
+                          </Box>
+
+                          <Typography variant="body2" sx={{ wordBreak: 'break-word', lineHeight: 1.35, color: 'text.primary', fontSize: '0.84rem' }}>
+                            Card <strong>&quot;{notification.cardTitle}&quot;</strong> in board <strong>&quot;{notification.boardTitle}&quot;</strong>
+                          </Typography>
+
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pt: 0.3 }}>
+                            <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '11px' }}>
+                              Due: {dayjs(notification.dueDate).format('ddd, MMM D [at] h:mm A')}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 600, fontSize: '11px', display: 'flex', alignItems: 'center', gap: 0.3 }}>
+                              View card <ArrowForwardIosIcon sx={{ fontSize: 9 }} />
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        {/* Nút Xóa thông báo này */}
+                        <Tooltip title="Dismiss">
+                          <IconButton
+                            size="small"
+                            onClick={(e) => handleClearOne(notification._id, e)}
+                            sx={{ p: 0.4, opacity: 0.6, '&:hover': { opacity: 1, color: 'error.main' } }}
+                          >
+                            <CloseIcon sx={{ fontSize: 16 }} />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    </MenuItem>
+                    {index !== (activeNotifications.length - 1) && <Divider />}
+                  </Box>
+                )
+              }
+
+              // Trường hợp 2: Lời mời tham gia Board (Board Invitation)
+              const inviterName = notification.inviter?.displayName || notification.inviter?.username || 'A teammate'
+              const boardTitle = notification.board?.title || 'Board'
+              const isPending = notification.boardInvitation?.status === BOARD_INVITATION_STATUS.PENDING
+
+              return (
+                <Box key={notification._id || index}>
+                  <MenuItem
+                    onClick={() => markAsRead(notification._id)}
+                    sx={{
+                      py: 1.5,
+                      px: 2,
+                      whiteSpace: 'normal',
+                      borderLeft: (theme) => `4px solid ${theme.palette.info.main}`,
+                      bgcolor: (theme) => !isRead
+                        ? (theme.palette.mode === 'dark' ? 'rgba(2, 132, 199, 0.12)' : 'rgba(2, 132, 199, 0.05)')
+                        : 'transparent'
+                    }}
+                  >
+                    <Box sx={{ width: '100%', display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                      {/* Avatar người mời */}
+                      <Avatar
+                        src={notification.inviter?.avatar || undefined}
+                        sx={{
+                          width: 36,
+                          height: 36,
+                          bgcolor: 'rgba(2, 132, 199, 0.15)',
+                          color: 'info.main',
+                          flexShrink: 0
+                        }}
+                      >
+                        <GroupAddIcon fontSize="small" />
+                      </Avatar>
+
+                      {/* Nội dung chi tiết */}
+                      <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0.8 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.82rem', color: 'info.main' }}>
+                            Board Invitation
+                          </Typography>
+                          {!isRead && (
+                            <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'info.main' }} />
+                          )}
+                        </Box>
+
+                        <Typography variant="body2" sx={{ wordBreak: 'break-word', lineHeight: 1.35, color: 'text.primary', fontSize: '0.84rem' }}>
+                          <strong>{inviterName}</strong> invited you to join board <strong>&quot;{boardTitle}&quot;</strong>
+                        </Typography>
+
+                        {/* Các nút hành động Accept / Reject */}
+                        {isPending ? (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pt: 0.5 }}>
+                            <Button
+                              className="interceptor-loading"
+                              variant="contained"
+                              color="primary"
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                updateBoardInvitation(BOARD_INVITATION_STATUS.ACCEPTED, notification._id)
+                              }}
+                              sx={{ textTransform: 'none', fontWeight: 600, py: 0.3, px: 1.5, fontSize: '0.78rem' }}
+                            >
+                              Accept
+                            </Button>
+                            <Button
+                              className="interceptor-loading"
+                              variant="outlined"
+                              color="inherit"
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                updateBoardInvitation(BOARD_INVITATION_STATUS.REJECTED, notification._id)
+                              }}
+                              sx={{ textTransform: 'none', py: 0.3, px: 1.5, fontSize: '0.78rem', borderColor: 'divider' }}
+                            >
+                              Decline
+                            </Button>
+                          </Box>
                         ) : (
-                          <WatchLaterOutlinedIcon fontSize="small" color="warning" />
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pt: 0.3 }}>
+                            {notification.boardInvitation?.status === BOARD_INVITATION_STATUS.ACCEPTED && (
+                              <Chip icon={<DoneIcon />} label="Accepted" color="success" size="small" sx={{ height: 22, fontSize: '0.7rem' }} />
+                            )}
+                            {notification.boardInvitation?.status === BOARD_INVITATION_STATUS.REJECTED && (
+                              <Chip icon={<NotInterestedIcon />} label="Declined" size="small" sx={{ height: 22, fontSize: '0.7rem' }} />
+                            )}
+                          </Box>
                         )}
-                        <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.82rem', color: isOverdue ? 'error.main' : 'warning.main' }}>
-                          {isOverdue ? 'Task Overdue' : 'Task Due Soon'}
+
+                        <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '11px', pt: 0.2 }}>
+                          {dayjs(notification.createdAt).format('ddd, MMM D, YYYY [at] h:mm A')}
                         </Typography>
                       </Box>
-                      <Chip
-                        label={isOverdue ? 'OVERDUE' : 'DUE SOON'}
-                        color={isOverdue ? 'error' : 'warning'}
-                        size="small"
-                        sx={{ height: 20, fontSize: '0.65rem', fontWeight: 800 }}
-                      />
+
+                      {/* Nút Xóa thông báo này */}
+                      <Tooltip title="Dismiss">
+                        <IconButton
+                          size="small"
+                          onClick={(e) => handleClearOne(notification._id, e)}
+                          sx={{ p: 0.4, opacity: 0.6, '&:hover': { opacity: 1, color: 'error.main' } }}
+                        >
+                          <CloseIcon sx={{ fontSize: 16 }} />
+                        </IconButton>
+                      </Tooltip>
                     </Box>
-
-                    {/* Nội dung Card & Board */}
-                    <Typography variant="body2" sx={{ wordBreak: 'break-word', lineHeight: 1.4, color: 'text.primary' }}>
-                      Card <strong>&quot;{notification.cardTitle}&quot;</strong> in board <strong>&quot;{notification.boardTitle}&quot;</strong>
-                    </Typography>
-
-                    {/* Thời hạn & CTA xem */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pt: 0.3 }}>
-                      <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '11px' }}>
-                        Due: {dayjs(notification.dueDate).format('ddd, MMM D [at] h:mm A')}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 600, fontSize: '11px', display: 'flex', alignItems: 'center', gap: 0.3 }}>
-                        View card <ArrowForwardIosIcon sx={{ fontSize: 9 }} />
-                      </Typography>
-                    </Box>
-                  </Box>
-                </MenuItem>
-                {index !== (notifications.length - 1) && <Divider />}
-              </Box>
-            )
-          }
-
-          // Trường hợp 2: Lời mời tham gia Board (Board Invitation)
-          return (
-            <Box key={notification._id || index}>
-              <MenuItem sx={{
-                minWidth: 200,
-                maxWidth: 380,
-                overflowY: 'auto'
-              }}>
-                <Box sx={{ maxWidth: '100%', wordBreak: 'break-word', whiteSpace: 'pre-wrap', display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  {/* Nội dung của thông báo */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Box><GroupAddIcon fontSize="small" /></Box>
-                    <Box><strong>{notification.inviter?.displayName}</strong> had invited you to join the <strong>{notification.board?.title}</strong></Box>
-                  </Box>
-
-                  {/* Khi Status của thông báo này là PENDING thì sẽ hiện 2 Button */}
-                  {notification.boardInvitation?.status === BOARD_INVITATION_STATUS.PENDING &&
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-end' }}>
-                      <Button
-                        className="interceptor-loading"
-                        type="submit"
-                        variant="contained"
-                        color="success"
-                        size="small"
-                        onClick={() => updateBoardInvitation(BOARD_INVITATION_STATUS.ACCEPTED, notification._id)}
-                      >
-                        Accept
-                      </Button>
-                      <Button
-                        className="interceptor-loading"
-                        type="submit"
-                        variant="contained"
-                        color="secondary"
-                        size="small"
-                        onClick={() => updateBoardInvitation(BOARD_INVITATION_STATUS.REJECTED, notification._id)}
-                      >
-                        Reject
-                      </Button>
-                    </Box>
-                  }
-
-                  {/* Khi Status của thông báo này là ACCEPTED hoặc REJECTED thì sẽ hiện thông tin đó lên */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-end' }}>
-                    {notification.boardInvitation?.status === BOARD_INVITATION_STATUS.ACCEPTED &&
-                      <Chip icon={<DoneIcon />} label="Accepted" color="success" size="small" />
-                    }
-                    {notification.boardInvitation?.status === BOARD_INVITATION_STATUS.REJECTED &&
-                      <Chip icon={<NotInterestedIcon />} label="Rejected" size="small" />
-                    }
-                  </Box>
-
-                  {/* Thời gian của thông báo */}
-                  <Box sx={{ textAlign: 'right' }}>
-                    <Typography variant="span" sx={{ fontSize: '13px' }}>
-                      {dayjs(notification.createdAt).format('ddd, MMM D, YYYY h:mm A')}
-                    </Typography>
-                  </Box>
+                  </MenuItem>
+                  {index !== (activeNotifications.length - 1) && <Divider />}
                 </Box>
-              </MenuItem>
-              {index !== (notifications.length - 1) && <Divider />}
-            </Box>
-          )
-        })}
+              )
+            })
+          )}
+        </Box>
       </Menu>
     </Box>
   )
