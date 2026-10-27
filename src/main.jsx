@@ -27,7 +27,7 @@ import { GOOGLE_CLIENT_ID } from '~/utils/constants'
 injectStore(store)
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+  <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID} locale="en">
     <Provider store={store}>
       <PersistGate persistor={persistor}>
         <BrowserRouter basename='/' future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
