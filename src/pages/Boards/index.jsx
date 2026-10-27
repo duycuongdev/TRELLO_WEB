@@ -296,7 +296,7 @@ function Boards() {
 
             {/* Phân trang */}
             {(totalBoards > 0) && (
-              <Box sx={{ my: 3, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+              <Box sx={{ my: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Pagination
                   size="large"
                   color="secondary"
