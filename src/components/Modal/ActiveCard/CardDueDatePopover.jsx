@@ -16,6 +16,16 @@ import dayjs from 'dayjs'
 const HOURS_12 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 const DEFAULT_MINUTES = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55']
 
+const REMINDER_OPTIONS = [
+  { value: -1, label: 'None' },
+  { value: 0, label: 'At time of due date' },
+  { value: 10, label: '10 minutes before' },
+  { value: 60, label: '1 hour before' },
+  { value: 120, label: '2 hours before' },
+  { value: 1440, label: '1 day before' },
+  { value: 2880, label: '2 days before' }
+]
+
 const parseDueDateTo12h = (timestamp) => {
   if (timestamp) {
     const d = dayjs(timestamp)
@@ -36,12 +46,21 @@ const parseDueDateTo12h = (timestamp) => {
   }
 }
 
-function CardDueDatePopover({ anchorEl, isOpen, onClose, dueDate, isDueDateComplete = false, onUpdateDueDate }) {
+function CardDueDatePopover({
+  anchorEl,
+  isOpen,
+  onClose,
+  dueDate,
+  isDueDateComplete = false,
+  reminderMinutes = 1440,
+  onUpdateDueDate
+}) {
   const [dateStr, setDateStr] = useState(() => parseDueDateTo12h(dueDate).date)
   const [hour12, setHour12] = useState(() => parseDueDateTo12h(dueDate).hour)
   const [minuteStr, setMinuteStr] = useState(() => parseDueDateTo12h(dueDate).minute)
   const [ampm, setAmpm] = useState(() => parseDueDateTo12h(dueDate).ampm)
   const [isComplete, setIsComplete] = useState(isDueDateComplete)
+  const [reminder, setReminder] = useState(() => (reminderMinutes === null ? -1 : (reminderMinutes ?? 1440)))
 
   useEffect(() => {
     if (isOpen) {
@@ -51,8 +70,9 @@ function CardDueDatePopover({ anchorEl, isOpen, onClose, dueDate, isDueDateCompl
       setMinuteStr(initial.minute)
       setAmpm(initial.ampm)
       setIsComplete(Boolean(isDueDateComplete))
+      setReminder(reminderMinutes === null ? -1 : (reminderMinutes ?? 1440))
     }
-  }, [isOpen, dueDate, isDueDateComplete])
+  }, [isOpen, dueDate, isDueDateComplete, reminderMinutes])
 
   // Danh sách các phút, đảm bảo giá trị hiện tại luôn có trong danh sách
   const minuteOptions = DEFAULT_MINUTES.includes(minuteStr)
@@ -70,7 +90,8 @@ function CardDueDatePopover({ anchorEl, isOpen, onClose, dueDate, isDueDateCompl
 
     onUpdateDueDate({
       dueDate: finalDateTime.valueOf(),
-      isDueDateComplete: isComplete
+      isDueDateComplete: isComplete,
+      reminderMinutes: reminder === -1 ? null : reminder
     })
     onClose()
   }
@@ -78,7 +99,8 @@ function CardDueDatePopover({ anchorEl, isOpen, onClose, dueDate, isDueDateCompl
   const handleRemove = () => {
     onUpdateDueDate({
       dueDate: null,
-      isDueDateComplete: false
+      isDueDateComplete: false,
+      reminderMinutes: 1440
     })
     onClose()
   }
@@ -182,6 +204,26 @@ function CardDueDatePopover({ anchorEl, isOpen, onClose, dueDate, isDueDateCompl
             <MenuItem value="PM">PM</MenuItem>
           </Select>
         </Box>
+      </Box>
+
+      {/* Cài đặt nhắc nhở (Set Reminder) */}
+      <Box sx={{ mb: 1.5 }}>
+        <Typography variant="caption" fontWeight={600} sx={{ color: 'text.secondary', mb: 0.5, display: 'block' }}>
+          SET REMINDER
+        </Typography>
+        <Select
+          fullWidth
+          size="small"
+          value={reminder}
+          onChange={(e) => setReminder(Number(e.target.value))}
+          MenuProps={{ PaperProps: { sx: { maxHeight: 220 } } }}
+        >
+          {REMINDER_OPTIONS.map((opt) => (
+            <MenuItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </MenuItem>
+          ))}
+        </Select>
       </Box>
 
       <FormControlLabel

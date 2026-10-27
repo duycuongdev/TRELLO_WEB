@@ -103,7 +103,7 @@ function Card({ card }) {
                   '& .MuiButton-startIcon': { color: 'white' },
                   '&:hover': { bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#b71c1c' : '#cf513d') }
                 }),
-                ...(!card.isDueDateComplete && !dayjs(card.dueDate).isBefore(dayjs()) && dayjs(card.dueDate).diff(dayjs(), 'hour') <= 24 && {
+                ...(!card.isDueDateComplete && !dayjs(card.dueDate).isBefore(dayjs()) && (card?.reminderMinutes !== null && card?.reminderMinutes !== undefined ? dayjs(card.dueDate).diff(dayjs(), 'minute') <= card.reminderMinutes : dayjs(card.dueDate).diff(dayjs(), 'hour') <= 24) && {
                   bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#ef6c00' : '#f2d600'),
                   color: (theme) => (theme.palette.mode === 'dark' ? 'white !important' : '#172b4d !important'),
                   fontWeight: 600,

@@ -511,7 +511,7 @@ function ActiveCard() {
                       <Chip label="COMPLETED" size="small" color="success" sx={{ height: 24, fontWeight: 700, fontSize: '0.7rem' }} />
                     ) : dayjs(activeCard.dueDate).isBefore(dayjs()) ? (
                       <Chip label="OVERDUE" size="small" color="error" sx={{ height: 24, fontWeight: 700, fontSize: '0.7rem' }} />
-                    ) : dayjs(activeCard.dueDate).diff(dayjs(), 'hour') <= 24 ? (
+                    ) : (activeCard?.reminderMinutes !== null && activeCard?.reminderMinutes !== undefined ? dayjs(activeCard.dueDate).diff(dayjs(), 'minute') <= activeCard.reminderMinutes : dayjs(activeCard.dueDate).diff(dayjs(), 'hour') <= 24) ? (
                       <Chip label="DUE SOON" size="small" color="warning" sx={{ height: 24, fontWeight: 700, fontSize: '0.7rem' }} />
                     ) : null}
                   </Box>
@@ -637,6 +637,7 @@ function ActiveCard() {
                 onClose={handleCloseDueDatePopover}
                 dueDate={activeCard?.dueDate}
                 isDueDateComplete={activeCard?.isDueDateComplete}
+                reminderMinutes={activeCard?.reminderMinutes}
                 onUpdateDueDate={handleUpdateDueDate}
               />
             </Stack>
