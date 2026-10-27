@@ -3,3 +3,4 @@ Allow: /
 Disallow: /settings/
 
 Sitemap: https://trello-web-tawny.vercel.app/sitemap.xml
+

@@ -22,29 +22,6 @@ export default defineConfig({
     ]
   },
   build: {
-    chunkSizeWarningLimit: 1200,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('@uiw') || id.includes('codemirror') || id.includes('rehype') || id.includes('micromark')) {
-              return 'vendor-editor'
-            }
-            if (id.includes('@mui') || id.includes('@emotion')) {
-              return 'vendor-mui'
-            }
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
-              return 'vendor-react'
-            }
-            if (id.includes('@reduxjs') || id.includes('redux')) {
-              return 'vendor-redux'
-            }
-            if (id.includes('@dnd-kit')) {
-              return 'vendor-dndkit'
-            }
-          }
-        }
-      }
-    }
+    chunkSizeWarningLimit: 1200
   }
 })
