@@ -105,7 +105,10 @@ authorizedAxiosInstance.interceptors.response.use(
       errorMessage = error.response.data.message
     }
     // Dùng toastify để hiển thị bất kể mọi mã lỗi lên màn hình - Ngoại trừ mã 410 - GONE phục vụ việc tự động refresh lại token.
-    if (error.response?.status !== 410) {
+    if (error.response?.status === 401) {
+      // Khi bị 401 (phiên hết hạn hoặc user bị xóa/khóa trong DB), chỉ hiển thị duy nhất 1 toast thông báo bằng toastId cố định
+      toast.error(errorMessage, { toastId: 'auth-unauthorized-error' })
+    } else if (error.response?.status !== 410) {
       toast.error(errorMessage)
     }
     return Promise.reject(error)
