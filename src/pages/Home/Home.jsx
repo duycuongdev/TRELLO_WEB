@@ -57,7 +57,7 @@ function Home() {
         borderBottom: '1px solid',
         borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'
       }}>
-        <Container maxWidth="lg" sx={{ py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Container maxWidth="lg" sx={{ py: 1.5, px: { xs: 1.5, sm: 3 }, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Logo */}
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Box sx={{
@@ -78,8 +78,10 @@ function Home() {
           </Link>
 
           {/* Action buttons */}
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <ModeSelect />
+          <Stack direction="row" spacing={{ xs: 0.8, sm: 1.5 }} alignItems="center">
+            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+              <ModeSelect />
+            </Box>
 
             {currentUser ? (
               <>
@@ -93,10 +95,19 @@ function Home() {
                   component={Link}
                   to="/boards"
                   variant="contained"
-                  endIcon={<ArrowForwardIcon />}
-                  sx={{ textTransform: 'none', fontWeight: 700, px: 2.5, borderRadius: 2 }}
+                  endIcon={<ArrowForwardIcon sx={{ fontSize: { xs: '16px', sm: '20px' } }} />}
+                  sx={{
+                    textTransform: 'none',
+                    fontWeight: 700,
+                    px: { xs: 1.8, sm: 2.5 },
+                    py: { xs: 0.8, sm: 1 },
+                    fontSize: { xs: '0.85rem', sm: '0.95rem' },
+                    borderRadius: 2,
+                    whiteSpace: 'nowrap'
+                  }}
                 >
-                  Go to boards
+                  <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Go to boards</Box>
+                  <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>Boards</Box>
                 </Button>
               </>
             ) : (
@@ -105,7 +116,14 @@ function Home() {
                   component={Link}
                   to="/login"
                   variant="text"
-                  sx={{ textTransform: 'none', fontWeight: 600, color: 'inherit' }}
+                  sx={{
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    color: 'inherit',
+                    px: { xs: 1, sm: 1.5 },
+                    fontSize: { xs: '0.85rem', sm: '0.95rem' },
+                    minWidth: 'auto'
+                  }}
                 >
                   Log in
                 </Button>
@@ -116,12 +134,16 @@ function Home() {
                   sx={{
                     textTransform: 'none',
                     fontWeight: 700,
-                    px: 2.5,
+                    px: { xs: 1.8, sm: 2.5 },
+                    py: { xs: 0.8, sm: 1 },
+                    fontSize: { xs: '0.85rem', sm: '0.95rem' },
                     borderRadius: 2,
+                    whiteSpace: 'nowrap',
                     boxShadow: '0 4px 14px rgba(12, 102, 228, 0.35)'
                   }}
                 >
-                  Get Trello for free
+                  <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Get Trello for free</Box>
+                  <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>Sign up</Box>
                 </Button>
               </>
             )}
@@ -148,10 +170,18 @@ function Home() {
               sx={{
                 mb: 3,
                 fontWeight: 600,
-                fontSize: '0.85rem',
+                fontSize: { xs: '0.75rem', sm: '0.85rem' },
                 borderRadius: 4,
+                maxWidth: '100%',
+                height: 'auto',
+                py: { xs: 0.5, sm: 0.8 },
                 borderColor: 'primary.light',
-                bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(37, 99, 235, 0.1)' : 'rgba(0, 82, 204, 0.08)'
+                bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(37, 99, 235, 0.1)' : 'rgba(0, 82, 204, 0.08)',
+                '& .MuiChip-label': {
+                  whiteSpace: 'normal',
+                  textAlign: 'center',
+                  px: { xs: 1, sm: 1.5 }
+                }
               }}
             />
 
@@ -159,10 +189,10 @@ function Home() {
               variant="h2"
               sx={{
                 fontWeight: 900,
-                letterSpacing: '-1.5px',
-                lineHeight: 1.15,
-                fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4.2rem' },
-                mb: 3
+                letterSpacing: { xs: '-0.8px', sm: '-1.5px' },
+                lineHeight: 1.18,
+                fontSize: { xs: '1.9rem', sm: '3rem', md: '4.2rem' },
+                mb: { xs: 2, sm: 3 }
               }}
             >
               Trello brings all your tasks, teammates, and tools together
@@ -176,8 +206,8 @@ function Home() {
                 lineHeight: 1.6,
                 maxWidth: 680,
                 mx: 'auto',
-                mb: 4,
-                fontSize: { xs: '1rem', md: '1.25rem' }
+                mb: { xs: 3.5, sm: 4 },
+                fontSize: { xs: '0.95rem', sm: '1.1rem', md: '1.25rem' }
               }}
             >
               Keep everything in the same place — even if your team isn’t. Organize work, streamline workflows, and collaborate seamlessly with intuitive Kanban boards.
@@ -188,6 +218,7 @@ function Home() {
               spacing={2}
               justifyContent="center"
               alignItems="center"
+              sx={{ width: '100%' }}
             >
               <Button
                 component={Link}
@@ -196,12 +227,14 @@ function Home() {
                 size="large"
                 endIcon={<ArrowForwardIcon />}
                 sx={{
-                  py: 1.6,
-                  px: 4,
-                  fontSize: '1.1rem',
+                  py: { xs: 1.4, sm: 1.6 },
+                  px: { xs: 3, sm: 4 },
+                  fontSize: { xs: '1rem', sm: '1.1rem' },
                   fontWeight: 700,
                   borderRadius: 2.5,
                   textTransform: 'none',
+                  width: { xs: '100%', sm: 'auto' },
+                  maxWidth: { xs: '320px', sm: 'none' },
                   boxShadow: '0 8px 24px rgba(12, 102, 228, 0.35)'
                 }}
               >
@@ -213,12 +246,14 @@ function Home() {
                 size="large"
                 onClick={scrollToFeatures}
                 sx={{
-                  py: 1.6,
-                  px: 3.5,
-                  fontSize: '1.1rem',
+                  py: { xs: 1.4, sm: 1.6 },
+                  px: { xs: 3, sm: 3.5 },
+                  fontSize: { xs: '1rem', sm: '1.1rem' },
                   fontWeight: 600,
                   borderRadius: 2.5,
-                  textTransform: 'none'
+                  textTransform: 'none',
+                  width: { xs: '100%', sm: 'auto' },
+                  maxWidth: { xs: '320px', sm: 'none' }
                 }}
               >
                 Explore features
@@ -238,16 +273,18 @@ function Home() {
             {/* Mockup Header */}
             <Box sx={{
               display: 'flex',
-              alignItems: 'center',
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: { xs: 'flex-start', sm: 'center' },
               justifyContent: 'space-between',
+              gap: { xs: 1.5, sm: 2 },
               pb: 2,
               px: 1,
               borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
               color: 'white'
             }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, flexWrap: 'wrap' }}>
                 <DashboardIcon />
-                <Typography variant="h6" fontWeight={700} sx={{ color: 'white' }}>
+                <Typography variant="h6" fontWeight={700} sx={{ color: 'white', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                   Product Roadmap Q4
                 </Typography>
                 <Chip size="small" label="Public" sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white', fontWeight: 600 }} />
@@ -255,7 +292,7 @@ function Home() {
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <Chip size="small" icon={<FilterListIcon sx={{ color: 'white !important' }} />} label="Filter" sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'white' }} />
-                <AvatarGroup max={4} sx={{ '& .MuiAvatar-root': { width: 28, height: 28, fontSize: 12, borderColor: 'transparent' } }}>
+                <AvatarGroup max={3} sx={{ '& .MuiAvatar-root': { width: 26, height: 26, fontSize: 11, borderColor: 'transparent' } }}>
                   <Avatar sx={{ bgcolor: '#e11d48' }}>A</Avatar>
                   <Avatar sx={{ bgcolor: '#0284c7' }}>B</Avatar>
                   <Avatar sx={{ bgcolor: '#10b981' }}>C</Avatar>

@@ -139,10 +139,10 @@ function Boards() {
       transition: 'background-color 0.3s ease, color 0.3s ease'
     }}>
       <AppBar />
-      <Container maxWidth="xl" sx={{ py: 4, px: { xs: 2, sm: 3, md: 4 } }}>
+      <Container maxWidth="xl" sx={{ py: { xs: 2.5, sm: 4 }, px: { xs: 1.5, sm: 3, md: 4 } }}>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
           {/* Sidebar */}
-          <Box sx={{ width: { xs: '100%', md: '300px' }, flexShrink: 0, mr: 10 }}>
+          <Box sx={{ width: { xs: '100%', md: '260px' }, flexShrink: 0, mr: { xs: 0, md: 4 } }}>
             <Stack direction="column" spacing={1}>
               <SidebarItem
                 component={Link}

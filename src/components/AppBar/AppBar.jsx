@@ -95,7 +95,9 @@ function AppBar() {
         <AutoCompleteSearchBoard />
 
         {/* dark mode and light mode */}
-        <ModeSelect />
+        <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+          <ModeSelect />
+        </Box>
 
         {/* notifications */}
         <Notifications />
