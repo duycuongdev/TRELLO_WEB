@@ -16,4 +16,4 @@ export const CARD_MEMBER_ACTION = {
   REMOVE: 'REMOVE'
 }
 
-export const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
+export const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '450608219312-6tmujfnjku68koncdd1hihnsl9td226a.apps.googleusercontent.com'
