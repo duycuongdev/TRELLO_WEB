@@ -47,6 +47,13 @@
 
 ## 📸 Hướng Dẫn Sử Dụng Chi Tiết & Hình Ảnh Minh Họa
 
+### 0. Trang Giới Thiệu (Landing Page)
+Trang đích hiện đại, trực quan giới thiệu các giá trị cốt lõi của ứng dụng cùng các lối tắt trải nghiệm nhanh.
+
+![Landing Page](./screenshots/00-landing-page.png)
+
+---
+
 ### 1. Không Gian Bảng Làm Việc (Kanban Board)
 Giao diện làm việc chính trực quan, hiển thị các cột trạng thái cùng các thẻ công việc. Người dùng có thể kéo thả thẻ giữa các cột hoặc di chuyển vị trí cột một cách tự nhiên.
 
@@ -316,3 +323,4 @@ trello/
 ## 📄 Bản Quyền (License)
 
 Dự án này được phát triển phục vụ mục đích học tập, nghiên cứu và xây dựng sản phẩm chất lượng cao. Giữ toàn quyền tác giả bởi Nguyễn Duy Cường.
+
