@@ -7,15 +7,33 @@ import TextField from '@mui/material/TextField'
 import Checkbox from '@mui/material/Checkbox'
 import LinearProgress from '@mui/material/LinearProgress'
 import Stack from '@mui/material/Stack'
+import Tooltip from '@mui/material/Tooltip'
+import Chip from '@mui/material/Chip'
 import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
+import LinkIcon from '@mui/icons-material/Link'
 import CloseIcon from '@mui/icons-material/Close'
 
 function CardChecklistSection({ checklists = [], onUpdateCardChecklists }) {
   const [activeChecklistIdForNewItem, setActiveChecklistIdForNewItem] = useState(null)
   const [newItemTitle, setNewItemTitle] = useState('')
+  const [newItemLink, setNewItemLink] = useState('')
+
+  const [editingItemId, setEditingItemId] = useState(null)
+  const [editingItemTitle, setEditingItemTitle] = useState('')
+  const [editingItemLink, setEditingItemLink] = useState('')
 
   if (!checklists || checklists.length === 0) return null
+
+  const getValidUrl = (url) => {
+    if (!url) return null
+    const trimmed = url.trim()
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed
+    if (trimmed.startsWith('/')) return trimmed
+    return `https://${trimmed}`
+  }
 
   // Xóa toàn bộ 1 checklist
   const handleDeleteChecklist = (checklistId) => {
@@ -54,22 +72,27 @@ function CardChecklistSection({ checklists = [], onUpdateCardChecklists }) {
   const handleStartAddItem = (checklistId) => {
     setActiveChecklistIdForNewItem(checklistId)
     setNewItemTitle('')
+    setNewItemLink('')
+    setEditingItemId(null)
   }
 
   // Hủy nhập item mới
   const handleCancelAddItem = () => {
     setActiveChecklistIdForNewItem(null)
     setNewItemTitle('')
+    setNewItemLink('')
   }
 
   // Thêm item mới vào checklist
   const handleSaveNewItem = (checklistId) => {
-    const trimmed = newItemTitle.trim()
-    if (!trimmed) return
+    const trimmedTitle = newItemTitle.trim()
+    if (!trimmedTitle) return
 
+    const trimmedLink = newItemLink.trim()
     const newItem = {
       _id: Date.now().toString(),
-      title: trimmed,
+      title: trimmedTitle,
+      link: trimmedLink || null,
       isDone: false
     }
 
@@ -83,6 +106,48 @@ function CardChecklistSection({ checklists = [], onUpdateCardChecklists }) {
 
     onUpdateCardChecklists(updated)
     setNewItemTitle('')
+    setNewItemLink('')
+  }
+
+  // Bắt đầu sửa 1 item đã có
+  const handleStartEditItem = (item) => {
+    setEditingItemId(item._id)
+    setEditingItemTitle(item.title || '')
+    setEditingItemLink(item.link || '')
+    setActiveChecklistIdForNewItem(null)
+  }
+
+  // Hủy sửa item
+  const handleCancelEditItem = () => {
+    setEditingItemId(null)
+    setEditingItemTitle('')
+    setEditingItemLink('')
+  }
+
+  // Lưu chỉnh sửa item
+  const handleSaveEditItem = (checklistId, itemId) => {
+    const trimmedTitle = editingItemTitle.trim()
+    if (!trimmedTitle) return
+
+    const trimmedLink = editingItemLink.trim()
+
+    const updated = checklists.map(cl => {
+      if (cl._id !== checklistId) return cl
+      return {
+        ...cl,
+        items: (cl.items || []).map(item => {
+          if (item._id !== itemId) return item
+          return {
+            ...item,
+            title: trimmedTitle,
+            link: trimmedLink || null
+          }
+        })
+      }
+    })
+
+    onUpdateCardChecklists(updated)
+    handleCancelEditItem()
   }
 
   return (
@@ -145,69 +210,221 @@ function CardChecklistSection({ checklists = [], onUpdateCardChecklists }) {
 
             {/* Danh sách các item trong checklist */}
             <Stack spacing={0.5} sx={{ pl: 3.5, mb: 1 }}>
-              {checklist.items?.map((item) => (
-                <Box
-                  key={item._id}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    py: 0.25,
-                    px: 1,
-                    borderRadius: 1,
-                    '&:hover': {
-                      bgcolor: 'action.hover',
-                      '& .delete-item-btn': { opacity: 1 }
-                    }
-                  }}
-                >
-                  <Box
-                    sx={{ display: 'flex', alignItems: 'center', gap: 1, flexGrow: 1, cursor: 'pointer' }}
-                    onClick={() => handleToggleItem(checklist._id, item._id)}
-                  >
-                    <Checkbox
-                      checked={Boolean(item.isDone)}
-                      size="small"
-                      sx={{ p: 0.5 }}
-                    />
-                    <Typography
-                      variant="body2"
+              {checklist.items?.map((item) => {
+                const isEditingThisItem = editingItemId === item._id
+                const validUrl = getValidUrl(item.link)
+
+                if (isEditingThisItem) {
+                  return (
+                    <Box
+                      key={item._id}
                       sx={{
-                        textDecoration: item.isDone ? 'line-through' : 'none',
-                        color: item.isDone ? 'text.secondary' : 'text.primary',
-                        fontWeight: item.isDone ? 400 : 500
+                        p: 1.5,
+                        borderRadius: 1.5,
+                        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : '#f8fafc',
+                        border: (theme) => `1px solid ${theme.palette.divider}`,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1,
+                        my: 0.5
                       }}
                     >
-                      {item.title}
-                    </Typography>
-                  </Box>
+                      <TextField
+                        fullWidth
+                        autoFocus
+                        size="small"
+                        placeholder="Task title..."
+                        value={editingItemTitle}
+                        onChange={(e) => setEditingItemTitle(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            handleSaveEditItem(checklist._id, item._id)
+                          }
+                          if (e.key === 'Escape') {
+                            handleCancelEditItem()
+                          }
+                        }}
+                      />
+                      <TextField
+                        fullWidth
+                        size="small"
+                        placeholder="Attach link or URL (optional, e.g. https://...)"
+                        value={editingItemLink}
+                        onChange={(e) => setEditingItemLink(e.target.value)}
+                        InputProps={{
+                          startAdornment: <LinkIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            handleSaveEditItem(checklist._id, item._id)
+                          }
+                          if (e.key === 'Escape') {
+                            handleCancelEditItem()
+                          }
+                        }}
+                      />
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleSaveEditItem(checklist._id, item._id)}
+                          disabled={!editingItemTitle.trim()}
+                          sx={{ textTransform: 'none', fontWeight: 600 }}
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="text"
+                          color="inherit"
+                          onClick={handleCancelEditItem}
+                          sx={{ textTransform: 'none' }}
+                        >
+                          Cancel
+                        </Button>
+                      </Box>
+                    </Box>
+                  )
+                }
 
-                  <IconButton
-                    className="delete-item-btn"
-                    size="small"
-                    onClick={() => handleDeleteItem(checklist._id, item._id)}
+                return (
+                  <Box
+                    key={item._id}
                     sx={{
-                      opacity: 0,
-                      transition: 'opacity 0.2s',
-                      color: 'text.secondary',
-                      '&:hover': { color: 'error.main' }
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      py: 0.4,
+                      px: 1,
+                      borderRadius: 1,
+                      '&:hover': {
+                        bgcolor: 'action.hover',
+                        '& .action-item-btn': { opacity: 1 }
+                      }
                     }}
                   >
-                    <DeleteOutlineIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              ))}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        flexGrow: 1,
+                        minWidth: 0,
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => handleToggleItem(checklist._id, item._id)}
+                    >
+                      <Checkbox
+                        checked={Boolean(item.isDone)}
+                        size="small"
+                        sx={{ p: 0.5 }}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleToggleItem(checklist._id, item._id)
+                        }}
+                      />
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', minWidth: 0 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            textDecoration: item.isDone ? 'line-through' : 'none',
+                            color: item.isDone ? 'text.secondary' : 'text.primary',
+                            fontWeight: item.isDone ? 400 : 500,
+                            wordBreak: 'break-word'
+                          }}
+                        >
+                          {item.title}
+                        </Typography>
+
+                        {/* Gắn link nếu item có link */}
+                        {validUrl && (
+                          <Tooltip title={`Open: ${validUrl}`}>
+                            <Chip
+                              size="small"
+                              icon={<OpenInNewIcon sx={{ fontSize: '13px !important' }} />}
+                              label="Link"
+                              clickable
+                              color="primary"
+                              variant="outlined"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                window.open(validUrl, '_blank', 'noopener,noreferrer')
+                              }}
+                              sx={{
+                                height: 22,
+                                fontSize: '0.72rem',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                '&:hover': {
+                                  bgcolor: 'primary.light',
+                                  color: 'white'
+                                }
+                              }}
+                            />
+                          </Tooltip>
+                        )}
+                      </Box>
+                    </Box>
+
+                    {/* Các nút Sửa và Xóa khi hover */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Tooltip title="Edit item">
+                        <IconButton
+                          className="action-item-btn"
+                          size="small"
+                          onClick={() => handleStartEditItem(item)}
+                          sx={{
+                            opacity: 0,
+                            transition: 'opacity 0.2s',
+                            color: 'text.secondary',
+                            '&:hover': { color: 'primary.main' }
+                          }}
+                        >
+                          <EditOutlinedIcon fontSize="small" sx={{ fontSize: 18 }} />
+                        </IconButton>
+                      </Tooltip>
+
+                      <Tooltip title="Delete item">
+                        <IconButton
+                          className="action-item-btn"
+                          size="small"
+                          onClick={() => handleDeleteItem(checklist._id, item._id)}
+                          sx={{
+                            opacity: 0,
+                            transition: 'opacity 0.2s',
+                            color: 'text.secondary',
+                            '&:hover': { color: 'error.main' }
+                          }}
+                        >
+                          <DeleteOutlineIcon fontSize="small" sx={{ fontSize: 18 }} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  </Box>
+                )
+              })}
             </Stack>
 
             {/* Thêm mục mới vào checklist */}
             <Box sx={{ pl: 4.5, mt: 1 }}>
               {isAddingItem ? (
-                <Box>
+                <Box sx={{
+                  p: 1.5,
+                  borderRadius: 1.5,
+                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : '#f8fafc',
+                  border: (theme) => `1px solid ${theme.palette.divider}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 1
+                }}>
                   <TextField
                     fullWidth
                     autoFocus
                     size="small"
-                    placeholder="Add an item..."
+                    placeholder="Add an item title..."
                     value={newItemTitle}
                     onChange={(e) => setNewItemTitle(e.target.value)}
                     onKeyDown={(e) => {
@@ -219,9 +436,27 @@ function CardChecklistSection({ checklists = [], onUpdateCardChecklists }) {
                         handleCancelAddItem()
                       }
                     }}
-                    sx={{ mb: 1 }}
                   />
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    placeholder="Attach link or URL (optional, e.g. https://...)"
+                    value={newItemLink}
+                    onChange={(e) => setNewItemLink(e.target.value)}
+                    InputProps={{
+                      startAdornment: <LinkIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        handleSaveNewItem(checklist._id)
+                      }
+                      if (e.key === 'Escape') {
+                        handleCancelAddItem()
+                      }
+                    }}
+                  />
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
                     <Button
                       size="small"
                       variant="contained"
@@ -263,4 +498,3 @@ function CardChecklistSection({ checklists = [], onUpdateCardChecklists }) {
 }
 
 export default CardChecklistSection
-

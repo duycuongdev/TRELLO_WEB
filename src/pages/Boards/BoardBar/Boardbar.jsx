@@ -19,6 +19,7 @@ import InviteBoardUser from './InviteBoardUser'
 import BoardCardFilterPopover from './BoardCardFilterPopover'
 import ChangeBoardBackgroundPopover from './ChangeBoardBackgroundPopover'
 import ArchivedItemsDrawer from './ArchivedItemsDrawer'
+import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
 import { emitBoardUpdate, BOARD_ACTION_TYPES } from '~/sockets/boardSocketClient'
 
 const MENU_STYLES = {
@@ -94,6 +95,30 @@ function BoardBar({ board, onlineUsers = [] }) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [dispatch, cardFilter?.onlyMyCards])
 
+  
+  const handleUpdateBoardTitle = (newTitle) => {
+    if (!newTitle || newTitle.trim() === board?.title) return
+    const updatedTitle = newTitle.trim()
+
+    dispatch(updateCurrentActiveBoard({ ...board, title: updatedTitle }))
+
+    emitBoardUpdate({
+      boardId: board._id,
+      actionType: BOARD_ACTION_TYPES.UPDATE_BOARD,
+      payload: { title: updatedTitle },
+      currentUser
+    })
+
+    updateBoardDetailsAPI(board._id, { title: updatedTitle })
+      .then(() => {
+        toast.success('Board title updated!')
+      })
+      .catch(() => {
+        dispatch(updateCurrentActiveBoard(board))
+        toast.error('Failed to update board title!')
+      })
+  }
+
   const handleSelectBackground = (newBackground) => {
     // Cập nhật Redux ngay lập tức để giao diện mượt mà không có độ trễ
     dispatch(updateCurrentActiveBoard({ ...board, background: newBackground }))
@@ -161,13 +186,43 @@ function BoardBar({ board, onlineUsers = [] }) {
         alignItems: 'center',
         gap: 2
       }}>
-        <Tooltip title={board?.description}>
-          <Chip
-            sx={MENU_STYLES}
-            icon={<DashboardIcon />}
-            label={board?.title}
-            clickable
-          />
+        <Tooltip title="Click to edit board title">
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+            px: 1,
+            py: 0.25,
+            borderRadius: '4px',
+            bgcolor: 'transparent',
+            '&:hover': {
+              bgcolor: 'rgba(255, 255, 255, 0.15)'
+            }
+          }}>
+            <DashboardIcon sx={{ color: 'white', fontSize: 20 }} />
+            <ToggleFocusInput
+              value={board?.title}
+              onChangedValue={handleUpdateBoardTitle}
+              inputFontSize="17px"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: 'transparent',
+                  '& fieldset': { borderColor: 'transparent' },
+                  '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                  '&.Mui-focused fieldset': { borderColor: 'white' }
+                },
+                '& .MuiOutlinedInput-input': {
+                  color: 'white',
+                  fontWeight: 700,
+                  padding: '2px 6px',
+                  cursor: 'pointer',
+                  '&:focus': {
+                    cursor: 'text'
+                  }
+                }
+              }}
+            />
+          </Box>
         </Tooltip>
 
         <Chip

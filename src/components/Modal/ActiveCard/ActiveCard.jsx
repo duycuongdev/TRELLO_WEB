@@ -64,6 +64,7 @@ import {
 } from '~/apis'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { CARD_MEMBER_ACTION } from '~/utils/constants'
+import { fetchInvitationsAPI } from '~/redux/notifications/notificationsSlice'
 import { emitBoardUpdate, BOARD_ACTION_TYPES } from '~/sockets/boardSocketClient'
 
 const SidebarItem = styled(Box)(({ theme }) => ({
@@ -484,7 +485,10 @@ function ActiveCard() {
                     <Checkbox
                       size="small"
                       checked={Boolean(activeCard?.isDueDateComplete)}
-                      onChange={(e) => callApiUpdateCard({ isDueDateComplete: e.target.checked })}
+                      onChange={(e) => {
+                        callApiUpdateCard({ isDueDateComplete: e.target.checked })
+                        dispatch(fetchInvitationsAPI())
+                      }}
                       sx={{ p: 0 }}
                     />
                     <Button

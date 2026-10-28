@@ -102,6 +102,7 @@ function Notifications() {
 
   const handleClickNotificationIcon = (event) => {
     setAnchorEl(event.currentTarget)
+    dispatch(fetchInvitationsAPI())
   }
 
   const handleClose = () => {
@@ -181,7 +182,12 @@ function Notifications() {
     }
     socketIoInstance.on('connect', onConnect)
 
+    const timer = setInterval(() => {
+      dispatch(fetchInvitationsAPI())
+    }, 60000)
+
     return () => {
+      clearInterval(timer)
       socketIoInstance.off('BE_USER_INVITED_TO_BOARD', onReceiveInvitation)
       socketIoInstance.off('connect', onConnect)
     }
