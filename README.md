@@ -5,7 +5,8 @@
 [![Material UI](https://img.shields.io/badge/MUI-v5-007FFF?logo=mui&logoColor=white)](https://mui.com/)
 [![Redux Toolkit](https://img.shields.io/badge/Redux%20Toolkit-2.0-764ABC?logo=redux&logoColor=white)](https://redux-toolkit.js.org/)
 [![Socket.IO](https://img.shields.io/badge/Socket.io-4.x-010101?logo=socket.io&logoColor=white)](https://socket.io/)
-[![Security Grade A](https://img.shields.io/badge/Security%20Headers-Grade%20A-success?logo=snyk&logoColor=white)](https://securityheaders.com/?q=https%3A%2F%2Ftrello-web-tawny.vercel.app%2F&followRedirects=on)
+[![Cloudinary](https://img.shields.io/badge/Cloudinary-Media%20Storage-3448C5?logo=cloudinary&logoColor=white)](https://cloudinary.com/)
+[![Brevo](https://img.shields.io/badge/Brevo-Transactional%20Email-0092FF?logo=sendinblue&logoColor=white)](https://www.brevo.com/)
 [![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel&logoColor=white)](https://trello-web-tawny.vercel.app)
 
 > Một ứng dụng quản lý công việc và dự án theo phương pháp **Kanban**, lấy cảm hứng từ Trello, được xây dựng với kiến trúc **Full-stack MERN** hiện đại, mượt mà và tối ưu hóa trải nghiệm người dùng với tính năng cộng tác thời gian thực (**Real-time Collaboration**).
@@ -22,127 +23,136 @@
 
 ## ✨ Tính Năng Nổi Bật (Key Features)
 
-- ⚡ **Kanban Board Kéo Thả Mượt Mà (`@dnd-kit`)**: Kéo thả thẻ (Cards) và danh sách (Columns) linh hoạt, hỗ trợ tự động tính toán vị trí và cập nhật trạng thái tức thì.
+- ⚡ **Kanban Board Kéo Thả Trực Quan (`@dnd-kit`)**: Kéo thả thẻ (Cards) và danh sách (Columns) mượt mà, tự động tính toán vị trí và lưu trữ tức thì.
 - 🔄 **Cộng Tác Thời Gian Thực (Socket.IO)**: Đồng bộ mọi thay đổi (thêm, sửa, di chuyển thẻ, cập nhật thành viên) giữa tất cả người dùng trong board ngay lập tức mà không cần tải lại trang.
-- ⏰ **Quản Lý Hạn Chót & Nhắc Hẹn Tự Động (Due Date & Reminder)**: Thiết lập deadline cho thẻ kèm thời gian nhắc nhở linh hoạt (10 phút, 1 giờ, 1 ngày...). Tự động gắn nhãn cảnh báo **"DUE SOON"** và **"OVERDUE"**.
-- 🔔 **Trung Tâm Thông Báo Đa Năng (Notification Center)**: Tích hợp thông báo lời mời tham gia bảng và nhắc nhở công việc sắp hết hạn/quá hạn; hỗ trợ *Đánh dấu tất cả đã đọc*, *Xóa tất cả* hoặc loại bỏ từng thông báo riêng lẻ.
-- 📝 **Không Gian Chi Tiết Thẻ Đầy Đủ (Card Modal Workspace)**:
-  - Soạn thảo mô tả bằng **Markdown Editor**.
+- ⏰ **Hạn Chót & Nhắc Hẹn Thông Minh (Due Date & Alerts)**: Thiết lập deadline cho thẻ kèm thời gian nhắc nhở linh hoạt (10 phút, 1 giờ, 1 ngày...). Tự động gắn nhãn cảnh báo **"DUE SOON"** và **"OVERDUE"**.
+- 🔔 **Trung Tâm Thông Báo (Notification Center)**: Tích hợp thông báo lời mời tham gia bảng và nhắc nhở công việc sắp hết hạn/quá hạn; hỗ trợ *Đánh dấu tất cả đã đọc*, *Xóa tất cả* hoặc loại bỏ từng thông báo.
+- 📝 **Chi Tiết Thẻ Công Việc Toàn Diện (Card Workspace)**:
+  - Soạn thảo mô tả trực quan bằng **Markdown Editor**.
   - Quản lý danh sách công việc con (**Checklist**) với thanh tiến độ % sinh động.
   - Tải lên hình ảnh / tệp đính kèm và đặt làm ảnh bìa thẻ (**Cloudinary**).
   - Hệ thống nhãn màu (**Labels**) đa dạng (Urgent, Bug, Feature, Enhancement, Documentation...).
-  - Tính năng **Sao chép thẻ (Copy Card)** thông minh.
-  - Bình luận và trao đổi trực tiếp trên từng thẻ.
+  - Thao tác nâng cao: Di chuyển thẻ (Move), Nhân bản thẻ (Copy Card), Lưu trữ (Archive) và Xóa (Delete).
+  - Bình luận và tương tác trực tiếp trên từng thẻ.
+- 🎨 **Tùy Biến Giao Diện Linh Hoạt**:
+  - Hỗ trợ đổi hình nền Board phong phú (kho ảnh Unsplash, Gradients, Colors hoặc Upload ảnh cá nhân).
+  - Hỗ trợ chế độ **Dark / Light Mode**.
+  - Phân trang tập trung cho danh sách bảng công việc (Pagination).
 - 🛡️ **Bảo Mật Cao Cấp & Cơ Chế Dual-Auth**:
   - Xác thực kép linh hoạt kết hợp **HttpOnly Cookie** và **Authorization Bearer Token**, giải quyết triệt để lỗi chặn cookie của trình duyệt di động / Safari (ITP).
-  - Tích hợp đăng nhập nhanh qua **Google OAuth 2.0**.
-  - Cấu hình an toàn bảo mật HTTP Headers đạt **Điểm A (Grade A)** trên *Security Headers*.
-- 🎨 **Giao Diện Hiện Đại & Tương Thích Di Động (Responsive & Theming)**:
-  - Tùy chỉnh chế độ **Dark / Light Mode**.
-  - Đổi hình nền Board theo sở thích (kho ảnh chất lượng cao).
-  - Phân trang tập trung cho danh sách bảng công việc (Pagination).
-  - Tương thích tốt trên máy tính để bàn, máy tính bảng và điện thoại thông minh.
+  - Đăng nhập 1 chạm an toàn qua **Google OAuth 2.0**.
+  - Cấu hình an toàn bảo mật HTTP Headers đạt chuẩn cao.
 
 ---
 
-## 📸 Hướng Dẫn Sử Dụng Chi Tiết & Hình Ảnh Minh Họa
+## 📸 Hướng Dẫn Sử Dụng Chi Tiết & Bộ Sưu Tập Giao Diện
 
-### 0. Trang Giới Thiệu (Landing Page)
-Trang đích hiện đại, trực quan giới thiệu các giá trị cốt lõi của ứng dụng cùng các lối tắt trải nghiệm nhanh.
+### 1. Trang Giới Thiệu (Landing Page)
+Trang đích hiện đại, trực quan giới thiệu các giá trị cốt lõi của nền tảng cùng các nút điều hướng nhanh đến đăng ký và đăng nhập.
 
-![Landing Page](./screenshots/00-landing-page.png)
-
----
-
-### 1. Không Gian Bảng Làm Việc (Kanban Board)
-Giao diện làm việc chính trực quan, hiển thị các cột trạng thái cùng các thẻ công việc. Người dùng có thể kéo thả thẻ giữa các cột hoặc di chuyển vị trí cột một cách tự nhiên.
-
-![Kanban Board](./screenshots/01-kanban-board.png)
-
-- **Bộ lọc thẻ thông minh (Filter Cards)**: Tìm kiếm thẻ theo từ khóa, lọc theo thành viên được giao việc, hoặc lọc theo nhãn màu (Urgent, Enhancement, Bug...).
-- **Đổi ảnh nền (Background)**: Tùy biến hình nền không gian làm việc giúp tăng cảm hứng và phân biệt các dự án khác nhau.
+![Landing Page](./screenshots/01-landing-page.png)
 
 ---
 
-### 2. Cộng Tác Thời Gian Thực Đa Người Dùng (Real-time Collaboration)
-Mọi thao tác di chuyển thẻ, kéo thả cột, đổi tiến độ hay thêm bình luận đều được phát sóng tức thì đến tất cả thành viên đang mở bảng thông qua **Socket.IO**.
+### 2. Đăng Ký Tài Khoản & Đăng Nhập Google (Sign Up & Authentication)
+Giao diện đăng ký tài khoản với tính năng xác thực email kích hoạt qua **Brevo**, tích hợp đăng nhập nhanh 1 chạm bằng **Google OAuth 2.0**.
 
-![Real-time Collaboration](./screenshots/02-realtime-sync.png)
-
-- Đèn báo trạng thái số lượng thành viên đang trực tuyến (**Live Indicator**).
-- Tránh xung đột dữ liệu và tăng tốc độ làm việc nhóm.
+![Sign Up](./screenshots/02-auth-signup.png)
 
 ---
 
-### 3. Chi Tiết Thẻ Công Việc & Thanh Tiến Độ (Card Workspace & Checklist)
-Bấm vào bất kỳ thẻ nào để mở giao diện quản lý chi tiết với đầy đủ công cụ phục vụ công việc.
+### 3. Không Gian Quản Lý Dự Án (Boards Dashboard)
+Màn hình tổng hợp toàn bộ các bảng dự án cá nhân và nhóm mà bạn tham gia với màu sắc/ảnh đại diện riêng biệt, hỗ trợ tìm kiếm và phân trang căn giữa tiện lợi.
 
-![Card Details](./screenshots/03-card-details.png)
-
-- **Checklist**: Liệt kê các đầu việc con cần hoàn thành; thanh tiến độ % tự động cập nhật theo thời gian thực (0% - 100%) và chuyển sang màu xanh lá cây khi hoàn tất.
-- **Hạn chót & Nhắc nhở (Due Date & Reminder)**: Chọn ngày giờ kết thúc công việc và mốc thời gian hệ thống nhắc nhở bạn trước khi hết hạn.
-- **Nhãn phân loại (Labels)**: Gắn màu sắc tương ứng với mức độ ưu tiên hoặc loại công việc.
-- **Thảo luận (Activity)**: Viết bình luận, phản hồi và theo dõi lịch sử hoạt động của thẻ.
+![Boards Dashboard](./screenshots/03-boards-dashboard.png)
 
 ---
 
-### 4. Bảng Điều Khiển & Danh Sách Dự Án (Boards Dashboard)
-Màn hình tổng hợp toàn bộ các bảng dự án cá nhân và nhóm mà bạn tham gia.
+### 4. Quản Lý Bảng Đã Đóng (Closed Boards Lifecycle)
+Khi một dự án đã hoàn tất, người dùng có thể đóng bảng để giữ không gian làm việc gọn gàng. Trang Closed Boards cho phép **Reopen** (Khôi phục) hoặc **Delete** (Xóa vĩnh viễn) an toàn.
 
-![Boards Dashboard](./screenshots/04-boards-dashboard.png)
-
-- Hỗ trợ tạo mới bảng dự án với tên gọi và màu sắc/hình nền đại diện riêng.
-- Thanh điều hướng bên trái phân loại rõ: *Boards đang hoạt động*, *Closed boards (Đã đóng)* và *Tạo bảng mới*.
-- Hệ thống phân trang căn giữa (Pagination) thuận tiện khi số lượng bảng tăng lên.
+![Closed Boards](./screenshots/04-closed-boards.png)
 
 ---
 
-### 5. Trung Tâm Thông Báo Thông Minh (Notification Center)
-Biểu tượng quả chuông trên thanh AppBar giúp bạn không bỏ lỡ bất kỳ sự kiện quan trọng nào.
+### 5. Cài Đặt Hồ Sơ Cá Nhân (Account Settings)
+Trang quản lý thông tin tài khoản cho phép người dùng cập nhật ảnh đại diện (Avatar), xem email và thay đổi tên hiển thị (Display Name).
 
-![Notification Center](./screenshots/05-notification-center.png)
-
-- **Lời mời tham gia bảng (Board Invitations)**: Nhận lời mời từ đồng nghiệp kèm 2 nút **Accept** hoặc **Reject** trực tiếp.
-- **Nhắc nhở hạn chót (Deadline Alerts)**: Cảnh báo thẻ sắp đến hạn hoặc đã quá hạn; nhấn trực tiếp vào thông báo sẽ tự động chuyển đến bảng và mở đúng thẻ cần xử lý.
-- **Thao tác nhanh**:
-  - Đánh dấu tất cả đã đọc (**Mark all as read**).
-  - Xóa toàn bộ danh sách thông báo (**Clear all**).
-  - Loại bỏ từng thông báo một với biểu tượng nút `x`.
+![Account Settings](./screenshots/05-account-settings.png)
 
 ---
 
-### 6. Sao Chép Thẻ & Quản Lý Tệp Đính Kèm (Advanced Actions)
-Tối ưu hóa năng suất với các tính năng chuyên nghiệp:
+### 6. Bảng Điều Khiển Bảo Mật (Security Dashboard)
+Cung cấp khu vực đổi mật khẩu tài khoản an toàn, yêu cầu xác nhận mật khẩu hiện tại trước khi thiết lập mật khẩu mới.
 
-![Card Actions](./screenshots/06-card-features.png)
-
-- **Sao chép thẻ (Copy Card)**: Nhân bản nhanh một thẻ sang cột khác hoặc bảng khác, tùy chọn giữ lại Checklists, Labels, Attachments, Due Date, Members hoặc Cover Image.
-- **Tệp đính kèm (Attachments)**: Tải lên hình ảnh/tài liệu, xem trước hình ảnh sắc nét, chọn ảnh làm cover đại diện hiển thị ngoài bảng Kanban.
+![Security Dashboard](./screenshots/06-security-dashboard.png)
 
 ---
 
-### 7. Quản Lý Vòng Đời Dự Án (Closed Boards)
-Khi một dự án đã hoàn thành, bạn có thể đóng bảng để giữ không gian làm việc luôn gọn gàng.
+### 7. Menu Người Dùng & Lối Tắt Nhanh (User Profile Menu)
+Menu góc phải thanh điều hướng giúp truy cập nhanh vào Hồ sơ (Profile), Hướng dẫn trải nghiệm (Product Tour), Danh sách phím tắt (Shortcuts), Cài đặt (Settings) và Đăng xuất (Logout).
 
-![Closed Boards](./screenshots/07-closed-boards.png)
-
-- Xem danh sách toàn bộ các bảng đã đóng.
-- Tùy chọn **Reopen** (Khôi phục lại hoạt động) hoặc **Delete** (Xóa vĩnh viễn bảng khỏi hệ thống).
+![User Menu](./screenshots/07-user-menu.png)
 
 ---
 
-### 8. Đăng Ký, Đăng Nhập & Bảo Mật Đạt Chuẩn A
+### 8. Không Gian Bảng Làm Việc (Kanban Board)
+Giao diện làm việc chính hiển thị các cột trạng thái cùng các thẻ công việc. Hỗ trợ kéo thả mượt mà với `@dnd-kit`, hiển thị số lượng thành viên đang trực tuyến theo thời gian thực (**1 live**).
 
-![Sign Up](./screenshots/08-auth-signup.png)
+![Kanban Board](./screenshots/08-kanban-board.png)
 
-![Mobile Login](./screenshots/09-mobile-login.png)
+---
 
-![Security Grade A](./screenshots/10-security-a-grade.png)
+### 9. Chi Tiết Thẻ & Cảnh Báo Quá Hạn (Card Overview & Overdue Alert)
+Nhấp vào bất kỳ thẻ nào để mở modal chi tiết: hiển thị ảnh bìa nổi bật, nhãn phân loại (**Urgent**), hạn chót với huy hiệu cảnh báo đỏ **OVERDUE** khi quá hạn, và khung soạn thảo mô tả Markdown.
 
-- **Quy trình đăng ký chuẩn xác**: Gửi email xác thực tài khoản qua **Brevo** trước khi kích hoạt.
-- **Đăng nhập Google**: Tích hợp nút **Sign in with Google** chính thống, hỗ trợ đăng nhập 1 chạm an toàn.
-- **Dual-Auth Security**: Bảo mật chống tấn công XSS/CSRF với HttpOnly Cookies, kết hợp Bearer Token giúp người dùng trên Safari/iOS không bao giờ bị gián đoạn phiên làm việc.
-- **Điểm A Bảo Mật**: Kiểm tra trên **Security Headers** xác nhận cấu hình bảo vệ đầy đủ các chính sách bảo mật HTTP.
+![Card Modal Overview](./screenshots/09-card-modal-overview.png)
+
+---
+
+### 10. Quản Lý Tệp Đính Kèm, Tiến Độ Checklist & Bình Luận (Card Details)
+Khu vực nội dung chi tiết phía dưới của thẻ:
+- **Tệp đính kèm (Attachments)**: Xem trước hình ảnh, tải về hoặc đặt làm ảnh bìa thẻ.
+- **Danh sách việc cần làm (Checklist)**: Tích chọn hoàn thành đầu việc, thanh tiến độ % tự động cập nhật trực quan.
+- **Bình luận & Thảo luận (Activity)**: Trao đổi theo thời gian thực cùng đồng đội.
+- **Hành động nâng cao**: Xóa thẻ (Delete), Di chuyển (Move), Sao chép (Copy) hoặc Lưu trữ (Archive).
+
+![Card Modal Activities](./screenshots/10-card-modal-activities.png)
+
+---
+
+### 11. Bộ Lọc Thẻ Thông Minh (Filter Cards)
+Hỗ trợ tìm kiếm thẻ theo từ khóa nội dung, lọc thẻ được giao cho bản thân (**Cards assigned to me**) hoặc lọc theo màu nhãn (Urgent, Normal...).
+
+![Filter Cards](./screenshots/11-filter-cards.png)
+
+---
+
+### 12. Tùy Biến Hình Nền Bảng (Change Background)
+Cá nhân hóa không gian làm việc với kho ảnh thiên nhiên chất lượng cao từ **Unsplash**, dải màu chuyển sắc (**Gradients**), bảng màu phẳng (**Colors**) hoặc tải ảnh lên từ máy tính.
+
+![Change Background](./screenshots/12-change-background.png)
+
+---
+
+### 13. Ngăn Kéo Lưu Trữ (Archived Items Panel)
+Quản lý các danh sách cột và thẻ đã lưu trữ. Cho phép khôi phục lại bảng (**Send to board**) hoặc xóa vĩnh viễn (**Delete**) để giải phóng tài nguyên.
+
+![Archived Items](./screenshots/13-archived-items.png)
+
+---
+
+### 14. Mời Thành Viên Tham Gia Bảng (Invite User to Board)
+Dễ dàng thêm đồng đội vào dự án bằng cách nhập email. Hệ thống sẽ tự động gửi thông báo thời gian thực đến người được mời.
+
+![Invite User](./screenshots/14-invite-user.png)
+
+---
+
+### 15. Trung Tâm Thông Báo (Notification Center)
+Biểu tượng quả chuông trên thanh AppBar giúp theo dõi mọi lời mời và hạn chót công việc. Trạng thái thân thiện khi bạn đã xử lý hết mọi thông báo: *"You're all caught up!"*.
+
+![Notifications](./screenshots/15-notifications.png)
 
 ---
 
@@ -261,7 +271,7 @@ API Server sẽ hoạt động tại địa chỉ: `http://localhost:8017`
 trello/
 ├── trello-web/                   # Ứng dụng Frontend (React + Vite)
 │   ├── public/                   # Tài nguyên tĩnh (Favicon, Robots.txt, Sitemap)
-│   ├── screenshots/              # Ảnh chụp giao diện minh họa cho tài liệu
+│   ├── screenshots/              # Toàn bộ 15 ảnh chụp màn hình minh họa
 │   └── src/
 │       ├── apis/                 # API client calls (Axios endpoints)
 │       ├── assets/               # Hình ảnh, icons, vectors
@@ -323,4 +333,3 @@ trello/
 ## 📄 Bản Quyền (License)
 
 Dự án này được phát triển phục vụ mục đích học tập, nghiên cứu và xây dựng sản phẩm chất lượng cao. Giữ toàn quyền tác giả bởi Nguyễn Duy Cường.
-
