@@ -17,7 +17,6 @@ import DoneIcon from '@mui/icons-material/Done'
 import NotInterestedIcon from '@mui/icons-material/NotInterested'
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm'
 import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined'
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import DoneAllIcon from '@mui/icons-material/DoneAll'
 import DeleteSweepOutlinedIcon from '@mui/icons-material/DeleteSweepOutlined'
 import CloseIcon from '@mui/icons-material/Close'
@@ -369,12 +368,6 @@ function Notifications() {
                                 <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: isOverdue ? 'error.main' : 'warning.main' }} />
                               )}
                             </Box>
-                            <Chip
-                              label={isOverdue ? 'OVERDUE' : 'DUE SOON'}
-                              color={isOverdue ? 'error' : 'warning'}
-                              size="small"
-                              sx={{ height: 18, fontSize: '0.62rem', fontWeight: 800 }}
-                            />
                           </Box>
 
                           <Typography variant="body2" sx={{ wordBreak: 'break-word', lineHeight: 1.35, color: 'text.primary', fontSize: '0.84rem' }}>
@@ -384,9 +377,6 @@ function Notifications() {
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pt: 0.3 }}>
                             <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '11px' }}>
                               Due: {dayjs(notification.dueDate).format('ddd, MMM D [at] h:mm A')}
-                            </Typography>
-                            <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 600, fontSize: '11px', display: 'flex', alignItems: 'center', gap: 0.3 }}>
-                              View card <ArrowForwardIosIcon sx={{ fontSize: 9 }} />
                             </Typography>
                           </Box>
                         </Box>

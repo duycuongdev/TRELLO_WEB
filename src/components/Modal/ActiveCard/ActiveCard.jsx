@@ -318,6 +318,28 @@ function ActiveCard() {
     )
   }
 
+  // Upload tệp đính kèm cho checklist item và đồng bộ vào Card attachments
+  const handleUploadChecklistAttachment = async (file) => {
+    if (!file) return null
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File size exceeds 10MB limit!')
+      return null
+    }
+    const formData = new FormData()
+    formData.append('attachment', file)
+
+    try {
+      const uploadResult = await addCardAttachmentAPI(activeCard._id, formData, true)
+      toast.success(`Attached file: ${file.name}`)
+      return uploadResult || { fileUrl: '', fileName: file.name }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Failed to upload attachment!')
+      return null
+    }
+  }
+
+
+
   // Xóa tệp đính kèm
   const handleDeleteAttachment = (attachmentId) => {
     deleteCardAttachmentAPI(activeCard._id, attachmentId).then(updatedCard => {
@@ -555,6 +577,7 @@ function ActiveCard() {
             <CardChecklistSection
               checklists={activeCard?.checklists || []}
               onUpdateCardChecklists={handleUpdateCardChecklists}
+              onUploadAttachment={handleUploadChecklistAttachment}
             />
 
             <Box sx={{ mb: 3 }}>
@@ -598,7 +621,7 @@ function ActiveCard() {
               {/* Feature 10: Nút Upload tệp đính kèm */}
               <SidebarItem className="active" component="label">
                 <AttachFileOutlinedIcon fontSize="small" sx={{ color: '#0d9488' }} />
-                Attachment
+                General Attachment
                 <VisuallyHiddenInput type="file" onChange={onUploadCardAttachment} />
               </SidebarItem>
 

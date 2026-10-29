@@ -105,8 +105,11 @@ export const deleteCardCommentAPI = async (cardId, commentId) => {
   return response.data
 }
 
-export const addCardAttachmentAPI = async (cardId, formData) => {
-  const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/cards/${cardId}/attachments`, formData)
+export const addCardAttachmentAPI = async (cardId, formData, isChecklistOnly = false) => {
+  const url = isChecklistOnly
+    ? `${API_ROOT}/v1/cards/${cardId}/attachments?isChecklistOnly=true`
+    : `${API_ROOT}/v1/cards/${cardId}/attachments`
+  const response = await authorizedAxiosInstance.post(url, formData)
   return response.data
 }
 

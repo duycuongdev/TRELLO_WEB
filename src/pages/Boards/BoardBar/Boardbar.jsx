@@ -7,9 +7,10 @@ import FilterIcon from '@mui/icons-material/FilterList'
 import WallpaperOutlinedIcon from '@mui/icons-material/WallpaperOutlined'
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined'
 import FolderOffOutlinedIcon from '@mui/icons-material/FolderOffOutlined'
+import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 import Tooltip from '@mui/material/Tooltip'
 import { selectCardFilter, setCardFilter, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
-import { updateBoardDetailsAPI, closeBoardAPI } from '~/apis'
+import { updateBoardDetailsAPI, closeBoardAPI, removeBoardMemberAPI } from '~/apis'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { toast } from 'react-toastify'
 import { useConfirm } from 'material-ui-confirm'
@@ -19,7 +20,6 @@ import InviteBoardUser from './InviteBoardUser'
 import BoardCardFilterPopover from './BoardCardFilterPopover'
 import ChangeBoardBackgroundPopover from './ChangeBoardBackgroundPopover'
 import ArchivedItemsDrawer from './ArchivedItemsDrawer'
-import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
 import { emitBoardUpdate, BOARD_ACTION_TYPES } from '~/sockets/boardSocketClient'
 
 const MENU_STYLES = {
@@ -42,6 +42,7 @@ function BoardBar({ board, onlineUsers = [] }) {
   const navigate = useNavigate()
   const currentUser = useSelector(selectCurrentUser)
   const isOwner = (board?.ownerIds || []).some(id => id.toString() === currentUser?._id?.toString())
+  const isInvitedMember = Boolean(currentUser?._id) && !isOwner
 
   const [filterAnchorEl, setFilterAnchorEl] = useState(null)
   const isFilterOpen = Boolean(filterAnchorEl)
@@ -49,6 +50,13 @@ function BoardBar({ board, onlineUsers = [] }) {
   const [bgAnchorEl, setBgAnchorEl] = useState(null)
   const isBgOpen = Boolean(bgAnchorEl)
   const [isArchivedOpen, setIsArchivedOpen] = useState(false)
+
+  const [isEditingTitle, setIsEditingTitle] = useState(false)
+  const [titleValue, setTitleValue] = useState(board?.title || '')
+
+  useEffect(() => {
+    setTitleValue(board?.title || '')
+  }, [board?.title])
 
   const handleCloseBoard = () => {
     confirm({
@@ -63,6 +71,29 @@ function BoardBar({ board, onlineUsers = [] }) {
         navigate('/boards')
       } catch (error) {
         toast.error(error?.response?.data?.message || 'Failed to close board')
+      }
+    }).catch(() => {})
+  }
+
+  const handleLeaveBoard = () => {
+    confirm({
+      title: 'Leave Board?',
+      description: `Are you sure you want to leave "${board?.title}"? You will lose access to this board unless invited again.`,
+      confirmationText: 'Leave',
+      cancellationText: 'Cancel'
+    }).then(async () => {
+      try {
+        await removeBoardMemberAPI(board._id, currentUser._id)
+        emitBoardUpdate({
+          boardId: board._id,
+          actionType: BOARD_ACTION_TYPES.UPDATE_BOARD,
+          payload: { removedMemberId: currentUser._id },
+          currentUser
+        })
+        toast.success(`You have left board "${board?.title}"!`)
+        navigate('/boards')
+      } catch (error) {
+        toast.error(error?.response?.data?.message || 'Failed to leave board')
       }
     }).catch(() => {})
   }
@@ -186,44 +217,80 @@ function BoardBar({ board, onlineUsers = [] }) {
         alignItems: 'center',
         gap: 2
       }}>
-        <Tooltip title="Click to edit board title">
-          <Box sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 0.5,
-            px: 1,
-            py: 0.25,
-            borderRadius: '4px',
-            bgcolor: 'transparent',
-            '&:hover': {
-              bgcolor: 'rgba(255, 255, 255, 0.15)'
-            }
-          }}>
-            <DashboardIcon sx={{ color: 'white', fontSize: 20 }} />
-            <ToggleFocusInput
-              value={board?.title}
-              onChangedValue={handleUpdateBoardTitle}
-              inputFontSize="17px"
+        {!isEditingTitle ? (
+          <Tooltip title="Click to edit board title">
+            <Chip
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'transparent',
-                  '& fieldset': { borderColor: 'transparent' },
-                  '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                  '&.Mui-focused fieldset': { borderColor: 'white' }
-                },
-                '& .MuiOutlinedInput-input': {
-                  color: 'white',
-                  fontWeight: 700,
-                  padding: '2px 6px',
-                  cursor: 'pointer',
-                  '&:focus': {
-                    cursor: 'text'
-                  }
+                ...MENU_STYLES,
+                fontWeight: 700,
+                fontSize: '14px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  bgcolor: 'rgba(255, 255, 255, 0.25)'
                 }
+              }}
+              icon={<DashboardIcon sx={{ color: 'white !important', fontSize: '18px' }} />}
+              label={board?.title || 'Untitled Board'}
+              clickable
+              onClick={() => {
+                setTitleValue(board?.title || '')
+                setIsEditingTitle(true)
+              }}
+            />
+          </Tooltip>
+        ) : (
+          <Box
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 0.75,
+              height: 32,
+              px: 1,
+              borderRadius: '4px',
+              bgcolor: (theme) => theme.palette.mode === 'dark' ? '#22272b' : '#ffffff',
+              boxShadow: '0 0 0 2px #0052cc'
+            }}
+          >
+            <DashboardIcon sx={{ color: (theme) => theme.palette.mode === 'dark' ? '#9fadbc' : '#0052cc', fontSize: 18 }} />
+            <Box
+              component="input"
+              autoFocus
+              value={titleValue}
+              onChange={(e) => setTitleValue(e.target.value)}
+              onFocus={(e) => e.target.select()}
+              onBlur={() => {
+                setIsEditingTitle(false)
+                if (titleValue.trim() && titleValue.trim() !== board?.title) {
+                  handleUpdateBoardTitle(titleValue)
+                } else {
+                  setTitleValue(board?.title || '')
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.target.blur()
+                } else if (e.key === 'Escape') {
+                  setTitleValue(board?.title || '')
+                  setIsEditingTitle(false)
+                }
+              }}
+              sx={{
+                border: 'none',
+                outline: 'none',
+                bgcolor: 'transparent',
+                color: (theme) => theme.palette.mode === 'dark' ? '#b6c2cf' : '#172b4d',
+                fontSize: '14px',
+                fontWeight: 700,
+                fontFamily: 'inherit',
+                p: 0,
+                m: 0,
+                width: `${Math.max((titleValue || '').length * 8.5 + 20, 80)}px`,
+                maxWidth: '320px'
               }}
             />
           </Box>
-        </Tooltip>
+        )}
 
         <Chip
           sx={{
@@ -300,6 +367,22 @@ function BoardBar({ board, onlineUsers = [] }) {
             label='Close board'
             clickable
             onClick={handleCloseBoard}
+          />
+        )}
+
+        {/* Nút Rời Bảng (Dành cho Thành viên được mời) */}
+        {isInvitedMember && (
+          <Chip
+            sx={{
+              ...MENU_STYLES,
+              '&:hover': {
+                bgcolor: 'error.main'
+              }
+            }}
+            icon={<ExitToAppIcon />}
+            label='Leave board'
+            clickable
+            onClick={handleLeaveBoard}
           />
         )}
       </Box>

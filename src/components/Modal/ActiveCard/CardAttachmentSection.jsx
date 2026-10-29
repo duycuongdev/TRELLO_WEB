@@ -27,7 +27,7 @@ function CardAttachmentSection({ attachments = [], cardCover, onDeleteAttachment
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
         <AttachFileOutlinedIcon sx={{ color: '#0d9488' }} />
         <Typography variant="span" sx={{ fontWeight: '600', fontSize: '20px' }}>
-          Attachments
+          General Attachments
         </Typography>
       </Box>
 
