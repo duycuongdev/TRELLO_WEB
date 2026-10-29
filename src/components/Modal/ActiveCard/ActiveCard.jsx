@@ -405,6 +405,13 @@ function ActiveCard() {
   const onUpdateCardMembers = async (incomingMemberInfor) => {
     await callApiUpdateCard({ incomingMemberInfor })
     dispatch(fetchInvitationsAPI())
+    if (incomingMemberInfor?.userId === currentUser._id) {
+      if (incomingMemberInfor.action === CARD_MEMBER_ACTION.ADD) {
+        toast.success('Joined card successfully!')
+      } else {
+        toast.info('Left card successfully!')
+      }
+    }
   }
 
   return (
@@ -619,7 +626,7 @@ function ActiveCard() {
           <Grid xs={12} sm={3}>
             <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Add To Card</Typography>
             <Stack direction="column" spacing={1}>
-              {/* Feature 05: Xử lý hành động bản thân user tự join vào card */}
+              {/* Feature 05: Xử lý hành động bản thân user tự join / leave khỏi card */}
               {!activeCard?.memberIds?.includes(currentUser._id) ? (
                 <SidebarItem
                   className="active"
@@ -627,20 +634,6 @@ function ActiveCard() {
                 >
                   <PersonOutlineOutlinedIcon fontSize="small" sx={{ color: '#16a34a' }} />
                   Join
-                </SidebarItem>
-              ) : (
-                <SidebarItem
-                  className="active"
-                  onClick={() => onUpdateCardMembers({ userId: currentUser._id, action: CARD_MEMBER_ACTION.REMOVE })}
-                  sx={{
-                    '&:hover': {
-                      color: 'error.main',
-                      '& .MuiSvgIcon-root': { color: 'error.main' }
-                    }
-                  }}
-                >
-                  <ExitToAppIcon fontSize="small" sx={{ color: '#ef4444' }} />
-                  Leave
                 </SidebarItem>
               ) : (
                 <SidebarItem

@@ -91,7 +91,12 @@ function Notifications() {
 
   // Lọc các thông báo chưa bị xóa
   const activeNotifications = useMemo(() => {
-    return (rawNotifications || []).filter(n => !dismissedIds.includes(n._id))
+    const list = (rawNotifications || []).filter(n => !dismissedIds.includes(n._id))
+    return [...list].sort((a, b) => {
+      const timeA = new Date(a.createdAt || a.dueDate || 0).getTime()
+      const timeB = new Date(b.createdAt || b.dueDate || 0).getTime()
+      return timeB - timeA
+    })
   }, [rawNotifications, dismissedIds])
 
   // Đếm số lượng thông báo chưa đọc

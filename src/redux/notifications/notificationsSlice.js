@@ -57,10 +57,17 @@ export const notificationsSlice = createSlice({
     builder.addCase(fetchInvitationsAPI.fulfilled, (state, action) => {
       let incomingInvitations = action.payload
 
-      // Đoạn này đảo ngược lại mảng invitations nhận được, đơn giản là để hiển thị cái mới nhất lên đầu
-      state.currentNotifications = Array.isArray(incomingInvitations)
-        ? incomingInvitations.reverse()
-        : []
+      // Sắp xếp thông báo mới nhất lên đầu tiên (thời gian giảm dần)
+      if (Array.isArray(incomingInvitations)) {
+        incomingInvitations.sort((a, b) => {
+          const timeA = new Date(a.createdAt || a.dueDate || 0).getTime()
+          const timeB = new Date(b.createdAt || b.dueDate || 0).getTime()
+          return timeB - timeA
+        })
+      }
+      state.currentNotifications = Array.isArray(incomingInvitations) ? incomingInvitations : []
+
+
     })
 
     builder.addCase(updateBoardInvitationAPI.fulfilled, (state, action) => {
