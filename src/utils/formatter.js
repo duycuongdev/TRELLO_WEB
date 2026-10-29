@@ -1,4 +1,19 @@
 // capitalize the first letter
+// Simple method to Convert a String to Slug (hỗ trợ đầy đủ tiếng Việt có dấu và đ/Đ)
+export const slugify = (val) => {
+  if (!val) return ''
+  return String(val)
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'd')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9 -]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+}
+
 export const capitalizeFirstLetter = (val) => {
   if (!val) return ''
   return `${val.charAt(0).toUpperCase()}${val.slice(1)}`

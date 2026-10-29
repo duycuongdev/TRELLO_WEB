@@ -30,7 +30,8 @@ import {
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { cloneDeep } from 'lodash'
-import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
+import { useParams, useNavigate, Link, useSearchParams, useLocation } from 'react-router-dom'
+import { slugify } from '~/utils/formatter'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 import ActiveCard from '~/components/Modal/ActiveCard/ActiveCard'
 import { useConfirm } from 'material-ui-confirm'
@@ -59,7 +60,8 @@ function Board() {
 
   const [onlineUsers, setOnlineUsers] = useState([])
 
-  const { boardId } = useParams()
+  const { boardId, slug } = useParams()
+  const location = useLocation()
 
   // Dùng ref để giữ giá trị mới nhất mà không gây re-subscribe socket listener
   const boardRef = useRef(board)
@@ -76,25 +78,42 @@ function Board() {
     dispatch(fetchBoardDetailsAPI(boardId))
   }, [dispatch, boardId])
 
+  // Đồng bộ Slug trên URL: nếu URL chưa có slug hoặc slug bị lệch so với slug chuẩn của board
+  useEffect(() => {
+    if (board?._id && board._id === boardId) {
+      const currentSlug = board.slug || slugify(board.title)
+      if (currentSlug && slug !== currentSlug) {
+        navigate(`/boards/${boardId}/${currentSlug}${location.search}`, { replace: true })
+      }
+    }
+  }, [board?._id, board?.slug, board?.title, boardId, slug, location.search, navigate])
+
   const [searchParams, setSearchParams] = useSearchParams()
   const targetCardId = searchParams.get('cardId')
 
   // Tự động mở modal chi tiết thẻ khi có param cardId từ thông báo Deadline
   useEffect(() => {
-    if (board && targetCardId) {
+    if (board && targetCardId && activeCard?._id !== targetCardId) {
       for (const column of (board.columns || [])) {
         const foundCard = (column.cards || []).find(c => c._id === targetCardId)
         if (foundCard) {
           dispatch(updateCurrentActiveCard(foundCard))
           dispatch(showModalActiveCard())
-          const newParams = new URLSearchParams(searchParams)
-          newParams.delete('cardId')
-          setSearchParams(newParams, { replace: true })
+          // Giữ nguyên param cardId trên URL để hỗ trợ chia sẻ link và F5 reload
+
+
           break
         }
       }
     }
-  }, [board, targetCardId, dispatch, searchParams, setSearchParams])
+  }, [board, targetCardId, activeCard?._id, dispatch])
+
+  // Khi URL không còn cardId (ví dụ bấm nút Back của trình duyệt) mà modal đang mở -> đóng modal
+  useEffect(() => {
+    if (!targetCardId && activeCard) {
+      dispatch(clearAndHideCurrentActiveCard())
+    }
+  }, [targetCardId, activeCard, dispatch])
 
   // Lắng nghe và quản lý Socket.io Real-time
   useEffect(() => {
@@ -225,6 +244,11 @@ function Board() {
           dispatch(removeCardFromBoard(payload.cardId))
           if (activeCardRef.current?._id === payload.cardId) {
             dispatch(clearAndHideCurrentActiveCard())
+            setSearchParams(prev => {
+              const next = new URLSearchParams(prev)
+              next.delete('cardId')
+              return next
+            }, { replace: true })
             toast.info('The card you were viewing was removed or archived by a teammate.', { position: 'bottom-right' })
           }
         }

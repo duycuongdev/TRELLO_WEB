@@ -1,4 +1,5 @@
 import { useState, lazy, Suspense } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import CircularProgress from '@mui/material/CircularProgress'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
@@ -93,6 +94,7 @@ function ActiveCard() {
   const activeCard = useSelector(selectCurrentActiveCard)
   const isShowModalActiveCard = useSelector(selectIsShowModalActiveCard)
   const activeBoard = useSelector(selectCurrentActiveBoard)
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const [labelAnchorEl, setLabelAnchorEl] = useState(null)
   const isLabelOpen = Boolean(labelAnchorEl)
@@ -159,6 +161,13 @@ function ActiveCard() {
   }
 
   const handleCloseModal = () => {
+    if (searchParams.has('cardId')) {
+      setSearchParams(prev => {
+        const next = new URLSearchParams(prev)
+        next.delete('cardId')
+        return next
+      }, { replace: true })
+    }
     dispatch(clearAndHideCurrentActiveCard())
   }
 
@@ -171,6 +180,13 @@ function ActiveCard() {
       cancellationText: 'Cancel'
     }).then(() => {
       const cardId = activeCard._id
+      if (searchParams.has('cardId')) {
+        setSearchParams(prev => {
+          const next = new URLSearchParams(prev)
+          next.delete('cardId')
+          return next
+        }, { replace: true })
+      }
       dispatch(clearAndHideCurrentActiveCard())
       dispatch(removeCardFromBoard(cardId))
       emitBoardUpdate({

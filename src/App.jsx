@@ -67,6 +67,7 @@ function App() {
 
         {/* board details route */}
         <Route path='boards/:boardId' element={<Board />} />
+        <Route path='boards/:boardId/:slug' element={<Board />} />
         <Route path='boards/' element={<Boards />} />
 
         {/* User Settings */}

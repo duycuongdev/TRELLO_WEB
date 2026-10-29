@@ -15,9 +15,11 @@ import { CSS } from '@dnd-kit/utilities'
 import { useDispatch } from 'react-redux'
 import dayjs from 'dayjs'
 import { updateCurrentActiveCard, showModalActiveCard } from '~/redux/activeCard/activeCardSlice'
+import { useSearchParams } from 'react-router-dom'
 
 function Card({ card }) {
   const dispatch = useDispatch()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: card._id, data: { ...card } })
 
   const dndKitCardStyles = {
@@ -45,6 +47,11 @@ function Card({ card }) {
   const setActiveCard = (targetCard) => {
     dispatch(updateCurrentActiveCard(targetCard))
     dispatch(showModalActiveCard())
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.set('cardId', targetCard._id)
+      return next
+    })
   }
 
   return (

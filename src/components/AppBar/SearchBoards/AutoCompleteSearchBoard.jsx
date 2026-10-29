@@ -7,6 +7,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import { createSearchParams, useNavigate } from 'react-router-dom'
 import { fetchBoardsAPI } from '~/apis/index'
 import { useDebounceFn } from '~/CustomHooks/useDebounceFn'
+import { slugify } from '~/utils/formatter'
 
 /**
  * Hướng dẫn & ví dụ cái Autocomplele của MUI ở đây:
@@ -78,7 +79,7 @@ function AutoCompleteSearchBoard() {
   const handleSelectedBoard = (event, selectedBoard) => {
     // Phải kiểm tra nếu tồn tại một cái board cụ thể được select thì mới gọi điều hướng - navigate
     if (selectedBoard) {
-      navigate(`/boards/${selectedBoard._id}`)
+      navigate(`/boards/${selectedBoard._id}/${selectedBoard.slug || slugify(selectedBoard.title)}`)
     }
   }
 

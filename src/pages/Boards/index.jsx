@@ -23,6 +23,7 @@ import { fetchBoardsAPI, reopenBoardAPI, deleteBoardDetailsAPI } from '~/apis/in
 import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants.js'
 import { useConfirm } from 'material-ui-confirm'
 import { toast } from 'react-toastify'
+import { slugify } from '~/utils/formatter'
 
 // Styles của các Sidebar item menu theo chuẩn Atlassian Surface
 const SidebarItem = styled(Box)(({ theme }) => ({
@@ -202,7 +203,7 @@ function Boards() {
                 {boards.map(b => (
                   <Card
                     key={b._id}
-                    onClick={() => navigate(`/boards/${b._id}`)}
+                    onClick={() => navigate(`/boards/${b._id}/${b.slug || slugify(b.title)}`)}
                     sx={{
                       cursor: 'pointer',
                       width: '100%',

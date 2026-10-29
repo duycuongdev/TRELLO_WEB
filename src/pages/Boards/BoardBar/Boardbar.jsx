@@ -15,6 +15,7 @@ import { selectCurrentUser } from '~/redux/user/userSlice'
 import { toast } from 'react-toastify'
 import { useConfirm } from 'material-ui-confirm'
 import { useNavigate } from 'react-router-dom'
+import { slugify } from '~/utils/formatter'
 import BoardUserGroup from './BoardUserGroup'
 import InviteBoardUser from './InviteBoardUser'
 import BoardCardFilterPopover from './BoardCardFilterPopover'
@@ -131,12 +132,13 @@ function BoardBar({ board, onlineUsers = [] }) {
     if (!newTitle || newTitle.trim() === board?.title) return
     const updatedTitle = newTitle.trim()
 
-    dispatch(updateCurrentActiveBoard({ ...board, title: updatedTitle }))
+    const newSlug = slugify(updatedTitle)
+    dispatch(updateCurrentActiveBoard({ ...board, title: updatedTitle, slug: newSlug }))
 
     emitBoardUpdate({
       boardId: board._id,
       actionType: BOARD_ACTION_TYPES.UPDATE_BOARD,
-      payload: { title: updatedTitle },
+      payload: { title: updatedTitle, slug: newSlug },
       currentUser
     })
 
