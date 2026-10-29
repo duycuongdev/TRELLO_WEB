@@ -1,4 +1,4 @@
-# 📋 Trello Clone - Nền Tảng Quản Lý Công Việc & Dự Án Thời Gian Thực
+# 📋 Trello Clone - Full-Stack Real-Time Task & Project Management Platform
 
 [![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-5.x-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -9,226 +9,228 @@
 [![Brevo](https://img.shields.io/badge/Brevo-Transactional%20Email-0092FF?logo=sendinblue&logoColor=white)](https://www.brevo.com/)
 [![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel&logoColor=white)](https://trello-web-tawny.vercel.app)
 
-> Một ứng dụng quản lý công việc và dự án theo phương pháp **Kanban**, lấy cảm hứng từ Trello, được xây dựng với kiến trúc **Full-stack MERN** hiện đại, mượt mà và tối ưu hóa trải nghiệm người dùng với tính năng cộng tác thời gian thực (**Real-time Collaboration**).
+> A modern, full-stack **Kanban-style** project and task management application inspired by Trello. Built on the **MERN** stack, featuring a polished user interface, deep URL linking, and instant **Real-Time Collaboration**.
 
 ---
 
-## 🌐 Trải Nghiệm Trực Tuyến (Live Demo)
+## 🌐 Live Demo
 
-- 🚀 **Frontend Web App**: [https://trello-web-tawny.vercel.app](https://trello-web-tawny.vercel.app)
-- ⚙️ **Backend RESTful API**: [https://trello-api-5hh5.onrender.com](https://trello-api-5hh5.onrender.com)
-- 📦 **Tài khoản dùng thử / Test Account**: Bạn có thể tự đăng ký tài khoản mới hoặc đăng nhập trực tiếp bằng **Google Account** chỉ với 1 click!
-
----
-
-## ✨ Tính Năng Nổi Bật (Key Features)
-
-- ⚡ **Kanban Board Kéo Thả Trực Quan (`@dnd-kit`)**: Kéo thả thẻ (Cards) và danh sách (Columns) mượt mà, tự động tính toán vị trí và lưu trữ tức thì.
-- 🔄 **Cộng Tác Thời Gian Thực (Socket.IO)**: Đồng bộ mọi thay đổi (thêm, sửa, di chuyển thẻ, cập nhật thành viên) giữa tất cả người dùng trong board ngay lập tức mà không cần tải lại trang.
-- ⏰ **Hạn Chót & Nhắc Hẹn Thông Minh (Due Date & Alerts)**: Thiết lập deadline cho thẻ kèm thời gian nhắc nhở linh hoạt (10 phút, 1 giờ, 1 ngày...). Tự động gắn nhãn cảnh báo **"DUE SOON"** và **"OVERDUE"**.
-- 🔔 **Trung Tâm Thông Báo (Notification Center)**: Tích hợp thông báo lời mời tham gia bảng và nhắc nhở công việc sắp hết hạn/quá hạn; hỗ trợ *Đánh dấu tất cả đã đọc*, *Xóa tất cả* hoặc loại bỏ từng thông báo.
-- 📝 **Chi Tiết Thẻ Công Việc Toàn Diện (Card Workspace)**:
-  - Soạn thảo mô tả trực quan bằng **Markdown Editor**.
-  - Quản lý danh sách công việc con (**Checklist**) với thanh tiến độ % sinh động.
-  - Tải lên hình ảnh / tệp đính kèm và đặt làm ảnh bìa thẻ (**Cloudinary**).
-  - Hệ thống nhãn màu (**Labels**) đa dạng (Urgent, Bug, Feature, Enhancement, Documentation...).
-  - Thao tác nâng cao: Di chuyển thẻ (Move), Nhân bản thẻ (Copy Card), Lưu trữ (Archive) và Xóa (Delete).
-  - Bình luận và tương tác trực tiếp trên từng thẻ.
-- 🎨 **Tùy Biến Giao Diện Linh Hoạt**:
-  - Hỗ trợ đổi hình nền Board phong phú (kho ảnh Unsplash, Gradients, Colors hoặc Upload ảnh cá nhân).
-  - Hỗ trợ chế độ **Dark / Light Mode**.
-  - Phân trang tập trung cho danh sách bảng công việc (Pagination).
-- 🛡️ **Bảo Mật Cao Cấp & Cơ Chế Dual-Auth**:
-  - Xác thực kép linh hoạt kết hợp **HttpOnly Cookie** và **Authorization Bearer Token**, giải quyết triệt để lỗi chặn cookie của trình duyệt di động / Safari (ITP).
-  - Đăng nhập 1 chạm an toàn qua **Google OAuth 2.0**.
-  - Cấu hình an toàn bảo mật HTTP Headers đạt chuẩn cao.
+- 🚀 **Web Application**: [https://trello-web-tawny.vercel.app](https://trello-web-tawny.vercel.app)
+- 📦 **Test Account**: Feel free to register a new account or sign in directly with your **Google Account** in just one click!
 
 ---
 
-## 📸 Hướng Dẫn Sử Dụng Chi Tiết & Bộ Sưu Tập Giao Diện
+## ✨ Key Features
 
-### 1. Trang Giới Thiệu (Landing Page)
-Trang đích hiện đại, trực quan giới thiệu các giá trị cốt lõi của nền tảng cùng các nút điều hướng nhanh đến đăng ký và đăng nhập.
+- ⚡ **Intuitive Drag-and-Drop Kanban Board (`@dnd-kit`)**: Smooth drag-and-drop interactions for Cards and Columns with instant positional calculation and persistent database updates.
+- 🔄 **Real-Time Collaboration (Socket.IO)**: Synchronizes board updates (card movements, edits, member assignments, column changes) across all connected users in real time without refreshing.
+- 🔗 **Smart URL Slugs & Deep-Linking**:
+  - SEO-friendly board URLs with auto-updating slugs (`/boards/:boardId/:slug`).
+  - Direct card modal deep-linking via query parameters (`?cardId=...`), supporting browser Back/Forward navigation, bookmarking, and link sharing.
+- ⏰ **Smart Due Dates & Reminders**: Configurable deadlines with flexible reminder intervals (10 minutes, 1 hour, 1 day, etc.). Automatic status tags for **"DUE SOON"** and **"OVERDUE"**.
+- 🔔 **Notification Center**: Real-time alerts for board invitations and approaching/overdue task deadlines. Supports *Mark all as read*, *Clear all*, or dismiss individual notifications.
+- 📝 **Comprehensive Card Workspace**:
+  - Rich **Markdown Editor** for detailed task descriptions.
+  - Multi-item **Checklists** with real-time progress indicators, file/link attachments, and quick actions.
+  - Media & file attachments with Cloudinary storage and card cover customization.
+  - Color-coded **Labels** (Urgent, Bug, Feature, Enhancement, Documentation, etc.).
+  - Advanced operations: Move, Copy, Archive, and Permanently Delete cards.
+  - Interactive discussion comments with live updates.
+- 🎨 **Visual Customization & Theming**:
+  - Customizable board backgrounds with high-resolution Unsplash photos, gradients, solid colors, or custom file uploads.
+  - Seamless **Dark / Light Mode** switching.
+  - Centered pagination for personal and shared boards dashboard.
+- 🛡️ **Enterprise-Grade Dual-Auth Security**:
+  - Resilient dual authentication supporting both **HttpOnly Cookies** and **Authorization Bearer Tokens** to prevent cookie-blocking issues on mobile browsers and Safari (ITP).
+  - Secure single-tap sign-in via **Google OAuth 2.0**.
+  - Industry-standard HTTP security headers and token rotation mechanisms.
+
+---
+
+## 📸 Feature Showcase & User Guide
+
+### 1. Landing Page
+Modern, intuitive landing page introducing core platform features with quick navigation to Sign Up and Sign In.
 
 ![Landing Page](./screenshots/01-landing-page.png)
 
 ---
 
-### 2. Đăng Ký Tài Khoản & Đăng Nhập Google (Sign Up & Authentication)
-Giao diện đăng ký tài khoản với tính năng xác thực email kích hoạt qua **Brevo**, tích hợp đăng nhập nhanh 1 chạm bằng **Google OAuth 2.0**.
+### 2. Sign Up & Google Authentication
+User registration interface with email activation verified via **Brevo**, alongside 1-click **Google OAuth 2.0** login.
 
 ![Sign Up](./screenshots/02-auth-signup.png)
 
 ---
 
-### 3. Không Gian Quản Lý Dự Án (Boards Dashboard)
-Màn hình tổng hợp toàn bộ các bảng dự án cá nhân và nhóm mà bạn tham gia với màu sắc/ảnh đại diện riêng biệt, hỗ trợ tìm kiếm và phân trang căn giữa tiện lợi.
+### 3. Boards Dashboard
+Unified dashboard displaying personal and collaborative team boards with distinct background covers, search filtering, and pagination.
 
 ![Boards Dashboard](./screenshots/03-boards-dashboard.png)
 
 ---
 
-### 4. Quản Lý Bảng Đã Đóng (Closed Boards Lifecycle)
-Khi một dự án đã hoàn tất, người dùng có thể đóng bảng để giữ không gian làm việc gọn gàng. Trang Closed Boards cho phép **Reopen** (Khôi phục) hoặc **Delete** (Xóa vĩnh viễn) an toàn.
+### 4. Closed Boards Lifecycle
+When a project is finished, boards can be archived to keep workspaces organized. The Closed Boards view allows safely **Reopening** or **Permanently Deleting** boards.
 
 ![Closed Boards](./screenshots/04-closed-boards.png)
 
 ---
 
-### 5. Cài Đặt Hồ Sơ Cá Nhân (Account Settings)
-Trang quản lý thông tin tài khoản cho phép người dùng cập nhật ảnh đại diện (Avatar), xem email và thay đổi tên hiển thị (Display Name).
+### 5. Account Settings
+User profile management area to update avatars, inspect email addresses, and edit display names.
 
 ![Account Settings](./screenshots/05-account-settings.png)
 
 ---
 
-### 6. Bảng Điều Khiển Bảo Mật (Security Dashboard)
-Cung cấp khu vực đổi mật khẩu tài khoản an toàn, yêu cầu xác nhận mật khẩu hiện tại trước khi thiết lập mật khẩu mới.
+### 6. Security Dashboard
+Secure password change interface requiring verification of current credentials before updating.
 
 ![Security Dashboard](./screenshots/06-security-dashboard.png)
 
 ---
 
-### 7. Menu Người Dùng & Lối Tắt Nhanh (User Profile Menu)
-Menu góc phải thanh điều hướng giúp truy cập nhanh vào Hồ sơ (Profile), Hướng dẫn trải nghiệm (Product Tour), Danh sách phím tắt (Shortcuts), Cài đặt (Settings) và Đăng xuất (Logout).
+### 7. User Profile Menu
+Quick-access dropdown menu from the top AppBar providing shortcuts to Profile, Product Tour, Keyboard Shortcuts, Settings, and Sign Out.
 
 ![User Menu](./screenshots/07-user-menu.png)
 
 ---
 
-### 8. Không Gian Bảng Làm Việc (Kanban Board)
-Giao diện làm việc chính hiển thị các cột trạng thái cùng các thẻ công việc. Hỗ trợ kéo thả mượt mà với `@dnd-kit`, hiển thị số lượng thành viên đang trực tuyến theo thời gian thực (**1 live**).
+### 8. Kanban Board
+Main interactive workspace showing status columns and task cards. Features smooth drag-and-drop powered by `@dnd-kit` and real-time active user indicators (**live presence**).
 
 ![Kanban Board](./screenshots/08-kanban-board.png)
 
 ---
 
-### 9. Chi Tiết Thẻ & Cảnh Báo Quá Hạn (Card Overview & Overdue Alert)
-Nhấp vào bất kỳ thẻ nào để mở modal chi tiết: hiển thị ảnh bìa nổi bật, nhãn phân loại (**Urgent**), hạn chót với huy hiệu cảnh báo đỏ **OVERDUE** khi quá hạn, và khung soạn thảo mô tả Markdown.
+### 9. Card Overview & Overdue Alert
+Clicking any card opens the detailed modal: displays prominent cover images, category labels (**Urgent**), deadlines with red **OVERDUE** badges when expired, and the Markdown description editor.
 
 ![Card Modal Overview](./screenshots/09-card-modal-overview.png)
 
 ---
 
-### 10. Quản Lý Tệp Đính Kèm, Tiến Độ Checklist & Bình Luận (Card Details)
-Khu vực nội dung chi tiết phía dưới của thẻ:
-- **Tệp đính kèm (Attachments)**: Xem trước hình ảnh, tải về hoặc đặt làm ảnh bìa thẻ.
-- **Danh sách việc cần làm (Checklist)**: Tích chọn hoàn thành đầu việc, thanh tiến độ % tự động cập nhật trực quan.
-- **Bình luận & Thảo luận (Activity)**: Trao đổi theo thời gian thực cùng đồng đội.
-- **Hành động nâng cao**: Xóa thẻ (Delete), Di chuyển (Move), Sao chép (Copy) hoặc Lưu trữ (Archive).
+### 10. Attachments, Checklists & Activities
+Comprehensive workspace inside each card:
+- **Attachments**: Preview images/documents, download files, or set as card cover.
+- **Checklist**: Track sub-tasks with real-time percentage completion bars and attachment chips.
+- **Activity & Comments**: Real-time communication and audit trail with teammates.
+- **Actions**: Move, Copy, Archive, or Delete cards.
 
 ![Card Modal Activities](./screenshots/10-card-modal-activities.png)
 
 ---
 
-### 11. Bộ Lọc Thẻ Thông Minh (Filter Cards)
-Hỗ trợ tìm kiếm thẻ theo từ khóa nội dung, lọc thẻ được giao cho bản thân (**Cards assigned to me**) hoặc lọc theo màu nhãn (Urgent, Normal...).
+### 11. Smart Card Filtering
+Search cards by keywords, filter tasks assigned directly to you (**Cards assigned to me**), or filter by label colors.
 
 ![Filter Cards](./screenshots/11-filter-cards.png)
 
 ---
 
-### 12. Tùy Biến Hình Nền Bảng (Change Background)
-Cá nhân hóa không gian làm việc với kho ảnh thiên nhiên chất lượng cao từ **Unsplash**, dải màu chuyển sắc (**Gradients**), bảng màu phẳng (**Colors**) hoặc tải ảnh lên từ máy tính.
+### 12. Customizable Board Backgrounds
+Personalize your workspace with high-resolution photography from **Unsplash**, color gradients, flat palettes, or custom image uploads from your device.
 
 ![Change Background](./screenshots/12-change-background.png)
 
 ---
 
-### 13. Ngăn Kéo Lưu Trữ (Archived Items Panel)
-Quản lý các danh sách cột và thẻ đã lưu trữ. Cho phép khôi phục lại bảng (**Send to board**) hoặc xóa vĩnh viễn (**Delete**) để giải phóng tài nguyên.
+### 13. Archived Items Drawer
+Manage archived columns and cards. Allows restoring items back to the active board (**Send to board**) or deleting them permanently.
 
 ![Archived Items](./screenshots/13-archived-items.png)
 
 ---
 
-### 14. Mời Thành Viên Tham Gia Bảng (Invite User to Board)
-Dễ dàng thêm đồng đội vào dự án bằng cách nhập email. Hệ thống sẽ tự động gửi thông báo thời gian thực đến người được mời.
+### 14. Invite Members to Board
+Easily collaborate by adding teammates via email. Real-time notifications and invitations are delivered instantaneously through WebSockets.
 
 ![Invite User](./screenshots/14-invite-user.png)
 
 ---
 
-### 15. Trung Tâm Thông Báo (Notification Center)
-Biểu tượng quả chuông trên thanh AppBar giúp theo dõi mọi lời mời và hạn chót công việc. Trạng thái thân thiện khi bạn đã xử lý hết mọi thông báo: *"You're all caught up!"*.
+### 15. Notification Center
+Bell icon on the navigation bar tracks invitations and approaching deadlines. Displays a friendly status when all alerts have been reviewed: *"You're all caught up!"*.
 
 ![Notifications](./screenshots/15-notifications.png)
 
 ---
 
-## 🛠 Công Nghệ Sử Dụng (Tech Stack)
+## 🛠 Tech Stack
 
 ### Frontend (`trello-web`)
 - **Core**: React 18, Vite
 - **UI Framework & Icons**: Material UI (MUI v5), `@emotion/react`, `@emotion/styled`, `@mui/icons-material`
-- **Kéo thả (DnD)**: `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`
-- **Quản lý State**: Redux Toolkit, Redux Persist
-- **Real-time Client**: `socket.io-client`
-- **HTTP Client**: Axios (với Request & Response Interceptors xử lý Dual-Auth và tự động Refresh Token)
+- **Drag & Drop**: `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`
+- **State Management**: Redux Toolkit, Redux Persist
+- **Real-Time Client**: `socket.io-client`
+- **HTTP Client**: Axios (configured with Request & Response Interceptors for Dual-Auth and Token Refresh)
 - **Editor & Formatting**: `@uiw/react-md-editor`, Day.js, Lodash
-- **Xác thực**: `@react-oauth/google`
+- **Authentication**: `@react-oauth/google`
 
 ### Backend (`trello-api`)
 - **Runtime & Framework**: Node.js (>=18.x), Express.js
 - **Database**: MongoDB (Native MongoDB Node.js Driver)
-- **Real-time Engine**: Socket.IO
+- **Real-Time Engine**: Socket.IO
 - **Validation**: Joi
-- **Xác thực & Mã hóa**: JSON Web Token (`jsonwebtoken`), `bcryptjs`, `cookie-parser`, `google-auth-library`
-- **Email Service**: Brevo API (`@getbrevo/brevo`)
-- **Quản lý Media**: Cloudinary SDK
-- **Bảo mật**: `cors`, `express-rate-limit`
+- **Security & Tokens**: JSON Web Token (`jsonwebtoken`), `bcryptjs`, `cookie-parser`, `google-auth-library`
+- **Email Service**: Brevo RESTful Transactional Email API (`@getbrevo/brevo`)
+- **Media Storage**: Cloudinary SDK (with Multer memory storage)
+- **Protection**: `cors`, `express-rate-limit`
 
 ---
 
-## 🚀 Hướng Dẫn Cài Đặt & Chạy Cục Bộ (Local Setup)
+## 🚀 Local Installation & Setup
 
-### Yêu Cầu Tiên Quyết (Prerequisites)
-- [Node.js](https://nodejs.org/) phiên bản **>= 18.x**
-- [npm](https://www.npmjs.com/) hoặc [yarn](https://yarnpkg.com/)
-- Cơ sở dữ liệu [MongoDB](https://www.mongodb.com/) (Local hoặc MongoDB Atlas)
+### Prerequisites
+- [Node.js](https://nodejs.org/) version **>= 18.x**
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+- [MongoDB](https://www.mongodb.com/) (Local instance or MongoDB Atlas)
 
 ---
 
-### 1. Khởi Chạy Frontend (`trello-web`)
+### 1. Running the Frontend (`trello-web`)
 
 ```bash
-# Di chuyển vào thư mục trello-web
+# Navigate to trello-web directory
 cd trello-web
 
-# Cài đặt các thư viện cần thiết
+# Install dependencies
 npm install
 
-# Tạo file cấu hình môi trường từ file mẫu
+# Create environment configuration file from template
 cp .env.example .env
 ```
 
-Nội dung cấu hình trong file `.env`:
+Configuration in `.env`:
 ```env
 VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
 ```
 
-Khởi chạy máy chủ phát triển (Development Server):
+Launch the development server:
 ```bash
 npm run dev
 ```
-Ứng dụng sẽ hoạt động tại địa chỉ: `http://localhost:5173`
+The application will be accessible at: `http://localhost:5173`
 
 ---
 
-### 2. Khởi Chạy Backend API (`trello-api`)
+### 2. Running the Backend API (`trello-api`)
 
 ```bash
-# Di chuyển vào thư mục trello-api
+# Navigate to trello-api directory
 cd ../trello-api
 
-# Cài đặt các thư viện phụ thuộc
+# Install dependencies
 npm install
 
-# Tạo file cấu hình môi trường
+# Create environment configuration file
 cp .env.example .env
 ```
 
-Cấu hình các thông số trong file `.env` của `trello-api`:
+Sample configuration in `trello-api/.env`:
 ```env
 LOCAL_DEV_APP_HOST=localhost
 LOCAL_DEV_APP_PORT=8017
@@ -257,79 +259,79 @@ CLOUDINARY_API_KEY=your_cloudinary_key
 CLOUDINARY_API_SECRET=your_cloudinary_secret
 ```
 
-Khởi chạy API Server:
+Launch the API server:
 ```bash
 npm run dev
 ```
-API Server sẽ hoạt động tại địa chỉ: `http://localhost:8017`
+The backend API will run at: `http://localhost:8017`
 
 ---
 
-## 📁 Cấu Trúc Thư Mục Dự Án (Project Structure)
+## 📁 Project Directory Structure
 
 ```text
 trello/
-├── trello-web/                   # Ứng dụng Frontend (React + Vite)
-│   ├── public/                   # Tài nguyên tĩnh (Favicon, Robots.txt, Sitemap)
-│   ├── screenshots/              # Toàn bộ 15 ảnh chụp màn hình minh họa
+├── trello-web/                   # Frontend Application (React + Vite)
+│   ├── public/                   # Static assets (Favicon, Robots.txt, Sitemap)
+│   ├── screenshots/              # 15 feature showcase screenshot images
 │   └── src/
 │       ├── apis/                 # API client calls (Axios endpoints)
-│       ├── assets/               # Hình ảnh, icons, vectors
-│       ├── components/           # Components tái sử dụng (AppBar, Modal, Dialog...)
+│       ├── assets/               # Images, icons, vector assets
+│       ├── components/           # Reusable UI components (AppBar, Modals, Dialogs...)
 │       ├── customHooks/          # React Custom Hooks
-│       ├── customLibraries/      # Cấu hình thư viện ngoài (Dnd-kit sensor...)
-│       ├── pages/                # Các trang chính (Auth, Boards, Settings, 404...)
-│       │   ├── Auth/             # Đăng ký, đăng nhập, kích hoạt tài khoản
-│       │   └── Boards/           # Bảng Kanban, BoardBar, BoardContent, Columns, Cards
+│       ├── customLibraries/      # Third-party configurations (DnD sensors...)
+│       ├── pages/                # Main application views
+│       │   ├── Auth/             # Sign Up, Sign In, Account Verification
+│       │   └── Boards/           # Kanban Board, BoardBar, Columns, Cards
 │       ├── redux/                # Redux Toolkit Slices & Store configuration
-│       ├── theme.js              # Cấu hình giao diện MUI Theming & Colors
-│       └── utils/                # Utilities, constants, validators, token helpers
+│       ├── theme.js              # Material UI custom theme & color tokens
+│       └── utils/                # Utilities, formatters, validators, token helpers
 │
-└── trello-api/                   # Ứng dụng Backend API (Node.js + Express)
+└── trello-api/                   # Backend Application (Node.js + Express)
     └── src/
-        ├── config/               # Cấu hình môi trường, CORS, Cloudinary, MongoDB
-        ├── controllers/          # Request handlers xử lý logic HTTP
-        ├── middlewares/          # Auth middleware (Dual-auth), multer upload...
-        ├── models/               # MongoDB Database Schemas & Data access layer
+        ├── config/               # Environment, CORS, Cloudinary, MongoDB configs
+        ├── controllers/          # HTTP request handlers
+        ├── middlewares/          # Auth middleware (Dual-auth), multer upload, error handler
+        ├── models/               # MongoDB Data Access Layer & Joi Schemas
         ├── providers/            # Third-party providers (Brevo Email, Cloudinary)
-        ├── routes/v1/            # Định tuyến RESTful API v1
-        ├── services/             # Business logic nghiệp vụ
-        ├── sockets/              # Socket.IO event handlers (real-time emit/listen)
+        ├── routes/v1/            # RESTful API v1 router definitions
+        ├── services/             # Core business logic services
+        ├── sockets/              # Socket.IO event emitters & listeners
         ├── utils/                # Formatters, algorithms, JWT helpers
         ├── validations/          # Joi schema validations
-        └── server.js             # Entrypoint khởi tạo Express & Socket.IO server
+        └── server.js             # Express & Socket.IO server entrypoint
 ```
 
 ---
 
-## 🚢 Hướng Dẫn Triển Khai (Deployment)
+## 🚢 Deployment Guide
 
 ### Frontend Deployment (Vercel)
-1. Kết nối kho lưu trữ GitHub `Trello_Web` với dự án trên **Vercel**.
-2. Thiết lập thư mục gốc (**Root Directory**) là thư mục `trello-web` (nếu dùng monorepo) hoặc chọn nhánh `master`.
-3. Thêm biến môi trường:
-   - `VITE_GOOGLE_CLIENT_ID`: Google OAuth Client ID của bạn.
-4. Vercel sẽ tự động build và cung cấp chứng chỉ SSL miễn phí.
+1. Import your GitHub repository `Trello_Web` into **Vercel**.
+2. Set the **Root Directory** to `trello-web` (if using a monorepo setup) or branch `master`.
+3. Configure Environment Variables:
+   - `VITE_GOOGLE_CLIENT_ID`: Your Google OAuth Client ID.
+4. Deploy. Vercel automatically provides continuous deployments and free SSL certificates.
 
 ### Backend Deployment (Render)
-1. Tạo một **Web Service** mới trên **Render** kết nối với kho lưu trữ `Trello_Api`.
-2. Cấu hình lệnh:
+1. Create a new **Web Service** on **Render** connected to repository `Trello_Api`.
+2. Configure build commands:
    - **Build Command**: `npm install && npm run build`
    - **Start Command**: `npm run start`
-3. Khai báo toàn bộ các biến môi trường từ file `.env` vào mục **Environment** trên Render.
+3. Add all variables from your `.env` into the **Environment** settings on Render.
 
 ---
 
-## 👨‍💻 Tác Giả (Author)
+## 👨‍💻 Author
 
-- **Nguyễn Duy Cường** (*duycuongdev*)
+- **Nguyen Duy Cuong** (*duycuongdev*)
 - **GitHub**: [@duycuongdev](https://github.com/duycuongdev)
-- **Dự án**:
+- **Repositories**:
   - [Trello_Web Repository](https://github.com/duycuongdev/Trello_Web)
   - [Trello_Api Repository](https://github.com/duycuongdev/Trello_Api)
 
 ---
 
-## 📄 Bản Quyền (License)
+## 📄 License
 
-Dự án này được phát triển phục vụ mục đích học tập, nghiên cứu và xây dựng sản phẩm chất lượng cao. Giữ toàn quyền tác giả bởi Nguyễn Duy Cường.
+This project is developed for educational and professional portfolio purposes. All rights reserved by Nguyen Duy Cuong.
