@@ -7,8 +7,8 @@ import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Checkbox from '@mui/material/Checkbox'
+
+
 import CloseIcon from '@mui/icons-material/Close'
 import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined'
 import dayjs from 'dayjs'
@@ -59,7 +59,7 @@ function CardDueDatePopover({
   const [hour12, setHour12] = useState(() => parseDueDateTo12h(dueDate).hour)
   const [minuteStr, setMinuteStr] = useState(() => parseDueDateTo12h(dueDate).minute)
   const [ampm, setAmpm] = useState(() => parseDueDateTo12h(dueDate).ampm)
-  const [isComplete, setIsComplete] = useState(isDueDateComplete)
+
   const [reminder, setReminder] = useState(() => (reminderMinutes === null ? -1 : (reminderMinutes ?? 1440)))
 
   useEffect(() => {
@@ -69,7 +69,7 @@ function CardDueDatePopover({
       setHour12(initial.hour)
       setMinuteStr(initial.minute)
       setAmpm(initial.ampm)
-      setIsComplete(Boolean(isDueDateComplete))
+
       setReminder(reminderMinutes === null ? -1 : (reminderMinutes ?? 1440))
     }
   }, [isOpen, dueDate, isDueDateComplete, reminderMinutes])
@@ -90,7 +90,7 @@ function CardDueDatePopover({
 
     onUpdateDueDate({
       dueDate: finalDateTime.valueOf(),
-      isDueDateComplete: isComplete,
+
       reminderMinutes: reminder === -1 ? null : reminder
     })
     onClose()
@@ -226,17 +226,6 @@ function CardDueDatePopover({
         </Select>
       </Box>
 
-      <FormControlLabel
-        control={
-          <Checkbox
-            size="small"
-            checked={isComplete}
-            onChange={(e) => setIsComplete(e.target.checked)}
-          />
-        }
-        label={<Typography variant="body2" fontWeight={500}>Mark as completed</Typography>}
-        sx={{ mb: 2 }}
-      />
 
       <Box sx={{ display: 'flex', gap: 1 }}>
         <Button

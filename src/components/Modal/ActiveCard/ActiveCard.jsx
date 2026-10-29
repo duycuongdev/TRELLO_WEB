@@ -154,11 +154,14 @@ function ActiveCard() {
     const totalItems = activeCard?.checklists?.reduce((sum, cl) => sum + (cl.items?.length || 0), 0) || 0
     const completedItems = activeCard?.checklists?.reduce((sum, cl) => sum + (cl.items?.filter(i => i.isDone).length || 0), 0) || 0
 
-    if (dueData.dueDate && totalItems > 0 && completedItems === totalItems && dueData.isDueDateComplete === undefined) {
-      dueData.isDueDateComplete = true
+    if (totalItems > 0) {
+      dueData.isDueDateComplete = (completedItems === totalItems)
+    } else {
+      dueData.isDueDateComplete = false
     }
 
     callApiUpdateCard(dueData)
+    dispatch(fetchInvitationsAPI())
   }
 
   const handleCloseModal = () => {
@@ -529,15 +532,6 @@ function ActiveCard() {
                 <Box>
                   <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Due Date</Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                    <Checkbox
-                      size="small"
-                      checked={Boolean(activeCard?.isDueDateComplete)}
-                      onChange={(e) => {
-                        callApiUpdateCard({ isDueDateComplete: e.target.checked })
-                        dispatch(fetchInvitationsAPI())
-                      }}
-                      sx={{ p: 0 }}
-                    />
                     <Button
                       size="small"
                       variant="outlined"
