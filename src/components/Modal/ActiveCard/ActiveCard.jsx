@@ -22,6 +22,7 @@ import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined'
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined'
+import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 import UndoIcon from '@mui/icons-material/Undo'
 import SubjectRoundedIcon from '@mui/icons-material/SubjectRounded'
 import DvrOutlinedIcon from '@mui/icons-material/DvrOutlined'
@@ -403,6 +404,7 @@ function ActiveCard() {
 
   const onUpdateCardMembers = async (incomingMemberInfor) => {
     await callApiUpdateCard({ incomingMemberInfor })
+    dispatch(fetchInvitationsAPI())
   }
 
   return (
@@ -618,7 +620,7 @@ function ActiveCard() {
             <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Add To Card</Typography>
             <Stack direction="column" spacing={1}>
               {/* Feature 05: Xử lý hành động bản thân user tự join vào card */}
-              {!activeCard?.memberIds?.includes(currentUser._id) &&
+              {!activeCard?.memberIds?.includes(currentUser._id) ? (
                 <SidebarItem
                   className="active"
                   onClick={() => onUpdateCardMembers({ userId: currentUser._id, action: CARD_MEMBER_ACTION.ADD })}
@@ -626,7 +628,35 @@ function ActiveCard() {
                   <PersonOutlineOutlinedIcon fontSize="small" sx={{ color: '#16a34a' }} />
                   Join
                 </SidebarItem>
-              }
+              ) : (
+                <SidebarItem
+                  className="active"
+                  onClick={() => onUpdateCardMembers({ userId: currentUser._id, action: CARD_MEMBER_ACTION.REMOVE })}
+                  sx={{
+                    '&:hover': {
+                      color: 'error.main',
+                      '& .MuiSvgIcon-root': { color: 'error.main' }
+                    }
+                  }}
+                >
+                  <ExitToAppIcon fontSize="small" sx={{ color: '#ef4444' }} />
+                  Leave
+                </SidebarItem>
+              ) : (
+                <SidebarItem
+                  className="active"
+                  onClick={() => onUpdateCardMembers({ userId: currentUser._id, action: CARD_MEMBER_ACTION.REMOVE })}
+                  sx={{
+                    '&:hover': {
+                      color: 'error.main',
+                      '& .MuiSvgIcon-root': { color: 'error.main' }
+                    }
+                  }}
+                >
+                  <ExitToAppIcon fontSize="small" sx={{ color: '#ef4444' }} />
+                  Leave
+                </SidebarItem>
+              )}
               {/* Feature 06: Xử lý hành động cập nhật ảnh Cover của Card */}
               <SidebarItem className="active" component="label">
                 <ImageOutlinedIcon fontSize="small" sx={{ color: '#ec4899' }} />
