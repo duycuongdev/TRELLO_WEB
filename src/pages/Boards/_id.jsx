@@ -41,6 +41,7 @@ import UndoIcon from '@mui/icons-material/Undo'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { socketIoInstance } from '~/socketClient'
+import { fetchInvitationsAPI } from '~/redux/notifications/notificationsSlice'
 import {
   joinBoardRoom,
   leaveBoardRoom,
@@ -232,9 +233,10 @@ function Board() {
         if (payload?._id) {
           dispatch(updateCardInBoard(payload))
           // Nếu người dùng đang mở xem chi tiết chính thẻ này, cập nhật modal luôn
-          if (activeCardRef.current?._id === payload._id) {
+          if (activeCardRef.current?._id?.toString() === payload._id?.toString()) {
             dispatch(updateCurrentActiveCard(payload))
           }
+          dispatch(fetchInvitationsAPI())
         }
         break
       }

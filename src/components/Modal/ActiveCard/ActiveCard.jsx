@@ -68,6 +68,7 @@ import { selectCurrentUser } from '~/redux/user/userSlice'
 import { CARD_MEMBER_ACTION } from '~/utils/constants'
 import { fetchInvitationsAPI } from '~/redux/notifications/notificationsSlice'
 import { emitBoardUpdate, BOARD_ACTION_TYPES } from '~/sockets/boardSocketClient'
+import { socketIoInstance } from '~/socketClient'
 
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -149,7 +150,7 @@ function ActiveCard() {
     callApiUpdateCard(updateData)
   }
 
-  const handleUpdateDueDate = (dueData) => {
+  const handleUpdateDueDate = async (dueData) => {
     // Nếu đặt hạn mới nhưng các nhiệm vụ trong checklist đã hoàn thành 100%, tự động đánh dấu completed
     const totalItems = activeCard?.checklists?.reduce((sum, cl) => sum + (cl.items?.length || 0), 0) || 0
     const completedItems = activeCard?.checklists?.reduce((sum, cl) => sum + (cl.items?.filter(i => i.isDone).length || 0), 0) || 0
@@ -160,8 +161,20 @@ function ActiveCard() {
       dueData.isDueDateComplete = false
     }
 
-    callApiUpdateCard(dueData)
+    const updatedCard = await callApiUpdateCard(dueData)
     dispatch(fetchInvitationsAPI())
+
+    // Bắn socket thông báo deadline cập nhật cho các thành viên trong thẻ
+    const recipientIds = (updatedCard?.memberIds || activeCard?.memberIds || [])
+      .map(id => id.toString())
+      .filter(id => id !== currentUser?._id?.toString())
+    if (recipientIds.length > 0) {
+      socketIoInstance.emit('FE_CARD_DUE_DATE_CHANGED', {
+        recipientIds,
+        card: updatedCard || activeCard,
+        boardTitle: activeBoard?.title
+      })
+    }
   }
 
   const handleCloseModal = () => {

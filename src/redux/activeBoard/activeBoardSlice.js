@@ -72,15 +72,18 @@ export const activeBoardSlice = createSlice({
     updateCardInBoard: (state, action) => {
       // update nested data
       const incomingCard = action.payload
+      if (!incomingCard?._id || !state.currentActiveBoard?.columns) return
 
-      // find board -> column -> card
-      const column = state.currentActiveBoard.columns.find(i => i._id === incomingCard.columnId)
-      if (column) {
-        const card = column.cards.find(i => i._id === incomingCard._id)
-        if (card) {
-          Object.keys(incomingCard).forEach(key => {
-            card[key] = incomingCard[key]
-          })
+      for (const column of state.currentActiveBoard.columns) {
+        const cardIndex = column.cards?.findIndex(
+          c => c._id?.toString() === incomingCard._id?.toString()
+        )
+        if (cardIndex !== -1 && cardIndex !== undefined) {
+          column.cards[cardIndex] = {
+            ...column.cards[cardIndex],
+            ...incomingCard
+          }
+          break
         }
       }
     },

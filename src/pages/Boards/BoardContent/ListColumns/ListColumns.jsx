@@ -26,12 +26,17 @@ function ListColumns({ columns = [] }) {
 
   const [newColumnTitle, setNewColumnTitle] = useState('')
   const addNewColumn = async () => {
-    if (!newColumnTitle) {
+    if (!newColumnTitle.trim()) {
       toast.error('Please enter column title')
       return
     }
 
-    const newColumnData = { title: newColumnTitle }
+    if (newColumnTitle.trim().length < 3) {
+      toast.error('Column title must be at least 3 characters long')
+      return
+    }
+
+    const newColumnData = { title: newColumnTitle.trim() }
     try {
       const createdColumn = await createNewColumnAPI({ ...newColumnData, boardId: board._id })
       const placeholderCard = generatePlaceholderCard(createdColumn)
@@ -52,8 +57,8 @@ function ListColumns({ columns = [] }) {
 
       toggleOpenNewColumnForm()
       setNewColumnTitle('')
-    } catch (error) {
-      toast.error(error?.response?.data?.message || 'Unable to create column')
+    } catch (_error) {
+      // authorizedAxios interceptor already displays error toasts for API errors, preventing duplicate notifications
     }
   }
 

@@ -29,6 +29,7 @@ import {
   addNotification
 } from '~/redux/notifications/notificationsSlice'
 import { socketIoInstance } from '~/socketClient'
+import { toast } from 'react-toastify'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { useNavigate } from 'react-router-dom'
 
@@ -179,6 +180,15 @@ function Notifications() {
 
     socketIoInstance.on('BE_USER_INVITED_TO_BOARD', onReceiveInvitation)
 
+    const onReceiveCardDueDateChanged = ({ card, boardTitle }) => {
+      dispatch(fetchInvitationsAPI())
+      const cardTitle = card?.title ? "'" + card.title + "'" : 'assigned card'
+      const boardInfo = boardTitle ? ' on ' + boardTitle : ''
+      toast.info('⏰ Deadline updated for ' + cardTitle + boardInfo)
+    }
+
+    socketIoInstance.on('BE_CARD_DUE_DATE_CHANGED', onReceiveCardDueDateChanged)
+
     const onConnect = () => {
       if (userId) {
         socketIoInstance.emit('FE_USER_JOIN_ROOM', userId)
@@ -193,6 +203,7 @@ function Notifications() {
     return () => {
       clearInterval(timer)
       socketIoInstance.off('BE_USER_INVITED_TO_BOARD', onReceiveInvitation)
+      socketIoInstance.off('BE_CARD_DUE_DATE_CHANGED', onReceiveCardDueDateChanged)
       socketIoInstance.off('connect', onConnect)
     }
   }, [dispatch, userId])
